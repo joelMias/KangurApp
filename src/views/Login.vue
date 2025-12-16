@@ -32,6 +32,9 @@
             <IonButton fill="outline" expand="full" size="large" shape="round" class="continuar-button" @click="Login">
               Continuar
             </IonButton>
+            <div style="text-align:center; margin-top:8px;">
+              <IonButton fill="clear" size="small" @click="router.push('/reset-password')">He oblidat la contrasenya</IonButton>
+            </div>
           </IonCol>
         </IonRow>
       </IonGrid>
@@ -49,10 +52,6 @@ import { arrowBackOutline } from 'ionicons/icons'
 import { useRouter } from 'vue-router'
 import authService from '@/services/auth.service'
 import { onIonViewWillEnter } from '@ionic/vue'
-import { auth, db } from '@/services/firebase'
-import { collection, getDocs } from 'firebase/firestore'
-
-const nadoNomCache = ref<string | null>(null)
 
 const router = useRouter();
 

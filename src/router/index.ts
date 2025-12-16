@@ -12,6 +12,7 @@ import GuardarCrono from '@/views/GuardarCrono.vue';
 
 import Historial from '@/views/Historial.vue';
 import ConfiguracioFamilia from '@/views/ConfiguracioFamilia.vue';
+import ResetPassword from '@/views/ResetPassword.vue';
 import RegisterEntrada from '@/views/RegisterEntrada.vue';
 
 const routes: Array<RouteRecordRaw> = [
@@ -63,6 +64,11 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/config-familia',
     component: ConfiguracioFamilia
+  }
+  ,
+  {
+    path: '/reset-password',
+    component: ResetPassword
   }
 ]
 

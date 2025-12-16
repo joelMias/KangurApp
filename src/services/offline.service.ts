@@ -57,25 +57,21 @@ export async function processQueue() {
   }
 
   const remaining: PendingItem[] = []
-  // Prevent concurrent runs which may create duplicates
   if (isProcessing) {
     console.log('processQueue already running, skipping this invocation')
     return
   }
   isProcessing = true
 
-  // Map temporary local ids (e.g., 'local-...') to server ids when we create them
   const tempIdMap = new Map<string, string>()
 
   for (const item of q) {
     try {
       if (item.userId !== user.uid) {
-        // skip items for other users
         remaining.push(item)
         continue
       }
 
-      // If this is a queued nado and it has a temp id, create it and remember mapping
       if (item.collection === 'nados' && item.data && item.data.__tempId) {
         const temp = item.data.__tempId as string
         if (tempIdMap.has(temp)) {
@@ -87,16 +83,14 @@ export async function processQueue() {
         const docRef = await addDoc(collection(db, 'users', user.uid, 'nados'), payload)
         tempIdMap.set(temp, docRef.id)
         console.log('Created nado for temp id', temp, '=>', docRef.id)
-        continue // item consumed
+        continue 
       }
 
-      // If object references a local temp nado id, ensure we create or map it first
       if (item.collection === 'cronometres' && item.data && typeof item.data.nadoId === 'string' && item.data.nadoId.startsWith('local-')) {
         const localId: string = item.data.nadoId
         if (tempIdMap.has(localId)) {
           item.data.nadoId = tempIdMap.get(localId)
         } else {
-          // create a nado using available data (nadoNom)
           const name = item.data.nadoNom || item.data.nadoName || 'Nadó'
           const docRef = await addDoc(collection(db, 'users', user.uid, 'nados'), { name, createdAt: new Date() })
           tempIdMap.set(localId, docRef.id)
