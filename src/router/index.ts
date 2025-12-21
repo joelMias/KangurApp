@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
 import HomePage from '../views/HomePage.vue'
 import Login from '@/views/Login.vue'
-import Inici from '@/views/Inici.vue'
+import Inici from '@/views/HomePage.vue'
 import Register from '@/views/Register.vue';
 import Cangurs from '@/views/Cangurs.vue';
 import Nado from '@/views/Nado.vue';
@@ -19,11 +19,11 @@ import AdminPanel from '@/views/AdminPanel.vue';
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/inici',
+    redirect: '/HomePage',
   },
   {
-    path: '/inici',
-    component: Inici
+    path: '/HomePage',
+    component: HomePage
   },
   {
     path: '/register',
