@@ -7,7 +7,7 @@
             <IonIcon :icon="arrowBackOutline" />
           </IonButton>
         </IonButtons>
-        <IonTitle>Restablir contrasenya</IonTitle>
+        <IonTitle> <img src="/src/assets/kangur_resized.jpg" class="header-logo">KANGURAPP</IonTitle>
       </IonToolbar>
     </IonHeader>
 
@@ -69,6 +69,11 @@ const sendReset = async () => {
 </script>
 
 <style scoped>
+
+.header-logo{
+  vertical-align: middle;
+}
+
 .form-title { 
     text-align: center; 
     margin-bottom: 24px; 

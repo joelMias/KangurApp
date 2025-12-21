@@ -318,14 +318,6 @@ const guardarSessio = async () => {
 
 <style scoped>
 
-.capçalera{
-  color: #26a69a;
-}
-
-.header-logo{
-  vertical-align: middle;
-}
-
 .subtitol {
   font-weight: bold;
   margin-bottom: 10px;
@@ -336,13 +328,19 @@ const guardarSessio = async () => {
   --color: #000;
   border: 1px solid #26a69a;
   border-radius: 10px;
-  height: 140px;
   font-weight: 600;
   font-size: 16px;
 }
 
-.icona-rellotge { font-size: 36px; margin-bottom: 10px; }
-.temps-display { font-size: 24px; font-weight: bold; }
+.icona-rellotge { 
+  font-size: 36px; 
+  margin-bottom: 10px; 
+}
+
+.temps-display { 
+  font-size: 24px; 
+  font-weight: bold; 
+}
 
 .cangur-cards {
   display: flex;
@@ -361,6 +359,7 @@ const guardarSessio = async () => {
   min-width: 120px;
   transition: all 0.3s;
 }
+
 .cangur-card.selected {
   background-color: #4b9b90;
   color: #fff;
@@ -378,7 +377,4 @@ const guardarSessio = async () => {
   height: 50px;         
 }
 
-.footer{
-  box-shadow: none;
-}
 </style>

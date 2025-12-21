@@ -7,16 +7,27 @@
             <IonIcon :icon="arrowBackOutline" />
           </IonButton>
         </IonButtons>
-        <IonTitle>Configuració de la família</IonTitle>
+         <IonTitle> <img src="/src/assets/kangur_resized.jpg" class="header-logo">KANGURAPP</IonTitle>
       </IonToolbar>
     </IonHeader>
 
     <IonContent class="ion-padding">
+
+      <IonGrid>
+        <IonRow class="ion-justify-content-center">
+          <IonCol size="12" size-md="6" size-lg="5">
+            <IonText color="dark">
+              <h2 class="form-title">Configuracio de la familia</h2>
+            </IonText>
+          </IonCol>
+        </IonRow>
+      </IonGrid>
+
       <IonList>
         <IonItem v-for="(c, i) in cangurs" :key="c.id">
           <IonIcon :icon="personOutline" slot="start" />
           <IonLabel>{{ c.nom }}</IonLabel>
-          <IonButton v-if="i !== 0" fill="clear" color="dark" slot="end" @click="eliminarCangur(i)">
+          <IonButton fill="clear" color="dark" slot="end" @click="eliminarCangur(i)">
             <IonIcon :icon="trashOutline" />
           </IonButton>
         </IonItem>
@@ -46,10 +57,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import {
-  IonPage, IonHeader, IonToolbar, IonButtons, IonButton, IonIcon, IonTitle,
-  IonContent, IonList, IonItem, IonLabel, IonInput, IonGrid, IonRow, IonCol
-} from '@ionic/vue'
+import { IonPage, IonHeader, IonToolbar, IonButtons, IonButton, IonText, IonIcon, IonTitle, IonContent, IonList, IonItem, IonLabel, IonInput, IonGrid, IonRow, IonCol } from '@ionic/vue'
 import { addOutline, personOutline, trashOutline, arrowBackOutline } from 'ionicons/icons'
 
 // Firebase
@@ -64,7 +72,9 @@ const nouCangur = ref('')
 
 onMounted(async () => {
   const user = auth.currentUser
+
   if (!user) return
+
   if (navigator.onLine) {
     const snapshot = await getDocs(collection(db, 'users', user.uid, 'cangurs'))
     cangurs.value = snapshot.docs.map(d => ({ id: d.id, nom: d.data().name }))
@@ -77,10 +87,12 @@ onMounted(async () => {
 
 const afegirCangur = async () => {
   if (!nouCangur.value.trim()) return
+
   const user = auth.currentUser
   const fallbackUid = localStorage.getItem('uid')
   const userIdToUse = user?.uid ?? fallbackUid ?? ''
   const name = nouCangur.value.trim()
+
   if (navigator.onLine && userIdToUse) {
     const docRef = await addDoc(collection(db, 'users', userIdToUse, 'cangurs'), { name, createdAt: new Date() })
     cangurs.value.push({ id: docRef.id, nom: name })
@@ -90,14 +102,19 @@ const afegirCangur = async () => {
     localStorage.setItem('localCangurs', JSON.stringify(cangurs.value))
     offlineService.addPending('cangurs', { name, createdAt: new Date() }, userIdToUse)
   }
+
   nouCangur.value = ''
 }
 
 const eliminarCangur = async (index: number) => {
   const user = auth.currentUser
+
   if (!user) return
+
   const c = cangurs.value[index]
+
   if (!c) return
+
   if (c.id && !c.id.startsWith('local-')) {
     await deleteDoc(doc(db, 'users', user.uid, 'cangurs', c.id))
   }
@@ -142,11 +159,9 @@ const guardar = async () => {
   text-transform: none;
   margin: 0 auto 18px auto;
 }
+
 .add-button { 
     --background: #64b8af; 
 }
 
-.capçalera { 
-    color: #26a69a 
-}
 </style>

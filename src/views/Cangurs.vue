@@ -1,8 +1,8 @@
 <template>
   <IonPage>
     <IonHeader>
-      <IonToolbar>
-        <IonTitle class="capçalera"> <img src="/src/assets/kangur.jpg" class="header-logo">KANGURAPP</IonTitle>
+      <IonToolbar class="capçalera">
+        <IonTitle> <img src="/src/assets/kangur_resized.jpg" class="header-logo">KANGURAPP</IonTitle>
       </IonToolbar>
     </IonHeader>
 
@@ -57,10 +57,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  IonPage, IonGrid, IonText, IonLabel, IonCol, IonRow, IonItem, IonList,
-  IonHeader, IonToolbar, IonTitle, IonContent, IonInput, IonButton, IonIcon
-} from '@ionic/vue'
+import { IonPage, IonGrid, IonText, IonLabel, IonCol, IonRow, IonItem, IonList, IonHeader, IonToolbar, IonTitle, IonContent, IonInput, IonButton, IonIcon } from '@ionic/vue'
 import { ref, onMounted } from 'vue'
 import { addOutline, personOutline, trashOutline } from 'ionicons/icons'
 import { useRouter } from 'vue-router'
@@ -193,20 +190,6 @@ const guardarCangurs = async () => {
 </script>
 
 <style scoped>
-
-.capçalera{
-  color: #26a69a;
-}
-
-.header-logo{
-  height: 40px;
-  width: auto;
-  vertical-align: middle;
-}
-
-.lletra{
-  font-family: 'Calibri';
-}
 
 .input-box {
   border: 1px solid #26a69a;

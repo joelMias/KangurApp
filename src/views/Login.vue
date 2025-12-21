@@ -7,7 +7,7 @@
             <IonIcon :icon="arrowBackOutline"></IonIcon>
           </IonButton>
         </IonButtons>
-        <IonTitle> <img src="/src/assets/kangur.jpg" class="header-logo">KANGURAPP</IonTitle>
+        <IonTitle> <img src="/src/assets/kangur_resized.jpg" class="header-logo">KANGURAPP</IonTitle>
       </IonToolbar>
     </IonHeader>
 
@@ -93,16 +93,6 @@ const Login = async () => {
 
 
 <style scoped>
-
-.capçalera{
-  color: #26a69a;
-}
-
-.header-logo{
-  height: 40px;
-  width: auto;
-  vertical-align: middle;
-}
 
 .form-title {
   text-align: center;

@@ -14,6 +14,7 @@ import Historial from '@/views/Historial.vue';
 import ConfiguracioFamilia from '@/views/ConfiguracioFamilia.vue';
 import ResetPassword from '@/views/ResetPassword.vue';
 import RegisterEntrada from '@/views/RegisterEntrada.vue';
+import AdminPanel from '@/views/AdminPanel.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -59,6 +60,11 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/historial',
     component: Historial
+  }
+  ,
+  {
+    path: '/admin-panel',
+    component: AdminPanel
   }
   ,
   {

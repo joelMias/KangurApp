@@ -1,0 +1,316 @@
+<template>
+  <IonPage>
+    <IonHeader>
+      <IonToolbar class="capçalera">
+        <IonButtons slot="start">
+          <IonButton @click="router.back()">
+            <IonIcon :icon="arrowBackOutline"></IonIcon>
+          </IonButton>
+        </IonButtons>
+        <IonTitle><img src="/src/assets/kangur_resized.jpg" class="header-logo">KANGURAPP</IonTitle>
+        <IonButtons slot="end">
+          <IonButton @click="logout">
+            <IonIcon :icon="logOutOutline"></IonIcon>
+          </IonButton>
+        </IonButtons>
+      </IonToolbar>
+    </IonHeader>
+
+    <IonContent class="ion-padding">
+      <IonText color="dark">
+        <h1><strong>Panell d'administració</strong></h1>
+        <p>Gestió de tots els usuaris i dades del sistema</p>
+      </IonText>
+
+      <IonLoading :is-open="loading" message="Carregant dades..." spinner="crescent" />
+
+      <!-- Tabs per a navegació -->
+      <div v-if="!loading" class="ion-margin-top">
+        <IonSegment v-model="currentTab" @ionChange="currentTab = ($event.detail.value as string)">
+          <IonSegmentButton value="usuaris">
+            <IonLabel>Usuaris</IonLabel>
+          </IonSegmentButton>
+          <IonSegmentButton value="cronometres">
+            <IonLabel>Sessions</IonLabel>
+          </IonSegmentButton>
+        </IonSegment>
+      </div>
+
+      <!-- TAB: Usuaris -->
+      <div v-if="currentTab === 'usuaris' && !loading" class="ion-margin-top">
+        <IonText color="dark">
+          <h2><strong>Gestió d'Usuaris</strong></h2>
+        </IonText>
+
+        <IonGrid class="ion-margin-top">
+          <IonRow v-if="allUsers.length">
+            <IonCol size="12">
+              <IonGrid>
+                <IonRow v-for="user in allUsers" :key="user.uid" class="ion-margin-vertical">
+                  <IonCol size="12">
+                    <IonCard>
+                      <IonCardContent>
+                        <IonGrid>
+                          <IonRow class="ion-align-items-center">
+                            <IonCol size="8">
+                              <IonRow>
+                                <IonCol size="auto">
+                                  <IonAvatar>
+                                    <IonCol size="12" class="ion-text-center">
+                                        <img src="/src/assets/kangur_no_background.png" />
+                                    </IonCol>
+                                  </IonAvatar>
+                                </IonCol>
+                                <IonCol>
+                                  <div><strong>{{ user.name }}</strong></div>
+                                  <div>{{ user.email }}</div>
+                                  <div>Creat: {{ formatDate(user.createdAt) }}</div>
+                                </IonCol>
+                              </IonRow>
+                            </IonCol>
+
+                            <IonCol size="3" class="ion-text-end">
+                              <div>Nadons: <strong>{{ user.nados.length }}</strong></div>
+                              <div>Sessions: <strong>{{ user.cronometres.length }}</strong></div>
+                              <div v-if="user.cangurs.length > 0">Cangurs: <strong>{{ getCangursList(user.cangurs) }}</strong></div>
+                            </IonCol>
+
+                            <IonCol size="1" class="ion-text-end">
+                                <IonGrid>
+                                    <IonRow>
+                                        <IonCol class="ion-text-center">
+                                            <IonToggle :checked="user.admin" :disabled="isSavingAdminId === user.uid" @ionChange="toggleAdmin(user.uid, $event.detail.checked)"/>
+                                        </IonCol>
+                                    </IonRow>
+                                    <IonRow>
+                                        <IonCol class="ion-text-center"> {{ user.admin ? 'Admin' : 'Usuari' }} </IonCol>
+                                    </IonRow>
+                                </IonGrid>
+                            </IonCol>
+                          </IonRow>
+                        </IonGrid>
+                      </IonCardContent>
+                    </IonCard>
+                  </IonCol>
+                </IonRow>
+              </IonGrid>
+            </IonCol>
+          </IonRow>
+
+          <IonRow v-else>
+            <IonCol>
+              <IonText color="medium">
+                <p class="ion-text-center">No hi ha usuaris disponibles</p>
+              </IonText>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
+      </div>
+
+      <!-- TAB: Totes les sessions -->
+      <div v-if="currentTab === 'cronometres' && !loading" class="ion-margin-top">
+        <IonText color="dark">
+          <h2><strong>Totes les sessions</strong></h2>
+        </IonText>
+
+        <IonGrid class="ion-margin-top">
+          <IonRow v-for="userGroup in cronometresByUser" :key="userGroup.userEmail" class="ion-margin-vertical">
+            <IonCol size="12">
+              <IonCard>
+                <IonCardContent>
+                  <IonGrid>
+                    <IonRow class="ion-align-items-center">
+                      <IonCol size="9"><strong>{{ userGroup.userEmail }}</strong></IonCol>
+                      <IonCol size="3" class="ion-text-end">{{ userGroup.cronometres.length }} sessions</IonCol>
+                    </IonRow>
+
+                    <IonRow class="ion-margin-top">
+                      <IonCol size="8">
+                        <IonText color="medium"><strong>Cangur → Nadó:</strong></IonText>
+                      </IonCol>
+                    </IonRow>
+
+                    <IonRow v-for="crono in userGroup.cronometres" :key="crono.id" class="ion-margin-top">
+                      <IonCol size="8">{{ crono.cangurNom }} → {{ crono.nadoNom }}</IonCol>
+                      <IonCol size="4" class="ion-text-end">{{ formatDate(crono.createdAt) }} • <strong>{{ formatSecondsToMMSS(crono.temps) }}</strong></IonCol>
+                    </IonRow>
+                  </IonGrid>
+                </IonCardContent>
+              </IonCard>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
+
+        <IonText v-if="!cronometresByUser.length" color="medium">
+          <p class="ion-text-center">No hi ha sessions disponibles</p>
+        </IonText>
+      </div>
+    </IonContent>
+  </IonPage>
+</template>
+
+<script setup lang="ts">
+ import { IonPage, IonHeader, IonToolbar, IonButtons, IonButton, IonToggle, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonTitle, IonContent, IonLabel, IonSegment, IonSegmentButton, IonLoading, IonText, IonList, IonItem, IonItemGroup, IonItemDivider, IonAvatar, onIonViewDidEnter } from '@ionic/vue'
+import { arrowBackOutline, logOutOutline, checkmarkCircle, ellipseOutline } from 'ionicons/icons'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { auth } from '@/services/firebase'
+import { signOut } from 'firebase/auth'
+import adminService from '@/services/admin.service'
+import { formatSecondsToMMSS } from '@/utils/time'
+
+const router = useRouter()
+const loading = ref(true)
+const currentTab = ref('usuaris')
+const isSavingAdminId = ref('')
+
+interface User {
+  uid: string
+  name: string
+  email: string
+  admin: boolean
+  createdAt: any
+  cronometres: any[]
+  nados: any[]
+  cangurs: any[]
+}
+
+interface Cronometres {
+  id: string
+  userName: string
+  userEmail: string
+  cangurNom: string
+  nadoNom: string
+  temps: number
+  createdAt: any
+}
+
+interface CronometresGroup {
+  userName: string
+  userEmail: string
+  cronometres: Cronometres[]
+}
+
+const allUsers = ref<User[]>([])
+const allCronometres = ref<Cronometres[]>([])
+const cronometresByUser = ref<CronometresGroup[]>([])
+
+function formatDate(date: any): string {
+  if (!date) return '-'
+  let d: Date
+  if (date && typeof date.toDate === 'function') {
+    d = date.toDate()
+  } else if (typeof date === 'string') {
+    d = new Date(date)
+  } else if (typeof date === 'number') {
+    d = new Date(date)
+  } else {
+    return '-'
+  }
+  return d.toLocaleDateString('ca-ES', { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' })
+}
+
+function getCangursList(cangurs: any[]): string {
+  if (!cangurs || cangurs.length === 0) return '-'
+  return cangurs.map((c: any) => c.name || c.nom || 'Desconegut').join(', ')
+}
+
+async function loadAdminData() {
+  loading.value = true
+  try {
+    const data = await adminService.getAllUsersData()
+    allUsers.value = data
+
+    // Construir la llista de totes les sessions cronometres
+    const allCronosData: Cronometres[] = []
+    data.forEach(user => {
+      user.cronometres.forEach((crono: any) => {
+        allCronosData.push({
+          id: `${user.uid}-${crono.id}`,
+          userName: user.name,
+          userEmail: user.email,
+          cangurNom: crono.cangurNom || 'Desconegut',
+          nadoNom: crono.nadoNom || 'Desconegut',
+          temps: crono.temps || 0,
+          createdAt: crono.createdAt
+        })
+      })
+    })
+
+    // Ordenar per data descendint
+    allCronosData.sort((a, b) => {
+      let tsA = 0
+      let tsB = 0
+      if (a.createdAt && typeof a.createdAt.toDate === 'function') {
+        tsA = a.createdAt.toDate().getTime()
+      } else if (typeof a.createdAt === 'number') {
+        tsA = a.createdAt
+      }
+      if (b.createdAt && typeof b.createdAt.toDate === 'function') {
+        tsB = b.createdAt.toDate().getTime()
+      } else if (typeof b.createdAt === 'number') {
+        tsB = b.createdAt
+      }
+      return tsB - tsA
+    })
+
+    allCronometres.value = allCronosData
+
+    // Agrupar per usuari
+    const groupedByUser = new Map<string, Cronometres[]>()
+    allCronosData.forEach(crono => {
+      if (!groupedByUser.has(crono.userEmail)) {
+        groupedByUser.set(crono.userEmail, [])
+      }
+      groupedByUser.get(crono.userEmail)!.push(crono)
+    })
+
+    // Convertir a array i ordenar per email d'usuari
+    cronometresByUser.value = Array.from(groupedByUser.entries())
+      .map(([userEmail, cronos]) => ({
+        userName: cronos[0].userName,
+        userEmail,
+        cronometres: cronos
+      }))
+      .sort((a, b) => a.userEmail.localeCompare(b.userEmail))
+  } catch (error) {
+    console.error('Error carregant dades d\'admin:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+async function toggleAdmin(userId: string, newStatus: boolean) {
+  isSavingAdminId.value = userId
+  try {
+    await adminService.toggleAdminStatus(userId, newStatus)
+    const userIndex = allUsers.value.findIndex(u => u.uid === userId)
+    if (userIndex !== -1) {
+      allUsers.value[userIndex].admin = newStatus
+    }
+  } catch (error) {
+    console.error('Error canviant estatus d\'admin:', error)
+  } finally {
+    isSavingAdminId.value = ''
+  }
+}
+
+async function logout() {
+  try {
+    await signOut(auth)
+    router.push('/login')
+  } catch (error) {
+    console.error('Error al tancar la sessió:', error)
+  }
+}
+
+onIonViewDidEnter(async () => {
+  const isAdmin = await adminService.getCurrentUserAdminStatus()
+  if (!isAdmin) {
+    router.back()
+    return
+  }
+  loadAdminData()
+})
+</script>
+

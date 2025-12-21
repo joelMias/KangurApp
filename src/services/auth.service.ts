@@ -33,7 +33,8 @@ async function register(payload: { name: string; email: string; password: string
   await setDoc(doc(db, 'users', user.uid), {
     name: payload.name,
     email: payload.email,
-    createdAt: new Date()
+    createdAt: new Date(),
+    admin: false
   })
 
   localStorage.setItem('name', payload.name)
@@ -51,6 +52,17 @@ async function login(payload: { email: string; password: string }) {
   localStorage.setItem('email', user.email || '')
 
   try {
+    const userDoc = await getDoc(doc(db, 'users', user.uid))
+    if (userDoc.exists()) {
+      const userData = userDoc.data()
+      localStorage.setItem('admin', userData.admin === true ? 'true' : 'false')
+    }
+  } catch (e) {
+    console.warn('Error carregant dades de l\'usuari', e)
+    localStorage.setItem('admin', 'false')
+  }
+
+  try {
     const nadosSnap = await getDocs(collection(db, 'users', user.uid, 'nados'))
     if (!nadosSnap.empty) {
       const nados = nadosSnap.docs.map(d => ({ id: d.id, name: d.data().name }))
@@ -60,7 +72,7 @@ async function login(payload: { email: string; password: string }) {
       }
     }
   } catch (e) {
-    console.warn('Could not cache nados on login', e)
+    console.warn('No hi ha nados al cache', e)
   }
 
   return {

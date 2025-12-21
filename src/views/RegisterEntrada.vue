@@ -202,14 +202,6 @@ const registrar = async () => {
 
 <style scoped>
 
-.capçalera{
-  color: #26a69a;
-}
-
-.header-logo{
-  vertical-align: middle;
-}
-
 .titol {
   font-size: 16px;
   font-weight: bold;
@@ -230,13 +222,14 @@ const registrar = async () => {
 }
 
 .time-picker {
-   margin-top: -40px;
-   margin-bottom: -35px;
-   color: black;
-   --ion-color-primary: black;
-   font-weight: 700;
-   display: inline-block;
+  margin-top: -40px;
+  margin-bottom: -35px;
+  color: black;
+  --ion-color-primary: black;
+  font-weight: 700;
+  display: inline-block;
 }
+
 .date-bold {
   font-weight: 700;
 }
@@ -259,7 +252,4 @@ const registrar = async () => {
   --border-width: 1px;
 }
 
-.footer{
-  box-shadow: none;
-}
 </style>

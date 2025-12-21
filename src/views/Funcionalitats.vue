@@ -96,14 +96,6 @@ router.push('/registerEntrada')
 
 <style scoped>
 
-.capçalera{
-  color: #26a69a;
-}
-
-.header-logo{
-  vertical-align: middle;
-}
-
 .full-height {
   height: 100%;
 }
@@ -117,10 +109,6 @@ router.push('/registerEntrada')
   text-transform: none;
   font-size: 20px;
   --ion-font-family: "Nunito", sans-serif;
-}
-
-.footer{
-  box-shadow: none;
 }
 
 .footer-button {

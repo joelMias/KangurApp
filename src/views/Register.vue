@@ -7,7 +7,7 @@
             <IonIcon :icon="arrowBackOutline"></IonIcon>
           </IonButton>
         </IonButtons>
-        <IonTitle> <img src="/src/assets/kangur.jpg" class="header-logo">KANGURAPP</IonTitle>
+        <IonTitle> <img src="/src/assets/kangur_resized.jpg" class="header-logo">KANGURAPP</IonTitle>
       </IonToolbar>
     </IonHeader>
 
@@ -18,6 +18,12 @@
             <IonText color="dark">
               <h2 class="form-title">Crea el teu compte</h2>
             </IonText>
+
+            <div v-if="error">
+              <IonText color="danger">
+                <p class="error-message">{{ error }}</p>
+              </IonText>
+            </div>
 
             <strong><IonLabel position="stacked" class="input-label">Correu electrònic</IonLabel></strong>
             <IonInput v-model="email" type="email" placeholder="usuari@exemple.com" fill="outline" class="input-box"/>
@@ -45,11 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  IonPage, IonButtons, IonIcon, IonText, IonGrid, IonCol, IonRow,
-  IonHeader, IonTitle, IonContent, IonLabel, IonInput, IonButton,
-  IonToolbar, IonLoading
-} from '@ionic/vue'
+import { IonPage, IonButtons, IonIcon, IonText, IonGrid, IonCol, IonRow, IonHeader, IonTitle, IonContent, IonLabel, IonInput, IonButton, IonToolbar, IonLoading } from '@ionic/vue'
 import { ref } from 'vue'
 import { arrowBackOutline } from 'ionicons/icons'
 import { useRouter } from 'vue-router'
@@ -90,6 +92,7 @@ const Register = async () => {
   localStorage.setItem('uid', user.uid)
   localStorage.setItem('name', user.displayName || name.value)
   localStorage.setItem('email', user.email || email.value)
+  localStorage.setItem('admin', 'false')
 
   console.log('Navegant cap a /cangurs...')
   router.push('/cangurs')
@@ -106,26 +109,9 @@ const Register = async () => {
 
 <style scoped>
 
-.capçalera{
-  color: #26a69a;
-}
-
-.header-logo{
-  height: 40px;
-  width: auto;
-  vertical-align: middle;
-}
-
-.form-title {
-  text-align: center;
-  margin-bottom: 0px;
-  font-size: 22px;
-  font-weight: 600;
-}
-
 .input-label {
   color:grey;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 18px;
   margin-bottom: 6px;
 }
@@ -146,5 +132,14 @@ const Register = async () => {
   --border-color: #90caf9;
   font-weight: 600;
   text-transform: none;
+}
+
+.error-message {
+  color: #d32f2f;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  background-color: #ffebee;
+  border-radius: 4px;
+  text-align: center;
 }
 </style>

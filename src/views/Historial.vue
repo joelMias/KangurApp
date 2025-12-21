@@ -46,16 +46,26 @@
                     </IonCol>
                     <IonCol size="auto">
                         <IonRow class="modeBotons">
-                            <IonCol size="auto">
-                                    <IonButton class="canviMode" :fill="mode === 'llista' ? 'solid' : 'outline'" @click="mode = 'grafic'">
-                                    <IonIcon :icon="barChartOutline"></IonIcon>
-                                    </IonButton>
-                            </IonCol>
-                            <IonCol size="auto">
-                                <IonButton class="canviMode" :fill="mode === 'grafic' ? 'solid' : 'outline'" @click="mode = 'llista'">
+                          <IonCol v-if="superAdmin === true" size="auto">
+                            <IonButton fill="outline" color="dark" @click="router.push('/admin-panel')">
+                              <IonIcon :icon="appsOutline"></IonIcon>
+                            </IonButton>
+                          </IonCol>
+                          <IonCol size="auto">
+                            <IonButton class="canviMode" :fill="mode === 'llista' ? 'solid' : 'outline'" @click="mode = 'grafic'">
+                              <IonIcon :icon="barChartOutline"></IonIcon>
+                            </IonButton>
+                          </IonCol>
+                          <IonCol size="auto">
+                              <IonButton class="canviMode" :fill="mode === 'grafic' ? 'solid' : 'outline'" @click="mode = 'llista'">
                                 <IonIcon :icon="listOutline"></IonIcon>
-                                </IonButton>
-                            </IonCol>
+                              </IonButton>
+                          </IonCol>
+                          <IonCol size="auto">
+                              <IonButton color="dark" fill="outline" @click="recarregarHistorial">
+                                <IonIcon :icon="refreshOutline"></IonIcon>
+                              </IonButton>
+                          </IonCol>
                         </IonRow>
                     </IonCol>
                     
@@ -63,8 +73,6 @@
                 <div class="separador"></div>
             </IonGrid>
 
-            
-            
             <IonGrid class="ion-margin-bottom">
                 <IonRow class="ion-justify-content-center ion-align-items-center">
                     <IonCol size="auto">
@@ -78,7 +86,6 @@
                     </IonCol>
                 </IonRow>
             </IonGrid>
-
 
             <IonGrid v-if="mode === 'grafic'" class="grafMode">
                 <IonRow class="ion-justify-content-center">
@@ -135,17 +142,11 @@
 </template>
 
 <script setup lang="ts">
-import {
-  IonButton, IonLoading, IonContent, IonGrid, IonCol, IonRow, IonHeader,
-  IonIcon, IonPage, IonTitle, IonToolbar, IonCard, IonCardContent, IonButtons
-} from '@ionic/vue'
-import {
-  chevronBack, arrowBackOutline, folderOpen, barChartOutline, listOutline,
-  arrowForwardOutline, logOutOutline, chevronForward
-} from 'ionicons/icons'
+import { IonButton, IonLoading, IonContent, IonGrid, IonCol, IonRow, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, IonCard, IonCardContent, IonButtons, onIonViewDidEnter } from '@ionic/vue'
+import { chevronBack, arrowBackOutline, folderOpen, barChartOutline, listOutline, arrowForwardOutline, logOutOutline, chevronForward, appsOutline, refreshOutline } from 'ionicons/icons'
 import barChart from '@/views/GrafBarres.vue'
 import pieChart from '@/views/GrafCercle.vue'
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { auth, db } from '@/services/firebase'
 import { signOut, onAuthStateChanged } from 'firebase/auth'
@@ -158,6 +159,8 @@ const mode = ref<'grafic' | 'llista'>('grafic')
 async function logout() {
   try {
     await signOut(auth)
+    superAdmin.value = false
+    localStorage.removeItem('admin')
     router.push('/login')
   } catch (error) {
     console.error('Error al tancar la sessió:', error)
@@ -277,15 +280,34 @@ function recalcCharts() {
   pieData.value = pie
 }
 
+const superAdmin = ref(false)
+
+async function loadUserAdminStatus() {
+  try {
+    const adminStatus = localStorage.getItem('admin')
+    superAdmin.value = adminStatus === 'true'
+  } catch (e) {
+    console.error('Error carregant estatus d\'admin:', e)
+    superAdmin.value = false
+  }
+}
+
+async function recarregarHistorial() {
+  allSessions.value = []
+  carregarHistorial()
+}
+
 // --- Carregar historial inicial ---
 async function carregarHistorial() {
   loadingCharts.value = true
   try {
     onAuthStateChanged(auth, async (user) => {
+
+      await loadUserAdminStatus()
+      
       if (!user) return
       const snapshot = await getDocs(collection(db, 'users', user.uid, 'cronometres'))
-      allSessions.value = snapshot.docs.map(d => {
-  const docData = d.data()
+      allSessions.value = snapshot.docs.map(d => { const docData = d.data()
   let ts: number | undefined
   if (docData.createdAt && typeof docData.createdAt.toDate === 'function') {
     ts = docData.createdAt.toDate().getTime()
@@ -311,6 +333,7 @@ async function carregarHistorial() {
     nado: docData.nadoNom || '',
     ts
   }
+
 })
 
 // Ordenem per data/hora de creació descendent
@@ -325,20 +348,13 @@ allSessions.value.sort((a, b) => (b.ts || 0) - (a.ts || 0))
   }
 }
 
-onMounted(() => {
+onIonViewDidEnter(() => {
+  loadUserAdminStatus()
   carregarHistorial()
 })
 </script>
 
 <style scoped>
-.capçalera {
-  box-shadow: none;
-  color:#26a69a;
-}
-
-.header-logo{
-  vertical-align: middle;
-}
 
 .confButton {
   --box-shadow: none;

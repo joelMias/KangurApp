@@ -5,6 +5,31 @@ http://ionicframework.com/docs/theming/ */
 @import "@fontsource/nunito/600.css";
 @import "@fontsource/nunito/800.css";
 
+
 :root {
   --ion-font-family: "Nunito", sans-serif;
 }
+
+.capçalera{
+  color: #26a69a;
+}
+
+.header-logo{
+  vertical-align: middle;
+}
+
+.lletra{
+  font-family: "Nunito", sans-serif;
+}
+
+.form-title {
+  text-align: center;
+  margin-bottom: 0px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.footer{
+  box-shadow: none;
+}
+
