@@ -15,6 +15,7 @@ import ConfiguracioFamilia from '@/views/ConfiguracioFamilia.vue';
 import ResetPassword from '@/views/ResetPassword.vue';
 import RegisterEntrada from '@/views/RegisterEntrada.vue';
 import AdminPanel from '@/views/AdminPanel.vue';
+import PdfViewer from '@/views/PdfViewer.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -75,6 +76,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/reset-password',
     component: ResetPassword
+  },
+  {
+    path: '/pdf-viewer',
+    component: PdfViewer
   }
 ]
 

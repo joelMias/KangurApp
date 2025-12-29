@@ -88,7 +88,8 @@ const currentMessage = ref(messages[0])
 const messageKey = ref(`msg-${messageIndex.value}`)
 
 const openUserGuide = () => {
-  window.open('/Guia per l\'usuari.pdf', '_blank')
+  //window.open('/Guia per l\'usuari.pdf', '_blank')
+  router.push('/pdf-viewer')
 }
 
 function startCrono() {

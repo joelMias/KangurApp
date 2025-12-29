@@ -93,7 +93,7 @@ router.push('/registerEntrada')
 }
 
 const openUserGuide = () => {
-  window.open('/Guia per l\'usuari.pdf', '_blank')
+  router.push('/pdf-viewer')
 }
 
 </script>
