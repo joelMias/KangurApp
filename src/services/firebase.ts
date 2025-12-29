@@ -3,13 +3,12 @@ import { initializeFirestore, persistentLocalCache } from 'firebase/firestore';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBFAoDZRX2eVNVErGz_dKDCsyMOGnsVfA0",
-  authDomain: "kangur-51f5c.firebaseapp.com",
-  projectId: "kangur-51f5c",
-  storageBucket: "kangur-51f5c.firebasestorage.app",
-  messagingSenderId: "965357068356",
-  appId: "1:965357068356:web:30558c52c6809c6f885c11",
-  measurementId: "G-79WCJEWR9D"
+  apiKey: "AIzaSyDzJbraExkbTMjfc28Ivn2RKnaIkmLSQUI",
+  authDomain: "kangurapp-b452e.firebaseapp.com",
+  projectId: "kangurapp-b452e",
+  storageBucket: "kangurapp-b452e.firebasestorage.app",
+  messagingSenderId: "600666214184",
+  appId: "1:600666214184:web:529671edbf96b10d4d0a1d"
 };
 
 const app = initializeApp(firebaseConfig);

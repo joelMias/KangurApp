@@ -52,13 +52,11 @@
                       <IonCardContent>
                         <IonGrid>
                           <IonRow class="ion-align-items-center">
-                            <IonCol size="8">
+                            <IonCol size="12" size-md="8">
                               <IonRow>
                                 <IonCol size="auto">
                                   <IonAvatar>
-                                    <IonCol size="12" class="ion-text-center">
-                                        <img src="/src/assets/kangur_no_background.png" />
-                                    </IonCol>
+                                    <img src="/src/assets/kangur_no_background.png" />
                                   </IonAvatar>
                                 </IonCol>
                                 <IonCol>
@@ -69,21 +67,29 @@
                               </IonRow>
                             </IonCol>
 
-                            <IonCol size="3" class="ion-text-end">
-                              <div>Nadons: <strong>{{ user.nados.length }}</strong></div>
-                              <div>Sessions: <strong>{{ user.cronometres.length }}</strong></div>
-                              <div v-if="user.cangurs.length > 0">Cangurs: <strong>{{ getCangursList(user.cangurs) }}</strong></div>
+                            <IonCol size="12" class="separador-mobile">
+                              <div class="separador"></div>
                             </IonCol>
 
-                            <IonCol size="1" class="ion-text-end">
+                            <IonCol size="12" size-md="3" class="ion-text-md-end ion-text-start">
+                              <div>Nadons: <IonText><strong>{{ user.nados.length }}</strong></IonText></div>
+                              <div>Sessions: <IonText><strong>{{ user.cronometres.length }}</strong></IonText></div>
+                              <div v-if="user.cangurs.length > 0">Cangurs: <IonText><strong>{{ getCangursList(user.cangurs) }}</strong></IonText></div>
+                            </IonCol>
+
+                            <IonCol size="12" class="separador-mobile">
+                              <div class="separador"></div>
+                            </IonCol>
+                            
+                            <IonCol size="12" size-md="1" class="ion-text-center ion-text-md-start">
                                 <IonGrid>
                                     <IonRow>
-                                        <IonCol class="ion-text-center">
-                                            <IonToggle :checked="user.admin" :disabled="isSavingAdminId === user.uid" @ionChange="toggleAdmin(user.uid, $event.detail.checked)"/>
+                                        <IonCol class="ion-text-center ion-text-md-start">
+                                            <IonCheckbox :checked="user.admin" :disabled="isSavingAdminId === user.uid" @ionChange="toggleAdmin(user.uid, $event.detail.checked)"/>
                                         </IonCol>
                                     </IonRow>
                                     <IonRow>
-                                        <IonCol class="ion-text-center"> {{ user.admin ? 'Admin' : 'Usuari' }} </IonCol>
+                                        <IonCol class="ion-text-center ion-text-md-start"> <IonText>Rol: {{ user.admin ? 'Admin' : 'Usuari' }}</IonText> </IonCol>
                                     </IonRow>
                                 </IonGrid>
                             </IonCol>
@@ -120,20 +126,21 @@
                 <IonCardContent>
                   <IonGrid>
                     <IonRow class="ion-align-items-center">
-                      <IonCol size="9"><strong>{{ userGroup.userEmail }}</strong></IonCol>
-                      <IonCol size="3" class="ion-text-end">{{ userGroup.cronometres.length }} sessions</IonCol>
+                      <IonCol size="12" size-md="9"><strong>{{ userGroup.userEmail }}</strong></IonCol>
+                      <IonCol size="12" size-md="3" class="ion-text-end">{{ userGroup.cronometres.length }} sessions</IonCol>
                     </IonRow>
 
                     <IonRow class="ion-margin-top">
-                      <IonCol size="8">
+                      <IonCol size="12" size-md="8">
                         <IonText color="medium"><strong>Cangur → Nadó:</strong></IonText>
                       </IonCol>
                     </IonRow>
-
-                    <IonRow v-for="crono in userGroup.cronometres" :key="crono.id" class="ion-margin-top">
-                      <IonCol size="8">{{ crono.cangurNom }} → {{ crono.nadoNom }}</IonCol>
-                      <IonCol size="4" class="ion-text-end">{{ formatDate(crono.createdAt) }} • <strong>{{ formatSecondsToMMSS(crono.temps) }}</strong></IonCol>
+                    
+                    <IonRow v-for="crono in userGroup.cronometres" :key="crono.id" class="ion-margin-top sessions">
+                      <IonCol size="12" size-md="8">{{ crono.cangurNom }} → {{ crono.nadoNom }}</IonCol>
+                      <IonCol size="12" size-md="4" class="ion-text-md-end ion-text-start">{{ formatDate(crono.createdAt) }} • <strong>{{ formatSecondsToMMSS(crono.temps) }}</strong></IonCol>
                     </IonRow>
+                    
                   </IonGrid>
                 </IonCardContent>
               </IonCard>
@@ -150,7 +157,7 @@
 </template>
 
 <script setup lang="ts">
- import { IonPage, IonHeader, IonToolbar, IonButtons, IonButton, IonToggle, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonTitle, IonContent, IonLabel, IonSegment, IonSegmentButton, IonLoading, IonText, IonList, IonItem, IonItemGroup, IonItemDivider, IonAvatar, onIonViewDidEnter } from '@ionic/vue'
+ import { IonPage, IonHeader, IonToolbar, IonButtons, IonButton, IonCheckbox, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonTitle, IonContent, IonLabel, IonSegment, IonSegmentButton, IonLoading, IonText, IonList, IonItem, IonItemGroup, IonItemDivider, IonAvatar, onIonViewDidEnter } from '@ionic/vue'
 import { arrowBackOutline, logOutOutline, checkmarkCircle, ellipseOutline } from 'ionicons/icons'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -221,7 +228,7 @@ async function loadAdminData() {
     const data = await adminService.getAllUsersData()
     allUsers.value = data
 
-    // Construir la llista de totes les sessions cronometres
+    // Es construeix la llista de totes les sessions cronometrades
     const allCronosData: Cronometres[] = []
     data.forEach(user => {
       user.cronometres.forEach((crono: any) => {
@@ -237,7 +244,7 @@ async function loadAdminData() {
       })
     })
 
-    // Ordenar per data descendint
+    // S'ordena per data descendent
     allCronosData.sort((a, b) => {
       let tsA = 0
       let tsB = 0
@@ -256,7 +263,7 @@ async function loadAdminData() {
 
     allCronometres.value = allCronosData
 
-    // Agrupar per usuari
+    // S'agrupa per usuaris
     const groupedByUser = new Map<string, Cronometres[]>()
     allCronosData.forEach(crono => {
       if (!groupedByUser.has(crono.userEmail)) {
@@ -265,7 +272,7 @@ async function loadAdminData() {
       groupedByUser.get(crono.userEmail)!.push(crono)
     })
 
-    // Convertir a array i ordenar per email d'usuari
+    // Es converteix a array i s'ordena per email d'usuari
     cronometresByUser.value = Array.from(groupedByUser.entries())
       .map(([userEmail, cronos]) => ({
         userName: cronos[0].userName,
@@ -313,4 +320,28 @@ onIonViewDidEnter(async () => {
   loadAdminData()
 })
 </script>
+
+<style scoped>
+
+.separador {
+  border-top: 2px solid #26a69a; 
+  margin: 0 8px;
+}
+
+.sessions{
+  box-shadow: none;
+  border-bottom: 1px solid #26a69a;
+}
+
+.separador-mobile {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .separador-mobile {
+    display: none;
+  }
+}
+
+</style>
 

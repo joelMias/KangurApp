@@ -68,14 +68,11 @@
 
 <script setup lang="ts">
 import { ref, onUnmounted } from 'vue'
-import {
-  IonPage, IonButtons, IonIcon, IonLabel, IonContent, IonHeader,
-  IonToolbar, IonTitle, IonButton, IonFooter, IonGrid, IonRow, IonCol,
-  IonCard, IonCardContent
-} from '@ionic/vue'
+import { IonPage, IonButtons, IonIcon, IonLabel, IonContent, IonHeader, IonToolbar, IonTitle, IonButton, IonFooter, IonGrid, IonRow, IonCol, IonCard, IonCardContent } from '@ionic/vue'
 import { arrowBackOutline, documentTextOutline } from 'ionicons/icons'
 import { useRouter } from 'vue-router'
 import { setCronoTemp } from '@/stores/temps'
+import marquesinaData from '@/data/marquesina.json'
 
 const router = useRouter()
 const temps = ref(0)
@@ -84,13 +81,7 @@ const estaActiu = ref(false)
 let cronoInterval: ReturnType<typeof setInterval> | null = null
 let messageInterval: ReturnType<typeof setInterval> | null = null
 
-const messages = [
-  'Aquí anirà el primer missatge de la marquesina',
-  'Aquí anirà el segon missatge de la marquesina',
-  'Aquí anirà el tercer missatge de la marquesina',
-  'Aquí anirà el quart missatge de la marquesina',
-  'Aquí anirà el cinquè missatge de la marquesina i fins a infinit'
-]
+const messages = marquesinaData.messages
 
 const messageIndex = ref(0)
 const currentMessage = ref(messages[0])

@@ -21,3 +21,22 @@ const router = useRouter()
         </IonHeader>
     </IonPage>
 </template>
+
+<style scoped>
+/* Respect safe area insets (notch / status bar) and ensure header isn't covered */
+ion-header {
+    padding-top: env(safe-area-inset-top);
+    -webkit-padding-start: 0;
+    box-sizing: border-box;
+}
+
+.capçalera {
+    display: flex;
+    align-items: center;
+}
+
+.header-logo {
+    height: 28px;
+    margin-right: 8px;
+}
+</style>

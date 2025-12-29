@@ -62,10 +62,10 @@
         <IonGrid>
           <IonRow class="ion-justify-content-center">
             <IonCol size="auto">
-              <IonButton expand="block" fill="outline" color="medium" class="footer-button" @click="cancelar">X</IonButton>
+              <IonButton expand="block" fill="outline" color="medium" class="footer-button lletra" @click="cancelar">Cancelar</IonButton>
             </IonCol>
             <IonCol size="auto">
-              <IonButton expand="block" fill="outline" class="footer-button" @click="guardarSessio">Registrar</IonButton>
+              <IonButton expand="block" color="primary" fill="solid" class="footer-button lletra" @click="guardarSessio">Registrar</IonButton>
               <IonToast :is-open="estaOk" :icon="checkbox" :message="toastMessage" :duration="3000" position="bottom" @didDismiss="estaOk = false" color="primary"></IonToast>
             </IonCol>
           </IonRow>
@@ -125,6 +125,7 @@ onMounted(() => {
   const unsub = onAuthStateChanged(auth, async (user) => {
     if (user) {
       try {
+        // Quan estem online, llegim els cangurs de la base de dades, sinó anem al "else"
         if (navigator.onLine) {
           const snapshot = await getDocs(collection(db, 'users', user.uid, 'cangurs'))
           cangurs.value = snapshot.docs.map(d => ({
@@ -164,7 +165,7 @@ onMounted(() => {
             console.warn('No s’han pogut llegir nadós per cache', e)
           }
         } else {
-          // Estem offline: llegim del cache local
+          // Quan estem offline llegim les dades del cache local
           const raw = localStorage.getItem('localCangurs')
           if (raw) {
             try {
@@ -199,7 +200,7 @@ onMounted(() => {
       }
     } else {
       console.warn('No hi ha usuari autenticat')
-      // si no hi ha usuari, intentem carregar cangurs cachejats per usuaris anteriors
+      // si no hi ha usuari, intentem carregar els cangurs que hi ha al cache per usuaris anteriors
       const raw = localStorage.getItem('localCangurs')
       if (raw) {
         try {
@@ -228,7 +229,7 @@ const guardarSessio = async () => {
     if (!user && !fallbackUid) throw new Error('Usuari no autenticat')
     const userIdToUse = user?.uid ?? fallbackUid ?? ''
 
-    // Obtenim el nadó de l’usuari
+    // Obtenim el nadó de l’usuari. Això ho fem perquè el registre del pell amb pell necessita saber quin nadó és
     let nadoNom: string | null = null
     let nadoId: string | null = null
     if (navigator.onLine) {
@@ -299,7 +300,7 @@ const guardarSessio = async () => {
       await addDoc(collection(db, 'users', userIdToUse, 'cronometres'), payload)
       toastMessage.value = 'Pell amb pell registrat'
     } else {
-      // Estem offline: guardem a la cua local
+      // Quan estem offline, guardem les dades a la cua local
       offlineService.addPending('cronometres', payload, userIdToUse)
       console.log('Guardat localment per sincronitzar quan hi hagi connexió')
       toastMessage.value = 'Guardat localment — s’enviarà quan hi hagi connexió'
@@ -373,8 +374,7 @@ const guardarSessio = async () => {
   --border-radius:7px;
   font-weight: 600;
   text-transform: none;
-  font-size: 18px;  
-  height: 50px;         
+  font-size: 18px;          
 }
 
 </style>

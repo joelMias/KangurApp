@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonButtons, IonIcon, IonText, IonGrid, IonCol, IonRow, IonHeader, IonTitle, IonContent, IonLabel, IonInput, IonButton, IonToolbar, IonLoading } from '@ionic/vue'
+import { IonPage, IonButtons, IonIcon, IonText, IonGrid, IonCol, IonRow, IonHeader, IonTitle, IonContent, IonLabel, IonInput, IonButton, IonToolbar, IonLoading, onIonViewWillEnter } from '@ionic/vue'
 import { ref } from 'vue'
 import { arrowBackOutline } from 'ionicons/icons'
 import { useRouter } from 'vue-router'
@@ -65,6 +65,24 @@ const password = ref('')
 const passwordConfirm = ref('')
 const loading = ref(false)
 const error = ref('')
+
+onIonViewWillEnter(() => {
+  // Neteja els camps del formulari quan s'entra a la pàgina de registre
+  name.value = ''
+  email.value = ''
+  password.value = ''
+  passwordConfirm.value = ''
+  error.value = ''
+  // Elimina les dades d'usuari emmagatzemades localment durant el registre anterior 
+  // per poder guardar després les noves dades
+  try {
+    localStorage.removeItem('uid')
+    localStorage.removeItem('name')
+    localStorage.removeItem('email')
+    localStorage.removeItem('selectedNado')
+    localStorage.removeItem('selectedNadoName')
+  } catch (e) { }
+})
 
 const Register = async () => {
   if (!name.value || !email.value || !password.value || !passwordConfirm.value) {

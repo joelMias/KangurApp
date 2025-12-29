@@ -2,9 +2,9 @@
   <IonPage>
     <IonContent fullscreen>
       <IonGrid>
-        <IonRow class="ion-justify-content-center ion-align-items-center" style="height: 70vh">
-          <IonCol size="12" class="ion-text-center">
-            <img src="/src/assets/kangur.jpg" alt="KangurApp Logo" style="width:70%;max-width:280px;" />
+        <IonRow class="ion-justify-content-center ion-align-items-center">
+          <IonCol size="8" size-md="6" size-lg="4" class="ion-text-center">
+            <img src="/src/assets/kangur.jpg" alt="KangurApp Logo" />
           </IonCol>
 
           <IonCol size="12" class="ion-text-center">

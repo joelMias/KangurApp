@@ -1,8 +1,8 @@
 <template>
   <IonPage>
     <IonHeader>
-      <IonToolbar>
-        <IonTitle class="capçalera"> <img src="/src/assets/kangur_resized.jpg" class="header-logo">KANGURAPP</IonTitle>
+      <IonToolbar class="capçalera">
+        <IonTitle> <img src="/src/assets/kangur_resized.jpg" class="header-logo">KANGURAPP</IonTitle>
         <IonButtons slot="end">
           <IonButton @click="router.push('/historial')">
             <IonIcon :icon="menuOutline"></IonIcon>

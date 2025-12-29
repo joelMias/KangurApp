@@ -57,7 +57,7 @@ const sendReset = async () => {
 
   try {
     await sendPasswordResetEmail(auth, email.value)
-    toastMessage.value = 'S\'ha enviat un correu de recuperació.'
+    toastMessage.value = 'S\'ha enviat un correu de recuperació. Revisa el correu brossa per trobar el correu per restablir la contrasenya.'
     showToast.value = true
     setTimeout(() => router.back(), 1200)
   } catch (e: any) {

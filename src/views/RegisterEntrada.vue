@@ -45,9 +45,6 @@
                     <IonCol size="auto" class="ion-text-center ion-align-self-center">
                       <IonDatetime class="time-picker bold-picker" presentation="time" :value="entryTime" @ionChange="onEntryChange"/>
                     </IonCol>
-                    <IonCol size="auto">
-                      <span>hores</span>
-                    </IonCol>
                   </IonRow>
                 </IonGrid>
             </IonCard>
@@ -73,9 +70,6 @@
                     <IonCol size="auto" class="ion-text-center ion-align-self-center">
                       <IonDatetime class="time-picker bold-picker" presentation="time" :value="exitTime" @ionChange="onExitChange"/>
                     </IonCol>
-                    <IonCol size="auto">
-                      <span>hores</span>
-                    </IonCol>
                   </IonRow>
                 </IonGrid>
             </IonCard>
@@ -90,10 +84,10 @@
         <IonGrid>
           <IonRow class="ion-justify-content-center">
             <IonCol size="auto">
-              <IonButton expand="block" fill="outline" class="boto-cancelar" @click="cancelar">X</IonButton>
+              <IonButton expand="block" fill="outline" color="medium" class="footer-button lletra" @click="cancelar">Cancelar</IonButton>
             </IonCol>
             <IonCol size="auto">
-              <IonButton expand="block" fill="outline" class="boto-registrar" @click="registrar">Registrar</IonButton>
+              <IonButton expand="block" color="primary" fill="solid" class="footer-button lletra" @click="registrar">Registrar</IonButton>
             </IonCol>
           </IonRow>
         </IonGrid>
@@ -238,18 +232,11 @@ const registrar = async () => {
   font-weight: 700;
 }
 
-.boto-cancelar {
-  --background: #fff;
-  --color: #555;
-  --border-color: #555;
-  --border-width: 1px;
-}
-
-.boto-registrar {
-  --background: #fff;
-  --color: #6ad4d4;
-  --border-color: #6ad4d4;
-  --border-width: 1px;
+.footer-button {
+  --border-radius: 7px;
+  font-weight: 600;
+  text-transform: none;
+  font-size: 18px;
 }
 
 </style>

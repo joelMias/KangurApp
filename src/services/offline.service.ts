@@ -12,6 +12,7 @@ type PendingItem = {
 const KEY = 'offlineQueue'
 let isProcessing = false
 
+// Funció que llegeix la cua desada al localStorage i la retorna com a array 
 function readQueue(): PendingItem[] {
   try {
     const raw = localStorage.getItem(KEY)
@@ -23,6 +24,7 @@ function readQueue(): PendingItem[] {
   }
 }
 
+// Funció que escriu a la cua al localStorage
 function writeQueue(q: PendingItem[]) {
   localStorage.setItem(KEY, JSON.stringify(q))
 }
@@ -41,6 +43,7 @@ export function addPending(collectionName: string, data: any, userId: string) {
   console.log('Queued offline item', item)
 }
 
+// Funció que processa la cua d'operacions pendents i els envia a la base de dades quan es torni a tenir connexió
 export async function processQueue() {
   if (!navigator.onLine) {
     console.log('Offline, skipping queue processing')

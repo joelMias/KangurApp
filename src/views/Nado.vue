@@ -61,15 +61,9 @@
 </template>
 
 <script setup lang="ts">
-import {
-  IonPage, IonFooter, IonContent, IonHeader, IonGrid, IonCol, IonRow,
-  IonText, IonToolbar, IonTitle, IonItem, IonInput, IonLabel,
-  IonCard, IonButton, IonCardContent
-} from '@ionic/vue'
+import { IonPage, IonFooter, IonContent, IonHeader, IonGrid, IonCol, IonRow, IonText, IonToolbar, IonTitle, IonItem, IonInput, IonLabel, IonCard, IonButton, IonCardContent, onIonViewWillEnter } from '@ionic/vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-
-// Firebase
 import { db, auth } from '@/services/firebase'
 import { collection, addDoc } from 'firebase/firestore'
 import offlineService from '@/services/offline.service'
@@ -79,6 +73,12 @@ const router = useRouter()
 const nomNado = ref('')
 const setmanes = ref<number | null>(null)
 const dies = ref<number | null>(null)
+
+onIonViewWillEnter(() => {
+  nomNado.value = ''
+  setmanes.value = null
+  dies.value = null
+})
 
 const Registre = async () => {
   try {
@@ -96,6 +96,7 @@ const Registre = async () => {
     const fallbackUid = localStorage.getItem('uid')
     const userIdToUse = user.uid ?? fallbackUid ?? ''
     if (navigator.onLine) {
+      //Si tenim connexió, guardem el nado a la base de dades directament
       const docRef = await addDoc(collection(db, 'users', userIdToUse, 'nados'), nadoData)
       console.log('Nadó desat:', nadoData)
       // Guardem l'id del nadó per reutilitzar-lo
@@ -109,7 +110,7 @@ const Registre = async () => {
         localStorage.setItem('localNados', JSON.stringify(list))
       } catch (e) { console.warn('Error caching local nados', e) }
     } else {
-      // Crear id temporal local
+      // Si no hi ha connexió, es crea id temporal local
       const tempId = `local-${Date.now()}-${Math.random().toString(36).slice(2,6)}`
       localStorage.setItem('selectedNado', tempId)
       localStorage.setItem('selectedNadoName', nomNado.value)
@@ -118,8 +119,9 @@ const Registre = async () => {
         const list = raw ? JSON.parse(raw) : []
         list.push({ id: tempId, name: nomNado.value })
         localStorage.setItem('localNados', JSON.stringify(list))
-      } catch (e) { console.warn('Error caching local nados', e) }
-      // include temp id so processor can map it to the created server id
+      } catch (e) { 
+        console.warn('Error al guardar el nado en local', e) 
+      }
       offlineService.addPending('nados', { ...nadoData, __tempId: tempId }, userIdToUse)
       console.log('Nadó guardat localment per sincronitzar després')
     }
@@ -184,6 +186,5 @@ const Registre = async () => {
   --border-color: #90caf9;
   font-weight: 600;
   text-transform: none;
-  height: 70px;
 }
 </style>

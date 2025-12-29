@@ -36,6 +36,7 @@ import './theme/variables.css';
 import offlineService from '@/services/offline.service'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '@/services/firebase'
+import { StatusBar } from '@capacitor/status-bar';
 
 const app = createApp(App)
   .use(IonicVue)
@@ -43,6 +44,14 @@ const app = createApp(App)
 
 router.isReady().then(() => {
   app.mount('#app');
+  // Ensure the webview does not overlay the native status bar on mobile
+  // This makes the app content start below the status bar like a normal app.
+  try {
+    StatusBar.setOverlaysWebView({ overlay: false });
+  } catch (e) {
+    // plugin not available (e.g., running in a desktop browser)
+    console.debug('StatusBar.setOverlaysWebView unavailable', e);
+  }
   // Try to flush any queued offline writes when we become online
   window.addEventListener('online', () => {
     offlineService.processQueue().catch(err => console.error(err))

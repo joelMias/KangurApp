@@ -13,7 +13,6 @@
                 <IonButtons slot="end">
                 <IonButton @click="logout">
                     <IonIcon :icon="logOutOutline"></IonIcon>
-                    Tancar sessió
                 </IonButton>
                 </IonButtons>
             </IonToolbar>
@@ -46,6 +45,11 @@
                     </IonCol>
                     <IonCol size="auto">
                         <IonRow class="modeBotons">
+                          <IonCol size="auto">
+                              <IonButton color="dark" fill="outline" @click="recarregarHistorial">
+                                <IonIcon :icon="refreshOutline"></IonIcon>
+                              </IonButton>
+                          </IonCol>
                           <IonCol v-if="superAdmin === true" size="auto">
                             <IonButton fill="outline" color="dark" @click="router.push('/admin-panel')">
                               <IonIcon :icon="appsOutline"></IonIcon>
@@ -61,11 +65,6 @@
                                 <IonIcon :icon="listOutline"></IonIcon>
                               </IonButton>
                           </IonCol>
-                          <IonCol size="auto">
-                              <IonButton color="dark" fill="outline" @click="recarregarHistorial">
-                                <IonIcon :icon="refreshOutline"></IonIcon>
-                              </IonButton>
-                          </IonCol>
                         </IonRow>
                     </IonCol>
                     
@@ -75,14 +74,14 @@
 
             <IonGrid class="ion-margin-bottom">
                 <IonRow class="ion-justify-content-center ion-align-items-center">
-                    <IonCol size="auto">
-                        <IonButton @click="previousWeek" fill="clear"><IonIcon :icon="chevronBack" /></IonButton>
+                    <IonCol size="auto" class="ion-no-padding ion-no-margin">
+                        <IonButton size="small" @click="previousWeek" fill="clear"><IonIcon :icon="chevronBack" /></IonButton>
                     </IonCol>
-                    <IonCol size="auto">
+                    <IonCol size="auto" size-sm="7" size-md="auto" class="ion-text-center">
                         <h3>{{ weekLabel }}</h3>
                     </IonCol>
-                    <IonCol size="auto">
-                        <IonButton @click="nextWeek" fill="clear"><IonIcon :icon="chevronForward" /></IonButton>
+                    <IonCol size="auto" class="ion-no-padding ion-no-margin">
+                        <IonButton size="small" @click="nextWeek" fill="clear"><IonIcon :icon="chevronForward" /></IonButton>
                     </IonCol>
                 </IonRow>
             </IonGrid>
@@ -308,22 +307,22 @@ async function carregarHistorial() {
       if (!user) return
       const snapshot = await getDocs(collection(db, 'users', user.uid, 'cronometres'))
       allSessions.value = snapshot.docs.map(d => { const docData = d.data()
-  let ts: number | undefined
-  if (docData.createdAt && typeof docData.createdAt.toDate === 'function') {
-    ts = docData.createdAt.toDate().getTime()
-  } else if (docData.createdAt && (typeof docData.createdAt === 'string' || typeof docData.createdAt === 'number')) {
-    ts = typeof docData.createdAt === 'number' ? docData.createdAt : Date.parse(docData.createdAt)
-  } else if (docData.dia && docData.hora) {
-    ts = new Date(`${docData.dia}T${docData.hora}`).getTime()
-  }
+      let ts: number | undefined
+      if (docData.createdAt && typeof docData.createdAt.toDate === 'function') {
+        ts = docData.createdAt.toDate().getTime()
+      } else if (docData.createdAt && (typeof docData.createdAt === 'string' || typeof docData.createdAt === 'number')) {
+        ts = typeof docData.createdAt === 'number' ? docData.createdAt : Date.parse(docData.createdAt)
+      } else if (docData.dia && docData.hora) {
+        ts = new Date(`${docData.dia}T${docData.hora}`).getTime()
+      }
 
-  let diaVal = docData.dia || ''
-  let horaVal = docData.hora || ''
-  if ((!diaVal || !horaVal) && ts) {
-    const dd = new Date(ts)
-    diaVal = diaVal || dd.toISOString().split('T')[0]
-    horaVal = horaVal || dd.toTimeString().slice(0,5)
-  }
+      let diaVal = docData.dia || ''
+      let horaVal = docData.hora || ''
+      if ((!diaVal || !horaVal) && ts) {
+        const dd = new Date(ts)
+        diaVal = diaVal || dd.toISOString().split('T')[0]
+        horaVal = horaVal || dd.toTimeString().slice(0,5)
+      }
 
   return {
     data: diaVal,
@@ -374,9 +373,15 @@ onIonViewDidEnter(() => {
   color: #333;
 }
 
+.canviar-data {
+  --color: #26a69a;
+}
+
 .modeBotons {
   display: flex;
   gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .canviMode {
@@ -390,6 +395,11 @@ onIonViewDidEnter(() => {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.grafMode .ion-card,
+.grafMode .ion-card-content {
+  padding: 0;
 }
 
 .sessio-card {

@@ -6,19 +6,17 @@
       </IonToolbar>
     </IonHeader>
 
-    <IonContent fullscreen class="ion-padding">
-
-      <IonText class="lletra" color="dark">
-        <h2 class="ion-text-center"> 
-          <strong>Crea el teu compte</strong>
-        </h2>
-      </IonText>
+    <IonContent class="ion-padding">
 
       <IonGrid>
-        <IonRow>
-          <IonCol>
+        <IonRow class="ion-justify-content-center">
+          <IonCol size="12" size-md="6" size-lg="5">
             <IonText class="lletra" color="dark">
-              <h2><strong>Cangurs</strong></h2>
+              <h2 class="form-title"><strong>Crea el teu compte</strong></h2>
+            </IonText>
+
+            <IonText class="lletra" color="dark">
+              <h3><strong>Cangurs</strong></h3>
             </IonText>
 
             <IonList v-if="cangurs.length">
@@ -31,38 +29,35 @@
               </IonItem>
             </IonList>
 
-          </IonCol>
-        </IonRow>
+            <IonGrid class="ion-no-padding ion-margin-top">
+              <IonRow class="ion-align-items-stretch">
+                <IonCol size="11" class="ion-padding-end">
+                  <IonInput v-model="nouCangur" placeholder="Afegeix un cangur" class="input-box"/>
+                </IonCol>
+                <IonCol size="1">
+                  <IonButton class="add-button ion-no-margin" expand="block" @click="afegirCangur">
+                    <IonIcon :icon="addOutline" />
+                  </IonButton>
+                </IonCol>
+              </IonRow>
+            </IonGrid>
 
-        <IonRow class="ion-align-items-center">
-          <IonCol size="11.3">
-            <IonInput v-model="nouCangur" placeholder="Afegeix un cangur" class="input-box"/>
-          </IonCol>
-
-          <IonCol size="0.7" class="ion-text-center">
-            <IonButton class="add-button" @click="afegirCangur">
-              <IonIcon :icon="addOutline" />
+            <IonButton expand="block" size="large" shape="round" fill="outline" class="continuar-button ion-margin-top" @click="guardarCangurs">
+              Continuar
             </IonButton>
           </IonCol>
-
         </IonRow>
       </IonGrid>
 
     </IonContent>
-
-    <IonButton expand="full" size="large" shape="round" fill="outline" slot="fixed" class="continuar-button" @click="guardarCangurs">
-      Continuar
-    </IonButton>
   </IonPage>
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonGrid, IonText, IonLabel, IonCol, IonRow, IonItem, IonList, IonHeader, IonToolbar, IonTitle, IonContent, IonInput, IonButton, IonIcon } from '@ionic/vue'
+import { IonPage, IonGrid, IonText, IonLabel, IonCol, IonRow, IonItem, IonList, IonHeader, IonToolbar, IonTitle, IonContent, IonInput, IonButton, IonIcon, onIonViewWillEnter } from '@ionic/vue'
 import { ref, onMounted } from 'vue'
 import { addOutline, personOutline, trashOutline } from 'ionicons/icons'
 import { useRouter } from 'vue-router'
-
-// Firebase
 import { db, auth } from '@/services/firebase'
 import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore'
 import offlineService from '@/services/offline.service'
@@ -72,6 +67,11 @@ const router = useRouter()
 // Ara cada cangur té { id, nom }
 const cangurs = ref<{ id: string; nom: string }[]>([])
 const nouCangur = ref('')
+
+onIonViewWillEnter(() => {
+  nouCangur.value = ''
+  cangurs.value = []
+})
 
 // Carregar cangurs de Firestore
 onMounted(async () => {
@@ -118,7 +118,7 @@ onMounted(async () => {
     } catch (e) { }
 })
 
-// Afegir nou cangur
+// Afegir nous cangur
 const afegirCangur = async () => {
   if (!nouCangur.value.trim()) return
   const user = auth.currentUser
@@ -143,7 +143,7 @@ const afegirCangur = async () => {
   nouCangur.value = ''
 }
 
-// Eliminar cangur per index (mateixa signatura que abans)
+// Eliminar cangurs
 const eliminarCangur = async (index: number) => {
   const user = auth.currentUser
   if (!user) return
@@ -153,7 +153,7 @@ const eliminarCangur = async (index: number) => {
   cangurs.value.splice(index, 1)
 }
 
-// Guardar i passar a nadó
+// Guardar les dades i passar a la pàgina del nadó
 const guardarCangurs = async () => {
  
   const user = auth.currentUser
@@ -183,13 +183,20 @@ const guardarCangurs = async () => {
     }
   }
 
-  try { localStorage.setItem('localCangurs', JSON.stringify(cangurs.value)) } catch (e) { /* ignore */ }
+  try { localStorage.setItem('localCangurs', JSON.stringify(cangurs.value)) } catch (e) { }
 
   router.push('/nado')
 }
 </script>
 
 <style scoped>
+
+.form-title {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: 600;
+}
 
 .input-box {
   border: 1px solid #26a69a;
@@ -198,11 +205,9 @@ const guardarCangurs = async () => {
   --padding-start: 10px;
 }
 
-.add-button {
+.add-button { 
   --background: #64b8af;
-  width: 48px; 
-  height: 48px;  
-  border-radius: 8px;
+  height: 100%;
 }
 
 .continuar-button {
@@ -210,10 +215,9 @@ const guardarCangurs = async () => {
   --color: #26a69a;
   --border-radius: 10px;
   --border-width: 1px;
-  --border-color:#26a69a;
+  --border-color: #26a69a;
   font-weight: 600;
-  width: 30%;
   text-transform: none;
-  margin: 0 auto 18px auto;
 }
+
 </style>
