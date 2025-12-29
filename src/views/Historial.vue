@@ -28,11 +28,11 @@
                     </IonCol>
                 </IonRow>
                 <IonRow>
-                    <IonCol>
-                        <IonButton expand="block" fill="outline" class="confButton">
-                        Configuració de l'aplicació
-                        </IonButton>
-                    </IonCol>
+                  <IonCol>
+                    <IonButton expand="block" fill="outline" class="confButton" @click="showUnavailableToast">
+                    Configuració de l'aplicació
+                    </IonButton>
+                  </IonCol>
                 </IonRow>
             </IonGrid>
 
@@ -118,7 +118,7 @@
                                     <span>{{ formatSessioDate(sessio.data, sessio.hora) }}</span>
                                 </IonCol>
                                 <IonCol size="auto">
-                                    <strong>{{ formatSecondsToMMSS(sessio.temps) }}</strong>
+                                  <strong>{{ formatSecondsToReadable(sessio.temps) }}</strong>
                                 </IonCol>
                                 </IonRow>
                                 <IonRow class="ion-align-items-center">
@@ -135,13 +135,14 @@
             </IonGrid>
 
             <IonLoading :is-open="loadingCharts" message="Carregant gràfics..." spinner="crescent"/>
+            <IonToast :is-open="showToastNotAvailable" :message="toastMessage" position="bottom" duration="2000" @didDismiss="showToastNotAvailable = false" />
 
-        </IonContent>
+          </IonContent>
     </IonPage>
 </template>
 
 <script setup lang="ts">
-import { IonButton, IonLoading, IonContent, IonGrid, IonCol, IonRow, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, IonCard, IonCardContent, IonButtons, onIonViewDidEnter } from '@ionic/vue'
+import { IonButton, IonLoading, IonContent, IonGrid, IonCol, IonRow, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, IonCard, IonCardContent, IonButtons, IonToast, onIonViewDidEnter } from '@ionic/vue'
 import { chevronBack, arrowBackOutline, folderOpen, barChartOutline, listOutline, arrowForwardOutline, logOutOutline, chevronForward, appsOutline, refreshOutline } from 'ionicons/icons'
 import barChart from '@/views/GrafBarres.vue'
 import pieChart from '@/views/GrafCercle.vue'
@@ -154,6 +155,8 @@ import { collection, getDocs } from 'firebase/firestore'
 const router = useRouter()
 const loadingCharts = ref(false)
 const mode = ref<'grafic' | 'llista'>('grafic')
+const showToastNotAvailable = ref(false)
+const toastMessage = ref('Funció no disponible')
 
 async function logout() {
   try {
@@ -164,6 +167,10 @@ async function logout() {
   } catch (error) {
     console.error('Error al tancar la sessió:', error)
   }
+}
+
+function showUnavailableToast() {
+  showToastNotAvailable.value = true
 }
 
 interface Dataset { label: string; data: number[]; backgroundColor: string }
@@ -187,7 +194,7 @@ function obtenirDiaSetmanaCat(dataStr: string) {
   return mapa[diaJS]
 }
 
-import { formatSecondsToMMSS } from '@/utils/time'
+import { formatSecondsToMMSS, formatSecondsToReadable } from '@/utils/time'
 
 function formatSessioDate(dataStr: string, horaStr: string) {
   const date = new Date(`${dataStr}T${horaStr}`)

@@ -63,7 +63,7 @@
         <IonGrid>
           <IonRow class="ion-justify-content-center">
             <IonCol size="auto">
-              <IonButton fill="outline" class="footer-button">
+              <IonButton fill="outline" class="footer-button" @click="openUserGuide">
                 <IonLabel>Per saber-ne més</IonLabel>
                 <IonIcon :icon="documentTextOutline" size="large" slot="end"/>
               </IonButton>
@@ -90,6 +90,10 @@ router.push('/cronometre')
 
 const registre = async () => {
 router.push('/registerEntrada')
+}
+
+const openUserGuide = () => {
+  window.open('/Guia per l\'usuari.pdf', '_blank')
 }
 
 </script>

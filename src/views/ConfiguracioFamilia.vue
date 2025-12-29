@@ -39,7 +39,7 @@
             <IonInput v-model="nouCangur" placeholder="Afegeix un cangur" />
           </IonCol>
           <IonCol size="3">
-            <IonButton class="add-button" expand="block" @click="afegirCangur">
+            <IonButton class="add-button" expand="block" :disabled="!nouCangur.trim()" @click="afegirCangur">
               <IonIcon :icon="addOutline" />
             </IonButton>
           </IonCol>

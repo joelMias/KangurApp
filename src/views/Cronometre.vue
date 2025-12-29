@@ -54,7 +54,7 @@
         <IonGrid>
           <IonRow class="ion-justify-content-center">
             <IonCol size="auto">
-              <IonButton fill="outline" class="footer-button">
+              <IonButton fill="outline" class="footer-button" @click="openUserGuide">
                 <IonLabel>Per saber-ne més</IonLabel>
                 <IonIcon :icon="documentTextOutline" size="large" slot="end"/>
               </IonButton>
@@ -86,6 +86,10 @@ const messages = marquesinaData.messages
 const messageIndex = ref(0)
 const currentMessage = ref(messages[0])
 const messageKey = ref(`msg-${messageIndex.value}`)
+
+const openUserGuide = () => {
+  window.open('/Guia per l\'usuari.pdf', '_blank')
+}
 
 function startCrono() {
   estaActiu.value = true
