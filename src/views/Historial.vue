@@ -34,6 +34,13 @@
                     </IonButton>
                   </IonCol>
                 </IonRow>
+                <IonRow v-if="superAdmin === true">
+                  <IonCol>
+                    <IonButton expand="block" fill="outline" class="confButton" @click="router.push('/admin-panel')">
+                    Panell d'administració
+                    </IonButton>
+                  </IonCol>
+                </IonRow>
             </IonGrid>
 
             <IonGrid class="ion-margin-bottom">
@@ -49,11 +56,6 @@
                               <IonButton color="dark" fill="outline" @click="recarregarHistorial">
                                 <IonIcon :icon="refreshOutline"></IonIcon>
                               </IonButton>
-                          </IonCol>
-                          <IonCol v-if="superAdmin === true" size="auto">
-                            <IonButton fill="outline" color="dark" @click="router.push('/admin-panel')">
-                              <IonIcon :icon="appsOutline"></IonIcon>
-                            </IonButton>
                           </IonCol>
                           <IonCol size="auto">
                             <IonButton class="canviMode" :fill="mode === 'llista' ? 'solid' : 'outline'" @click="mode = 'grafic'">
