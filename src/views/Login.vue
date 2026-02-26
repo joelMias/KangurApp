@@ -46,12 +46,11 @@
 </template>
 
 <script setup lang="ts">
-import {IonPage, IonContent, IonIcon, IonButtons, IonLabel, IonInput, IonButton, IonHeader, IonToolbar, IonTitle, IonGrid, IonRow, IonCol, IonText, IonLoading, IonToast} from '@ionic/vue';
+import {IonPage, IonContent, IonIcon, IonButtons, IonLabel, IonInput, IonButton, IonHeader, IonToolbar, IonTitle, IonGrid, IonRow, IonCol, IonText, IonLoading, IonToast, onIonViewWillEnter} from '@ionic/vue';
 import { ref } from 'vue'
 import { arrowBackOutline } from 'ionicons/icons'
 import { useRouter } from 'vue-router'
 import authService from '@/services/auth.service'
-import { onIonViewWillEnter } from '@ionic/vue'
 
 const router = useRouter();
 
@@ -62,7 +61,16 @@ const error = ref('');
 const showToast = ref(false)
 const toastMessage = ref('')
 
-onIonViewWillEnter(() => {
+onIonViewWillEnter(async () => {
+  // Es comprova si hi ha una sessió vàlida
+  const isValid = await authService.isTokenValid()
+  if (isValid) {
+    // Si la sessió és vàlida es va a funcionalitats directament sense haver de fer login
+    router.push('/funcionalitats')
+    return
+  }
+  
+  // Si no, netejar els camps
   email.value = ''
   password.value = ''
 })

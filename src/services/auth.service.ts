@@ -5,22 +5,66 @@ import {
   signInWithEmailAndPassword,
   signOut,
   updateProfile,
-  User
+  User,
+  onAuthStateChanged
 } from 'firebase/auth'
 import { doc, setDoc, getDoc, collection, getDocs } from 'firebase/firestore'
 
 const TOKEN_KEY = 'token'
+const TOKEN_EXPIRY_KEY = 'tokenExpiry'
+const TOKEN_EXPIRY_HOURS = 7 * 24 // 7 dies
+
+function generateToken(): string {
+  return `token_${Date.now()}_${Math.random().toString(36).slice(2)}`
+}
+
+function getTokenExpiryTime(): number {
+  return Date.now() + TOKEN_EXPIRY_HOURS * 60 * 60 * 1000
+}
 
 async function saveToken(token: string) {
   localStorage.setItem(TOKEN_KEY, token)
+  localStorage.setItem(TOKEN_EXPIRY_KEY, getTokenExpiryTime().toString())
 }
 
 async function removeToken() {
   localStorage.removeItem(TOKEN_KEY)
+  localStorage.removeItem(TOKEN_EXPIRY_KEY)
 }
 
 async function getToken() {
   return localStorage.getItem(TOKEN_KEY)
+}
+
+function isTokenExpired(): boolean {
+  const expiryStr = localStorage.getItem(TOKEN_EXPIRY_KEY)
+  if (!expiryStr) return true
+  const expiry = parseInt(expiryStr, 10)
+  return Date.now() > expiry
+}
+
+async function isTokenValid(): Promise<boolean> {
+  const token = await getToken()
+  if (!token) return false
+  
+  if (isTokenExpired()) {
+    await removeToken()
+    return false
+  }
+
+  // Esperar a que Firebase restauri la sessió
+  return new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe()
+      if (user) {
+        // Usuari autenticat a Firebase i token vàlid
+        resolve(true)
+      } else {
+        // No hi ha usuari autenticat, netejar token
+        removeToken().then(() => resolve(false))
+      }
+    })
+  })
 }
 
 
@@ -46,6 +90,10 @@ async function register(payload: { name: string; email: string; password: string
 async function login(payload: { email: string; password: string }) {
   const userCredential = await signInWithEmailAndPassword(auth, payload.email, payload.password)
   const user = userCredential.user
+
+  // Generar i guardar token amb expiració
+  const token = generateToken()
+  await saveToken(token)
 
   localStorage.setItem('uid', user.uid)
   localStorage.setItem('name', user.displayName || '')
@@ -76,7 +124,7 @@ async function login(payload: { email: string; password: string }) {
   }
 
   return {
-    expires_in: null
+    expires_in: TOKEN_EXPIRY_HOURS * 60 * 60
   }
 }
 
@@ -96,6 +144,16 @@ async function me() {
 async function logout() {
   await signOut(auth)
   await removeToken()
+  
+  // Netejar totes les dades de sessió
+  localStorage.removeItem('uid')
+  localStorage.removeItem('name')
+  localStorage.removeItem('email')
+  localStorage.removeItem('admin')
+  localStorage.removeItem('localNados')
+  localStorage.removeItem('selectedNado')
+  localStorage.removeItem('selectedNadoName')
+  localStorage.removeItem('localCangurs')
 }
 
 export default {
@@ -106,5 +164,7 @@ export default {
   getToken,
   removeToken,
   saveToken,
+  isTokenValid,
+  isTokenExpired,
 }
 
