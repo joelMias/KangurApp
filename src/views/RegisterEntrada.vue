@@ -187,8 +187,8 @@ const registrar = async () => {
     estaOk.value = true
     router.push('/HomePage')
   } catch (err: any) {
-    console.error('Error registrant l'entrada:', err)
-    alert('Error registrant l'entrada: ' + err.message)
+    console.error("Error registrant l'entrada:", err)
+    alert("Error registrant l'entrada: " + err.message)
   }
 }
 </script>
