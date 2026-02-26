@@ -24,17 +24,9 @@
                     <IonCol>
                         <IonButton expand="block" fill="outline" class="confButton" @click="router.push('/config-familia')">
                         Configuració de la família
-                        <IonIcon slot="end" :icon="settingsOutline"></IonIcon>
+                        <IonIcon slot="end" :icon="peopleOutline"></IonIcon>
                         </IonButton>
                     </IonCol>
-                </IonRow>
-                <IonRow>
-                  <IonCol>
-                    <IonButton expand="block" fill="outline" class="confButton" @click="showUnavailableToast">
-                    Configuració de l'aplicació
-                    <IonIcon slot="end" :icon="cogOutline"></IonIcon>
-                    </IonButton>
-                  </IonCol>
                 </IonRow>
                 <IonRow v-if="superAdmin === true">
                   <IonCol>
@@ -140,15 +132,32 @@
             </IonGrid>
 
             <IonLoading :is-open="loadingCharts" message="Carregant gràfics..." spinner="crescent"/>
-            <IonToast :is-open="showToastNotAvailable" :message="toastMessage" position="bottom" duration="2000" @didDismiss="showToastNotAvailable = false" />
+            
+            <IonAlert
+              :is-open="showLogoutAlert"
+              header="Tancar sessió"
+              message="Estàs segur que vols tancar la sessió?"
+              :buttons="[
+                {
+                  text: 'Cancelar',
+                  role: 'cancel'
+                },
+                {
+                  text: 'Sí, tancar sessió',
+                  role: 'destructive',
+                  handler: confirmLogout
+                }
+              ]"
+              @didDismiss="showLogoutAlert = false"
+            />
 
           </IonContent>
     </IonPage>
 </template>
 
 <script setup lang="ts">
-import { IonButton, IonLoading, IonContent, IonGrid, IonCol, IonRow, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, IonCard, IonCardContent, IonButtons, IonToast, onIonViewDidEnter } from '@ionic/vue'
-import { chevronBack, arrowBackOutline, folderOpen, barChartOutline, listOutline, arrowForwardOutline, logOutOutline, chevronForward, refreshOutline, settingsOutline, cogOutline, shieldOutline } from 'ionicons/icons'
+import { IonButton, IonLoading, IonContent, IonGrid, IonCol, IonRow, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, IonCard, IonCardContent, IonButtons, IonAlert, onIonViewDidEnter } from '@ionic/vue'
+import { chevronBack, arrowBackOutline, folderOpen, barChartOutline, listOutline, arrowForwardOutline, logOutOutline, chevronForward, refreshOutline, peopleOutline, shieldOutline } from 'ionicons/icons'
 import barChart from '@/views/GrafBarres.vue'
 import pieChart from '@/views/GrafCercle.vue'
 import { ref, computed } from 'vue'
@@ -160,22 +169,21 @@ import { collection, getDocs } from 'firebase/firestore'
 const router = useRouter()
 const loadingCharts = ref(false)
 const mode = ref<'grafic' | 'llista'>('grafic')
-const showToastNotAvailable = ref(false)
-const toastMessage = ref('Funció no disponible')
+const showLogoutAlert = ref(false)
 
-async function logout() {
+async function confirmLogout() {
   try {
     await signOut(auth)
     superAdmin.value = false
     localStorage.removeItem('admin')
-    router.push('/login')
+    router.push('/initialPage')
   } catch (error) {
     console.error('Error al tancar la sessió:', error)
   }
 }
 
-function showUnavailableToast() {
-  showToastNotAvailable.value = true
+function logout() {
+  showLogoutAlert.value = true
 }
 
 interface Dataset { label: string; data: number[]; backgroundColor: string }
@@ -372,6 +380,13 @@ onIonViewDidEnter(() => {
   --border-color: #000;
   --color: #000;
   --background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.confButton ion-icon[slot='end'] {
+  margin-left: auto;
 }
 
 .separador {
