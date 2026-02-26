@@ -9,7 +9,7 @@
           </IonButton>
         </IonButtons>
         <IonButtons slot="end">
-          <IonButton @click="router.push('/historial')">
+          <IonButton @click="router.push('/perfil')">
             <IonIcon :icon="menuOutline"></IonIcon>
           </IonButton>
         </IonButtons>

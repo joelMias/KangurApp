@@ -9,12 +9,13 @@ import Nado from '@/views/Nado.vue';
 import Cronometre from '@/views/Cronometre.vue';
 import GuardarCrono from '@/views/GuardarCrono.vue';
 
-import Historial from '@/views/Historial.vue';
+import Perfil from '@/views/Perfil.vue';
 import ConfiguracioFamilia from '@/views/ConfiguracioFamilia.vue';
 import ResetPassword from '@/views/ResetPassword.vue';
 import RegisterEntrada from '@/views/RegisterEntrada.vue';
 import AdminPanel from '@/views/AdminPanel.vue';
 import PdfViewer from '@/views/PdfViewer.vue';
+import authService from '@/services/auth.service';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -58,8 +59,8 @@ const routes: Array<RouteRecordRaw> = [
     component: RegisterEntrada
   },
   {
-    path: '/historial',
-    component: Historial
+    path: '/perfil',
+    component: Perfil
   }
   ,
   {
@@ -85,6 +86,33 @@ const routes: Array<RouteRecordRaw> = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes
+})
+
+// Route guard
+router.beforeEach(async (to, from, next) => {
+  const isAuthenticated = await authService.isTokenValid()
+
+  // Public routes (only accessible when NOT authenticated)
+  const guestOnlyRoutes = ['/login', '/register', '/initialPage']
+
+  // Protected routes (only accessible when authenticated)
+  const protectedRoutes = [
+    '/HomePage', '/cangurs', '/nado', '/cronometre', '/guardarCrono',
+    '/registerEntrada', '/perfil', '/admin-panel', '/config-familia',
+    '/reset-password', '/pdf-viewer'
+  ]
+
+  if (isAuthenticated && guestOnlyRoutes.includes(to.path)) {
+    // Authenticated user trying to access login/register → go to app
+    return next('/HomePage')
+  }
+
+  if (!isAuthenticated && protectedRoutes.includes(to.path)) {
+    // Unauthenticated user trying to access protected page → go to login screen
+    return next('/initialPage')
+  }
+
+  next()
 })
 
 export default router

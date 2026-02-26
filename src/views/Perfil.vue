@@ -8,7 +8,7 @@
                 </IonButton>
                 </IonButtons>
 
-                <IonTitle> <img src="/src/assets/kangur_resized.jpg" class="header-logo">KANGURAPP</IonTitle>
+                <IonTitle> Perfil família</IonTitle>
 
                 <IonButtons slot="end">
                 <IonButton @click="logout">
@@ -24,6 +24,7 @@
                     <IonCol>
                         <IonButton expand="block" fill="outline" class="confButton" @click="router.push('/config-familia')">
                         Configuració de la família
+                        <IonIcon slot="end" :icon="settingsOutline"></IonIcon>
                         </IonButton>
                     </IonCol>
                 </IonRow>
@@ -31,6 +32,7 @@
                   <IonCol>
                     <IonButton expand="block" fill="outline" class="confButton" @click="showUnavailableToast">
                     Configuració de l'aplicació
+                    <IonIcon slot="end" :icon="cogOutline"></IonIcon>
                     </IonButton>
                   </IonCol>
                 </IonRow>
@@ -38,6 +40,7 @@
                   <IonCol>
                     <IonButton expand="block" fill="outline" class="confButton" @click="router.push('/admin-panel')">
                     Panell d'administració
+                    <IonIcon slot="end" :icon="shieldOutline"></IonIcon>
                     </IonButton>
                   </IonCol>
                 </IonRow>
@@ -145,7 +148,7 @@
 
 <script setup lang="ts">
 import { IonButton, IonLoading, IonContent, IonGrid, IonCol, IonRow, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, IonCard, IonCardContent, IonButtons, IonToast, onIonViewDidEnter } from '@ionic/vue'
-import { chevronBack, arrowBackOutline, folderOpen, barChartOutline, listOutline, arrowForwardOutline, logOutOutline, chevronForward, appsOutline, refreshOutline } from 'ionicons/icons'
+import { chevronBack, arrowBackOutline, folderOpen, barChartOutline, listOutline, arrowForwardOutline, logOutOutline, chevronForward, refreshOutline, settingsOutline, cogOutline, shieldOutline } from 'ionicons/icons'
 import barChart from '@/views/GrafBarres.vue'
 import pieChart from '@/views/GrafCercle.vue'
 import { ref, computed } from 'vue'
@@ -196,7 +199,7 @@ function obtenirDiaSetmanaCat(dataStr: string) {
   return mapa[diaJS]
 }
 
-import { formatSecondsToMMSS, formatSecondsToReadable } from '@/utils/time'
+import { formatSecondsToReadable } from '@/utils/time'
 
 function formatSessioDate(dataStr: string, horaStr: string) {
   const date = new Date(`${dataStr}T${horaStr}`)
