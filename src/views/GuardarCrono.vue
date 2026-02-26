@@ -215,7 +215,7 @@ onMounted(() => {
 })
 
 const cancelar = () => {
-  router.push('/funcionalitats')
+  router.push('/HomePage')
 }
 
 const guardarSessio = async () => {
@@ -308,7 +308,7 @@ const guardarSessio = async () => {
 
     estaOk.value = true
     clearCronoTemp()
-    router.push('/funcionalitats')
+    router.push('/HomePage')
   } catch (err: any) {
     console.error('Error desant el cronòmetre:', err)
     alert('Error desant el cronòmetre: ' + err.message)

@@ -4,7 +4,7 @@
       <IonToolbar class="capçalera">
         <IonTitle> <img src="/src/assets/kangur_resized.jpg" class="header-logo">KANGURAPP</IonTitle>
         <IonButtons slot="start">
-          <IonButton @click="router.push('/funcionalitats')">
+          <IonButton @click="router.push('/HomePage')">
             <IonIcon :icon="arrowBackOutline"></IonIcon>
           </IonButton>
         </IonButtons>
@@ -126,7 +126,7 @@ function onEntryChange(ev: any) { entryTime.value = ev.detail.value }
 function onExitChange(ev: any) { exitTime.value = ev.detail.value }
 
 const cancelar = () => {
-  router.push('/funcionalitats')
+  router.push('/HomePage')
 }
 
 const registrar = async () => {
@@ -185,10 +185,10 @@ const registrar = async () => {
     }
 
     estaOk.value = true
-    router.push('/funcionalitats')
+    router.push('/HomePage')
   } catch (err: any) {
-    console.error('Error registrant l’entrada:', err)
-    alert('Error registrant l’entrada: ' + err.message)
+    console.error('Error registrant l'entrada:', err)
+    alert('Error registrant l'entrada: ' + err.message)
   }
 }
 </script>

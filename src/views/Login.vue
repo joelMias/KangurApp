@@ -3,7 +3,7 @@
     <IonHeader>
       <IonToolbar class="capçalera">
         <IonButtons slot="start">
-          <IonButton @click="router.push('/HomePage')">
+          <IonButton @click="router.push('/initialPage')">
             <IonIcon :icon="arrowBackOutline"></IonIcon>
           </IonButton>
         </IonButtons>
@@ -66,7 +66,7 @@ onIonViewWillEnter(async () => {
   const isValid = await authService.isTokenValid()
   if (isValid) {
     // Si la sessió és vàlida es va a funcionalitats directament sense haver de fer login
-    router.push('/funcionalitats')
+    router.push('/HomePage')
     return
   }
   
@@ -87,7 +87,7 @@ const Login = async () => {
 
   try {
     await authService.login({email: email.value,password: password.value})
-    router.push('/funcionalitats')
+    router.push('/HomePage')
   } catch (err) {
     console.error(err)
     error.value = 'Credencials incorrectes.'

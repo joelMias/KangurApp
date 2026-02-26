@@ -2,11 +2,10 @@ import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
 import HomePage from '../views/HomePage.vue'
 import Login from '@/views/Login.vue'
-import Inici from '@/views/HomePage.vue'
+import InitialPage from '@/views/InitialPage.vue'
 import Register from '@/views/Register.vue';
 import Cangurs from '@/views/Cangurs.vue';
 import Nado from '@/views/Nado.vue';
-import Funcionalitats from '@/views/Funcionalitats.vue';
 import Cronometre from '@/views/Cronometre.vue';
 import GuardarCrono from '@/views/GuardarCrono.vue';
 
@@ -27,6 +26,10 @@ const routes: Array<RouteRecordRaw> = [
     component: HomePage
   },
   {
+    path: '/initialPage',
+    component: InitialPage
+  },
+  {
     path: '/register',
     component: Register
   },
@@ -41,10 +44,6 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/nado',
     component: Nado
-  },
-  {
-    path: '/funcionalitats',
-    component: Funcionalitats
   },
   {
     path: '/cronometre',

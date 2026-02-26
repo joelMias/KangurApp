@@ -1,40 +1,128 @@
 <template>
   <IonPage>
-    <IonContent fullscreen>
-      <IonGrid>
-        <IonRow class="ion-justify-content-center ion-align-items-center">
-          <IonCol size="8" size-md="6" size-lg="4" class="ion-text-center">
-            <img src="/src/assets/kangur.jpg" alt="KangurApp Logo" />
-          </IonCol>
+    <IonHeader>
+      <IonToolbar class="capçalera">
+        <IonTitle> <img src="/src/assets/kangur_resized.jpg" class="header-logo">KANGURAPP</IonTitle>
+        <IonButtons slot="end">
+          <IonButton @click="router.push('/historial')">
+            <IonIcon :icon="menuOutline"></IonIcon>
+          </IonButton>
+        </IonButtons>
+      </IonToolbar>
+    </IonHeader>
 
-          <IonCol size="12" class="ion-text-center">
-            <h1>KANGURAPP</h1>
-          </IonCol>
-        </IonRow>
+    <IonContent>
+      <IonGrid class="full-height">
+        <IonRow class="ion-justify-content-center ion-align-items-center full-height">
+          <IonCol size="12" size-md="8" size-lg="6" class="center-col">
+            
+            <IonRow>
+              <IonCol class="ion-text-center">
+                <IonButton fill="outline" size="large" expand="block" @click="iniciar" class="custom-button">
+                  <IonGrid>
+                    <IonRow class="ion-justify-content-center">
+                      <IonCol size="12" class="ion-text-center">
+                        <img src="/src/assets/kangur_no_background.png" />
+                      </IonCol>
+                    </IonRow>
+                    <IonRow class="ion-justify-content-center">
+                      <IonCol size="12" class="ion-text-center">
+                        <strong><IonLabel>Iniciar pell amb pell</IonLabel></strong>
+                      </IonCol>
+                    </IonRow>
+                  </IonGrid>
+                </IonButton>
+              </IonCol>
+            </IonRow>
 
-        <IonRow>
-          
-        </IonRow>
-      </IonGrid>
-
-      <IonGrid>
-        <IonRow class="ion-justify-content-center ion-padding">
-          <IonCol size="5" size-sm="3">
-            <IonButton expand="block" size="small" fill="clear" color="medium" router-link="/register">
-              Registrar-se
-            </IonButton>
-          </IonCol>
-          <IonCol size="5" size-sm="3">
-            <IonButton expand="block" size="small" fill="clear" color="medium" router-link="/login">
-              Iniciar sessió
-            </IonButton>
+            <IonRow class="ion-margin-top">
+              <IonCol  class="ion-text-center">
+                <IonButton fill="outline" size="large" expand="block" @click="registre" class="custom-button">
+                  <IonGrid>
+                    <IonRow class="ion-justify-content-center">
+                      <IonCol size="12" class="ion-text-center">
+                        <IonIcon :icon="businessOutline" size="large" />
+                      </IonCol>
+                    </IonRow>
+                    <IonRow class="ion-justify-content-center">
+                      <IonCol size="12" class="ion-text-center">
+                        <strong><IonLabel>Registre entrada unitat</IonLabel></strong>
+                      </IonCol>
+                    </IonRow>
+                  </IonGrid>
+                </IonButton>
+              </IonCol>
+            </IonRow>
           </IonCol>
         </IonRow>
       </IonGrid>
     </IonContent>
+
+    <IonFooter class="footer">
+      <IonToolbar>
+        <IonGrid>
+          <IonRow class="ion-justify-content-center">
+            <IonCol size="auto">
+              <IonButton fill="outline" class="footer-button" @click="openUserGuide">
+                <IonLabel>Per saber-ne més</IonLabel>
+                <IonIcon :icon="documentTextOutline" size="large" slot="end"/>
+              </IonButton>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
+      </IonToolbar>
+    </IonFooter>
   </IonPage>
 </template>
 
+
 <script setup lang="ts">
-import { IonPage, IonContent, IonButton, IonGrid, IonRow, IonCol } from '@ionic/vue'
+import { IonPage, IonHeader, IonButtons, IonToolbar, IonTitle, IonContent, IonButton, IonIcon, IonFooter, IonLabel, IonCol, IonRow, IonGrid} from '@ionic/vue'
+import { businessOutline, documentTextOutline, menuOutline } from 'ionicons/icons'
+import { useRouter } from 'vue-router'
+
+
+const router = useRouter()
+
+const iniciar = () => {
+router.push('/cronometre')
+}
+
+const registre = async () => {
+router.push('/registerEntrada')
+}
+
+const openUserGuide = () => {
+  router.push('/pdf-viewer')
+}
+
 </script>
+
+<style scoped>
+
+.full-height {
+  height: 100%;
+}
+
+.custom-button {
+  --background: #e6f3f2;
+  --color: #4b9b90;
+  --border-radius: 16px;
+  --border-color: #377c73;
+  --border-width: 1px;
+  text-transform: none;
+  font-size: 20px;
+  --ion-font-family: "Nunito", sans-serif;
+}
+
+.footer-button {
+  --border-color: #000;
+  --border-width: 1px;
+  --color: #000;
+  --border-radius: 12px;
+  text-transform: none;
+  font-weight: 500;
+  font-size: 14px;
+}
+</style>
+

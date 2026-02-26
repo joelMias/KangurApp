@@ -3,7 +3,7 @@
         <IonHeader>
             <IonToolbar class="capçalera">
                 <IonButtons slot="start">
-                <IonButton @click="router.push('/funcionalitats')">
+                <IonButton @click="router.push('/HomePage')">
                     <IonIcon :icon="arrowBackOutline"></IonIcon>
                 </IonButton>
                 </IonButtons>

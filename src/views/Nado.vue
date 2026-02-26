@@ -126,7 +126,7 @@ const Registre = async () => {
       console.log('Nadó guardat localment per sincronitzar després')
     }
 
-    router.push('/funcionalitats')
+    router.push('/HomePage')
   } catch (err: any) {
     console.error('Error desant el nadó:', err)
     alert('Error desant el nadó: ' + err.message)

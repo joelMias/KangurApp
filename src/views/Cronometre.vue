@@ -4,7 +4,7 @@
       <IonToolbar class="capçalera">
         <IonTitle> <img src="/src/assets/kangur_resized.jpg" class="header-logo">KANGURAPP</IonTitle>
         <IonButtons slot="start">
-          <IonButton @click="router.push('/funcionalitats')">
+          <IonButton @click="router.push('/HomePage')">
             <IonIcon :icon="arrowBackOutline"></IonIcon>
           </IonButton>
         </IonButtons>
