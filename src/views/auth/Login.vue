@@ -1,17 +1,5 @@
 <template>
-  <IonPage>
-    <IonHeader>
-      <IonToolbar class="capçalera">
-        <IonButtons slot="start">
-          <IonButton @click="router.push('/initialPage')">
-            <IonIcon :icon="arrowBackOutline"></IonIcon>
-          </IonButton>
-        </IonButtons>
-        <IonTitle> <img src="/src/assets/kangur_resized.jpg" class="header-logo">KANGURAPP</IonTitle>
-      </IonToolbar>
-    </IonHeader>
-
-    <IonContent class="ion-padding">
+  <AppLayout :show-back="true" back-route="/initialPage" content-class="ion-padding">
       <IonGrid>
         <IonRow class="ion-justify-content-center">
           <IonCol size="12" size-md="6" size-lg="5">
@@ -41,16 +29,15 @@
 
       <IonLoading :is-open="loading" message="Validant credencials..." spinner="crescent"/>
       <IonToast :is-open="showToast" :message="toastMessage" duration="3000" color="danger" @didDismiss="showToast = false" />
-    </IonContent>
-  </IonPage>
+    </AppLayout>
 </template>
 
 <script setup lang="ts">
-import {IonPage, IonContent, IonIcon, IonButtons, IonLabel, IonInput, IonButton, IonHeader, IonToolbar, IonTitle, IonGrid, IonRow, IonCol, IonText, IonLoading, IonToast, onIonViewWillEnter} from '@ionic/vue';
+import {IonLabel, IonInput, IonButton, IonGrid, IonRow, IonCol, IonText, IonLoading, IonToast, onIonViewWillEnter} from '@ionic/vue';
 import { ref } from 'vue'
-import { arrowBackOutline } from 'ionicons/icons'
 import { useRouter } from 'vue-router'
 import authService from '@/services/auth.service'
+import AppLayout from '@/components/AppLayout.vue'
 
 const router = useRouter();
 

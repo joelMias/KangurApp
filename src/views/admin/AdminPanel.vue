@@ -1,22 +1,10 @@
 <template>
-  <IonPage>
-    <IonHeader>
-      <IonToolbar class="capçalera">
-        <IonButtons slot="start">
-          <IonButton @click="router.back()">
-            <IonIcon :icon="arrowBackOutline"></IonIcon>
-          </IonButton>
-        </IonButtons>
-        <IonTitle><img src="/src/assets/kangur_resized.jpg" class="header-logo">KANGURAPP</IonTitle>
-        <IonButtons slot="end">
-          <IonButton @click="logout">
-            <IonIcon :icon="logOutOutline"></IonIcon>
-          </IonButton>
-        </IonButtons>
-      </IonToolbar>
-    </IonHeader>
-
-    <IonContent class="ion-padding">
+  <AppLayout :show-back="true">
+    <template #actions>
+      <IonButton @click="logout">
+        <IonIcon :icon="logOutOutline"></IonIcon>
+      </IonButton>
+    </template>
       <IonText color="dark">
         <h1><strong>Panell d'administració</strong></h1>
         <p>Gestió de tots els usuaris i dades del sistema</p>
@@ -152,13 +140,13 @@
           <p class="ion-text-center">No hi ha sessions disponibles</p>
         </IonText>
       </div>
-    </IonContent>
-  </IonPage>
+  </AppLayout>
 </template>
 
 <script setup lang="ts">
- import { IonPage, IonHeader, IonToolbar, IonButtons, IonButton, IonCheckbox, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonTitle, IonContent, IonLabel, IonSegment, IonSegmentButton, IonLoading, IonText, IonList, IonItem, IonItemGroup, IonItemDivider, IonAvatar, onIonViewDidEnter } from '@ionic/vue'
-import { arrowBackOutline, logOutOutline, checkmarkCircle, ellipseOutline } from 'ionicons/icons'
+ import { IonButton, IonCheckbox, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonLabel, IonSegment, IonSegmentButton, IonLoading, IonText, IonAvatar, onIonViewDidEnter } from '@ionic/vue'
+import { logOutOutline } from 'ionicons/icons'
+import AppLayout from '@/components/AppLayout.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { auth } from '@/services/firebase'

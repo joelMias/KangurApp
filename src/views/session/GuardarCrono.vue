@@ -1,12 +1,5 @@
 <template>
-  <IonPage>
-    <IonHeader>
-      <IonToolbar>
-        <IonTitle class="capçalera"> <img src="/src/assets/kangur_resized.jpg" class="header-logo">KANGURAPP</IonTitle>
-      </IonToolbar>
-    </IonHeader>
-
-    <IonContent fullscreen class="ion-padding">
+  <AppLayout content-class="ion-padding">
       <IonGrid>
         
         <IonRow>
@@ -55,30 +48,30 @@
 
       <IonLoading :is-open="loadingCangurs" message="Carregant cangurs..." spinner="crescent"/>
 
-    </IonContent>
-
-    <IonFooter class="footer">
-      <IonToolbar>
-        <IonGrid>
-          <IonRow class="ion-justify-content-center">
-            <IonCol size="auto">
-              <IonButton expand="block" fill="outline" color="medium" class="footer-button lletra" @click="cancelar">Cancelar</IonButton>
-            </IonCol>
-            <IonCol size="auto">
-              <IonButton expand="block" color="primary" fill="solid" class="footer-button lletra" @click="guardarSessio">Registrar</IonButton>
-              <IonToast :is-open="estaOk" :icon="checkbox" :message="toastMessage" :duration="3000" position="bottom" @didDismiss="estaOk = false" color="primary"></IonToast>
-            </IonCol>
-          </IonRow>
-        </IonGrid>
-      </IonToolbar>
-    </IonFooter>
-
-  </IonPage>
+    <template #footer>
+      <IonFooter class="footer">
+        <IonToolbar>
+          <IonGrid>
+            <IonRow class="ion-justify-content-center">
+              <IonCol size="auto">
+                <IonButton expand="block" fill="outline" color="medium" class="footer-button lletra" @click="cancelar">Cancelar</IonButton>
+              </IonCol>
+              <IonCol size="auto">
+                <IonButton expand="block" color="primary" fill="solid" class="footer-button lletra" @click="guardarSessio">Registrar</IonButton>
+                <IonToast :is-open="estaOk" :icon="checkbox" :message="toastMessage" :duration="3000" position="bottom" @didDismiss="estaOk = false" color="primary"></IonToast>
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+        </IonToolbar>
+      </IonFooter>
+    </template>
+  </AppLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-import {IonPage, IonButtons, IonLoading, IonGrid, IonRow, IonCol, IonHeader, IonIcon, IonCard, IonToolbar, IonTitle, IonFooter, IonContent, IonLabel, IonButton, IonToast } from '@ionic/vue'
+import {IonLoading, IonGrid, IonRow, IonCol, IonIcon, IonCard, IonToolbar, IonFooter, IonLabel, IonButton, IonToast } from '@ionic/vue'
+import AppLayout from '@/components/AppLayout.vue'
 import { timerOutline, checkbox } from 'ionicons/icons'
 import { useRouter, useRoute } from 'vue-router'
 import { onAuthStateChanged } from 'firebase/auth'

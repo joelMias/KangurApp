@@ -1,17 +1,5 @@
 <template>
-  <IonPage>
-    <IonHeader>
-      <IonToolbar class="capçalera">
-        <IonButtons slot="start">
-          <IonButton @click="router.back()">
-            <IonIcon :icon="arrowBackOutline" />
-          </IonButton>
-        </IonButtons>
-        <IonTitle>Guia d'usuari</IonTitle>
-      </IonToolbar>
-    </IonHeader>
-
-    <IonContent class="ion-padding">
+  <AppLayout :show-back="true">
 
       <div class="guide-header">
         <img src="/src/assets/kangur.png" alt="KangurApp Logo" class="guide-logo" />
@@ -222,25 +210,21 @@
         </IonCardContent>
       </IonCard>
 
-    </IonContent>
-  </IonPage>
+  </AppLayout>
 </template>
 
 <script setup lang="ts">
 import {
-  IonPage, IonHeader, IonToolbar, IonButtons, IonButton, IonIcon, IonTitle,
-  IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent,
+  IonCard, IonCardHeader, IonCardTitle, IonCardContent,
   IonList, IonItem, IonLabel, IonBadge, IonNote
 } from '@ionic/vue'
 import {
-  arrowBackOutline, chevronForwardOutline, ellipseOutline, personAddOutline,
+  chevronForwardOutline, ellipseOutline, personAddOutline,
   peopleOutline, heartOutline, lockClosedOutline, timerOutline, businessOutline,
   playOutline, stopOutline, saveOutline, warningOutline, barChartOutline,
   calendarOutline, listOutline, addCircleOutline, trashOutline
 } from 'ionicons/icons'
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
+import AppLayout from '@/components/AppLayout.vue'
 
 const sections = [
   { id: 'inici', label: '1. Pàgina inicial' },

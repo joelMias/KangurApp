@@ -1,22 +1,10 @@
 <template>
-  <IonPage>
-    <IonHeader>
-      <IonToolbar class="capçalera">
-        <IonTitle> <img src="/src/assets/kangur_resized.jpg" class="header-logo">KANGURAPP</IonTitle>
-        <IonButtons slot="start">
-          <IonButton @click="router.push('/HomePage')">
-            <IonIcon :icon="arrowBackOutline"></IonIcon>
-          </IonButton>
-        </IonButtons>
-        <IonButtons slot="end">
-          <IonButton @click="router.push('/perfil')">
-            <IonIcon :icon="menuOutline"></IonIcon>
-          </IonButton>
-        </IonButtons>
-      </IonToolbar>
-    </IonHeader>
-
-    <IonContent fullscreen class="ion-padding">
+  <AppLayout :show-back="true" back-route="/HomePage" content-class="ion-padding">
+    <template #actions>
+      <IonButton @click="router.push('/perfil')">
+        <IonIcon :icon="menuOutline"></IonIcon>
+      </IonButton>
+    </template>
       <IonGrid>
         
         <IonRow>
@@ -77,31 +65,32 @@
         </IonRow>
 
       </IonGrid>
-    </IonContent>
 
-    <IonFooter class="footer">
-      <IonToolbar>
-        <IonGrid>
-          <IonRow class="ion-justify-content-center">
-            <IonCol size="auto">
-              <IonButton expand="block" fill="outline" color="medium" class="footer-button lletra" @click="cancelar">Cancelar</IonButton>
-            </IonCol>
-            <IonCol size="auto">
-              <IonButton expand="block" color="primary" fill="solid" class="footer-button lletra" @click="registrar">Registrar</IonButton>
-            </IonCol>
-          </IonRow>
-        </IonGrid>
-      </IonToolbar>
-      <IonToast :is-open="estaOk" :icon="checkbox" :message="toastMessage" :duration="3000" position="bottom" @didDismiss="estaOk = false" color="primary"/>
-    </IonFooter>
-
-  </IonPage>
+    <template #footer>
+      <IonFooter class="footer">
+        <IonToolbar>
+          <IonGrid>
+            <IonRow class="ion-justify-content-center">
+              <IonCol size="auto">
+                <IonButton expand="block" fill="outline" color="medium" class="footer-button lletra" @click="cancelar">Cancelar</IonButton>
+              </IonCol>
+              <IonCol size="auto">
+                <IonButton expand="block" color="primary" fill="solid" class="footer-button lletra" @click="registrar">Registrar</IonButton>
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+        </IonToolbar>
+        <IonToast :is-open="estaOk" :icon="checkbox" :message="toastMessage" :duration="3000" position="bottom" @didDismiss="estaOk = false" color="primary"/>
+      </IonFooter>
+    </template>
+  </AppLayout>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { IonPage, IonHeader, IonButtons, IonToolbar, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonFooter, IonCard, IonCardHeader, IonCardContent, IonDatetime, IonIcon, IonButton, IonToast } from '@ionic/vue'
-import { menuOutline, checkbox, arrowBackOutline } from 'ionicons/icons'
+import { IonToolbar, IonGrid, IonRow, IonCol, IonFooter, IonCard, IonDatetime, IonIcon, IonButton, IonToast } from '@ionic/vue'
+import { menuOutline, checkbox } from 'ionicons/icons'
+import AppLayout from '@/components/AppLayout.vue'
 import { useRouter } from 'vue-router'
 
 // Firebase

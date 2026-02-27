@@ -1,17 +1,5 @@
 <template>
-  <IonPage>
-    <IonHeader>
-      <IonToolbar class="capçalera">
-        <IonButtons slot="start">
-          <IonButton @click="router.back()">
-            <IonIcon :icon="arrowBackOutline" />
-          </IonButton>
-        </IonButtons>
-         <IonTitle> <img src="/src/assets/kangur_resized.jpg" class="header-logo">KANGURAPP</IonTitle>
-      </IonToolbar>
-    </IonHeader>
-
-    <IonContent class="ion-padding">
+  <AppLayout :show-back="true" content-class="ion-padding">
 
       <IonGrid>
         <IonRow class="ion-justify-content-center">
@@ -46,19 +34,18 @@
         </IonRow>
       </IonGrid>
 
-    </IonContent>
-
     <IonButton expand="full" size="large" shape="round" fill="outline" slot="fixed" class="continuar-button" @click="guardar">
       Guardar
     </IonButton>
-  </IonPage>
+  </AppLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { IonPage, IonHeader, IonToolbar, IonButtons, IonButton, IonText, IonIcon, IonTitle, IonContent, IonList, IonItem, IonLabel, IonInput, IonGrid, IonRow, IonCol } from '@ionic/vue'
-import { addOutline, personOutline, trashOutline, arrowBackOutline } from 'ionicons/icons'
+import { IonButton, IonText, IonIcon, IonList, IonItem, IonLabel, IonInput, IonGrid, IonRow, IonCol } from '@ionic/vue'
+import { addOutline, personOutline, trashOutline } from 'ionicons/icons'
+import AppLayout from '@/components/AppLayout.vue'
 
 // Firebase
 import { db, auth } from '@/services/firebase'

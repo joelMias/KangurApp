@@ -1,17 +1,5 @@
 <template>
-  <IonPage>
-    <IonHeader>
-      <IonToolbar class="capçalera">
-        <IonButtons slot="start">
-          <IonButton @click="router.back()">
-            <IonIcon :icon="arrowBackOutline" />
-          </IonButton>
-        </IonButtons>
-        <IonTitle> <img src="/src/assets/kangur_resized.jpg" class="header-logo">KANGURAPP</IonTitle>
-      </IonToolbar>
-    </IonHeader>
-
-    <IonContent class="ion-padding">
+  <AppLayout :show-back="true" content-class="ion-padding">
       <IonGrid>
         <IonRow class="ion-justify-content-center">
           <IonCol size="12" size-md="6" size-lg="5">
@@ -30,8 +18,7 @@
           </IonCol>
         </IonRow>
       </IonGrid>
-    </IonContent>
-  </IonPage>
+    </AppLayout>
 </template>
 
 <script setup lang="ts">
@@ -39,8 +26,8 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { sendPasswordResetEmail } from 'firebase/auth'
 import { auth } from '@/services/firebase'
-import { IonPage, IonHeader, IonToolbar, IonButtons, IonButton, IonIcon, IonTitle, IonContent, IonGrid, IonRow, IonCol, IonText, IonLabel, IonInput, IonToast } from '@ionic/vue'
-import { arrowBackOutline } from 'ionicons/icons'
+import { IonButton, IonGrid, IonRow, IonCol, IonText, IonLabel, IonInput, IonToast } from '@ionic/vue'
+import AppLayout from '@/components/AppLayout.vue'
 
 const router = useRouter()
 const email = ref('')

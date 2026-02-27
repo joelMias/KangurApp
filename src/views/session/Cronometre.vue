@@ -1,17 +1,5 @@
 <template>
-  <IonPage>
-    <IonHeader>
-      <IonToolbar class="capçalera">
-        <IonTitle> <img src="/src/assets/kangur_resized.jpg" class="header-logo">KANGURAPP</IonTitle>
-        <IonButtons slot="start">
-          <IonButton @click="router.push('/HomePage')">
-            <IonIcon :icon="arrowBackOutline"></IonIcon>
-          </IonButton>
-        </IonButtons>
-      </IonToolbar>
-    </IonHeader>
-
-    <IonContent fullscreen class="ion-text-center">
+  <AppLayout :show-back="true" back-route="/HomePage">
       <IonGrid>
         <IonRow class="ion-justify-content-center">
           <IonCol size="12">
@@ -47,29 +35,31 @@
           </IonCol>
         </IonRow>
       </IonGrid>
-    </IonContent>
 
-    <IonFooter class="footer" v-if="!estaActiu">
-      <IonToolbar>
-        <IonGrid>
-          <IonRow class="ion-justify-content-center">
-            <IonCol size="auto">
-              <IonButton fill="outline" class="footer-button" @click="openUserGuide">
-                <IonLabel>Per saber-ne més</IonLabel>
-                <IonIcon :icon="documentTextOutline" size="large" slot="end"/>
-              </IonButton>
-            </IonCol>
-          </IonRow>
-        </IonGrid>
-      </IonToolbar>
-    </IonFooter>
-  </IonPage>
+    <template #footer>
+      <IonFooter class="footer" v-if="!estaActiu">
+        <IonToolbar>
+          <IonGrid>
+            <IonRow class="ion-justify-content-center">
+              <IonCol size="auto">
+                <IonButton fill="outline" class="footer-button" @click="openUserGuide">
+                  <IonLabel>Per saber-ne més</IonLabel>
+                  <IonIcon :icon="documentTextOutline" size="large" slot="end"/>
+                </IonButton>
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+        </IonToolbar>
+      </IonFooter>
+    </template>
+  </AppLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, onUnmounted } from 'vue'
-import { IonPage, IonButtons, IonIcon, IonLabel, IonContent, IonHeader, IonToolbar, IonTitle, IonButton, IonFooter, IonGrid, IonRow, IonCol, IonCard, IonCardContent } from '@ionic/vue'
-import { arrowBackOutline, documentTextOutline } from 'ionicons/icons'
+import { IonIcon, IonLabel, IonToolbar, IonButton, IonFooter, IonGrid, IonRow, IonCol, IonCard, IonCardContent } from '@ionic/vue'
+import { documentTextOutline } from 'ionicons/icons'
+import AppLayout from '@/components/AppLayout.vue'
 import { useRouter } from 'vue-router'
 import { setCronoTemp } from '@/stores/temps'
 import marquesinaData from '@/data/marquesina.json'

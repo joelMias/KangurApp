@@ -1,17 +1,10 @@
 <template>
-  <IonPage>
-    <IonHeader>
-      <IonToolbar class="capçalera">
-        <IonTitle> <img src="/src/assets/kangur_resized.jpg" class="header-logo">KANGURAPP</IonTitle>
-        <IonButtons slot="end">
-          <IonButton @click="router.push('/perfil')">
-            <IonIcon :icon="menuOutline"></IonIcon>
-          </IonButton>
-        </IonButtons>
-      </IonToolbar>
-    </IonHeader>
-
-    <IonContent>
+  <AppLayout>
+    <template #actions>
+      <IonButton @click="router.push('/perfil')">
+        <IonIcon :icon="menuOutline"></IonIcon>
+      </IonButton>
+    </template>
       <IonGrid class="full-height">
         <IonRow class="ion-justify-content-center ion-align-items-center full-height">
           <IonCol size="12" size-md="8" size-lg="6" class="center-col">
@@ -56,30 +49,32 @@
           </IonCol>
         </IonRow>
       </IonGrid>
-    </IonContent>
     
     <hr>
     
-    <IonFooter class="footer">
-      <IonToolbar>
-        <IonGrid>
-          <IonRow class="ion-justify-content-center">
-            <IonCol size="auto">
-              <IonButton fill="outline" class="footer-button" @click="openUserGuide">
-                <IonLabel>Per saber-ne més</IonLabel>
-                <IonIcon :icon="documentTextOutline" size="large" slot="end"/>
-              </IonButton>
-            </IonCol>
-          </IonRow>
-        </IonGrid>
-      </IonToolbar>
-    </IonFooter>
-  </IonPage>
+    <template #footer>
+      <IonFooter class="footer">
+        <IonToolbar>
+          <IonGrid>
+            <IonRow class="ion-justify-content-center">
+              <IonCol size="auto">
+                <IonButton fill="outline" class="footer-button" @click="openUserGuide">
+                  <IonLabel>Per saber-ne més</IonLabel>
+                  <IonIcon :icon="documentTextOutline" size="large" slot="end"/>
+                </IonButton>
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+        </IonToolbar>
+      </IonFooter>
+    </template>
+  </AppLayout>
 </template>
 
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonButtons, IonToolbar, IonTitle, IonContent, IonButton, IonIcon, IonFooter, IonLabel, IonCol, IonRow, IonGrid} from '@ionic/vue'
+import { IonButton, IonIcon, IonFooter, IonToolbar, IonLabel, IonCol, IonRow, IonGrid} from '@ionic/vue'
+import AppLayout from '@/components/AppLayout.vue'
 import { businessOutline, documentTextOutline, menuOutline } from 'ionicons/icons'
 import { useRouter } from 'vue-router'
 

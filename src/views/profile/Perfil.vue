@@ -1,25 +1,12 @@
 <template>
-    <IonPage>
-        <IonHeader>
-            <IonToolbar class="capçalera">
-                <IonButtons slot="start">
-                <IonButton @click="router.push('/HomePage')">
-                    <IonIcon :icon="arrowBackOutline"></IonIcon>
-                </IonButton>
-                </IonButtons>
+    <AppLayout :show-back="true" back-route="/HomePage">
+        <template #actions>
+          <IonButton @click="logout">
+            <IonIcon :icon="logOutOutline"></IonIcon>
+          </IonButton>
+        </template>
 
-                <IonTitle> Perfil família</IonTitle>
-
-                <IonButtons slot="end">
-                <IonButton @click="logout">
-                    <IonIcon :icon="logOutOutline"></IonIcon>
-                </IonButton>
-                </IonButtons>
-            </IonToolbar>
-        </IonHeader>
-
-        <IonContent>
-            <IonGrid class="ion-margin-bottom">
+        <IonGrid class="ion-margin-bottom">
                 <IonRow>
                     <IonCol>
                         <IonButton expand="block" fill="outline" class="confButton" @click="router.push('/config-familia')">
@@ -151,13 +138,13 @@
               @didDismiss="showLogoutAlert = false"
             />
 
-          </IonContent>
-    </IonPage>
+          </AppLayout>
 </template>
 
 <script setup lang="ts">
-import { IonButton, IonLoading, IonContent, IonGrid, IonCol, IonRow, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, IonCard, IonCardContent, IonButtons, IonAlert, onIonViewDidEnter } from '@ionic/vue'
-import { chevronBack, arrowBackOutline, folderOpen, barChartOutline, listOutline, arrowForwardOutline, logOutOutline, chevronForward, refreshOutline, peopleOutline, shieldOutline } from 'ionicons/icons'
+import { IonButton, IonLoading, IonGrid, IonCol, IonRow, IonIcon, IonCard, IonCardContent, IonAlert, onIonViewDidEnter } from '@ionic/vue'
+import { chevronBack, folderOpen, barChartOutline, listOutline, arrowForwardOutline, logOutOutline, chevronForward, refreshOutline, peopleOutline, shieldOutline } from 'ionicons/icons'
+import AppLayout from '@/components/AppLayout.vue'
 import barChart from '@/views/charts/GrafBarres.vue'
 import pieChart from '@/views/charts/GrafCercle.vue'
 import { ref, computed } from 'vue'
