@@ -1,40 +1,34 @@
 <template>
   <AppLayout :show-back="true" back-route="/HomePage">
-      <IonGrid>
-        <IonRow class="ion-justify-content-center">
-          <IonCol size="12">
-            <img src="/src/assets/kangur.jpg" alt="KangurApp Logo"
-                 :class="{ 'imatge_pulse': estaActiu }"
-                 style="max-width:300px" />
-          </IonCol>
-        </IonRow>
+      <div class="crono-wrapper">
+        <div class="ion-text-center">
+          <img src="/src/assets/kangur.jpg" alt="KangurApp Logo"
+               :class="{ 'imatge_pulse': estaActiu }"
+               class="crono-img" />
+        </div>
 
-        <IonRow class="ion-justify-content-center">
-          <IonCol size="7">
-            <IonButton expand="block" size="large" shape="round" fill="outline" :color="estaActiu ? 'danger' : 'success'" @click="toggleCronometre">
-              {{ estaActiu ? 'Aturar' : 'Iniciar' }}
-            </IonButton>
-          </IonCol>
-        </IonRow>
+        <div class="ion-text-center">
+          <h1 class="crono-time">{{ formatTime(temps) }}</h1>
+        </div>
 
-        <IonRow>
-          <IonCol class="ion-text-center">
-            <h1>{{ formatTime(temps) }}</h1>
-          </IonCol>
-        </IonRow>
+        <div class="ion-text-center crono-btn-row">
+          <IonButton size="large" shape="round" fill="outline"
+            :color="estaActiu ? 'danger' : 'success'"
+            @click="toggleCronometre">
+            {{ estaActiu ? 'Aturar' : 'Iniciar' }}
+          </IonButton>
+        </div>
 
-        <IonRow v-if="estaActiu" class="ion-justify-content-center">
-          <IonCol size="auto">
-            <transition name="slide" mode="out-in">
-              <IonCard class="marquesina-card" :key="messageKey">
-                <IonCardContent class="ion-text-center">
-                  <strong>{{ currentMessage }}</strong>
-                </IonCardContent>
-              </IonCard>
-            </transition>
-          </IonCol>
-        </IonRow>
-      </IonGrid>
+        <div v-if="estaActiu" class="ion-text-center">
+          <transition name="slide" mode="out-in">
+            <IonCard class="marquesina-card" :key="messageKey">
+              <IonCardContent class="ion-text-center">
+                <strong>{{ currentMessage }}</strong>
+              </IonCardContent>
+            </IonCard>
+          </transition>
+        </div>
+      </div>
 
     <template #footer>
       <IonFooter class="footer" v-if="!estaActiu">
@@ -125,17 +119,40 @@ onUnmounted(() => stopCrono())
 
 <style scoped>
 
-.capçalera{
-  color: #26a69a;
+.crono-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: calc(100vh - 56px);
+  padding: 16px;
+  gap: 16px;
+  overflow: hidden;
 }
 
-.header-logo{
-  vertical-align: middle;
+.crono-img {
+  max-width: 220px;
+  width: 100%;
+}
+
+.crono-time {
+  font-size: 2.8rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin: 0;
+}
+
+.crono-btn-row {
+  width: 100%;
+  max-width: 260px;
 }
 
 .marquesina-card {
   border: 2px solid #26a69a;
   border-radius: 12px;
+  max-width: 340px;
+  margin: 0 auto;
 }
 
 .imatge_pulse {
@@ -167,11 +184,11 @@ onUnmounted(() => stopCrono())
   opacity: 0;
 }
 
-.footer{
+.footer {
   box-shadow: none;
 }
 
-.footer-button{
+.footer-button {
   --border-color: #000;
   --border-width: 1px;
   --color: #000;

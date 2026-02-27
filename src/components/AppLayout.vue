@@ -19,7 +19,7 @@
       </IonToolbar>
     </IonHeader>
 
-    <IonContent :class="contentClass">
+    <IonContent :class="contentClass" fullscreen>
       <slot />
     </IonContent>
 

@@ -1,11 +1,12 @@
 <template>
-  <AppLayout :show-back="true" back-route="/HomePage" content-class="ion-padding">
+  <AppLayout :show-back="true" back-route="/HomePage">
     <template #actions>
       <IonButton @click="router.push('/perfil')">
         <IonIcon :icon="menuOutline"></IonIcon>
       </IonButton>
     </template>
-      <IonGrid>
+      <div class="entrada-wrapper">
+        <IonGrid>
         
         <IonRow>
           <IonCol class="ion-text-center">
@@ -65,6 +66,7 @@
         </IonRow>
 
       </IonGrid>
+      </div>
 
     <template #footer>
       <IonFooter class="footer">
@@ -184,6 +186,18 @@ const registrar = async () => {
 
 
 <style scoped>
+
+.entrada-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: calc(100vh - 56px);
+  padding: 16px;
+  gap: 12px;
+  overflow: hidden;
+}
 
 .titol {
   font-size: 16px;
