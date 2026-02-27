@@ -158,8 +158,8 @@
 <script setup lang="ts">
 import { IonButton, IonLoading, IonContent, IonGrid, IonCol, IonRow, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, IonCard, IonCardContent, IonButtons, IonAlert, onIonViewDidEnter } from '@ionic/vue'
 import { chevronBack, arrowBackOutline, folderOpen, barChartOutline, listOutline, arrowForwardOutline, logOutOutline, chevronForward, refreshOutline, peopleOutline, shieldOutline } from 'ionicons/icons'
-import barChart from '@/views/GrafBarres.vue'
-import pieChart from '@/views/GrafCercle.vue'
+import barChart from '@/views/charts/GrafBarres.vue'
+import pieChart from '@/views/charts/GrafCercle.vue'
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { auth, db } from '@/services/firebase'

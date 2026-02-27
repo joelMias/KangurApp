@@ -1,20 +1,32 @@
 import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
-import HomePage from '../views/HomePage.vue'
-import Login from '@/views/Login.vue'
-import InitialPage from '@/views/InitialPage.vue'
-import Register from '@/views/Register.vue';
-import Cangurs from '@/views/Cangurs.vue';
-import Nado from '@/views/Nado.vue';
-import Cronometre from '@/views/Cronometre.vue';
-import GuardarCrono from '@/views/GuardarCrono.vue';
 
-import Perfil from '@/views/Perfil.vue';
-import ConfiguracioFamilia from '@/views/ConfiguracioFamilia.vue';
-import ResetPassword from '@/views/ResetPassword.vue';
-import RegisterEntrada from '@/views/RegisterEntrada.vue';
-import AdminPanel from '@/views/AdminPanel.vue';
-import PdfViewer from '@/views/PdfViewer.vue';
+// Auth
+import Login from '@/views/auth/Login.vue';
+import Register from '@/views/auth/Register.vue';
+import ResetPassword from '@/views/auth/ResetPassword.vue';
+
+// Onboarding
+import InitialPage from '@/views/onboarding/InitialPage.vue';
+import Cangurs from '@/views/onboarding/Cangurs.vue';
+import Nado from '@/views/onboarding/Nado.vue';
+
+// Session
+import HomePage from '@/views/session/HomePage.vue';
+import Cronometre from '@/views/session/Cronometre.vue';
+import GuardarCrono from '@/views/session/GuardarCrono.vue';
+import RegisterEntrada from '@/views/session/RegisterEntrada.vue';
+
+// Profile
+import Perfil from '@/views/profile/Perfil.vue';
+import ConfiguracioFamilia from '@/views/profile/ConfiguracioFamilia.vue';
+
+// Admin
+import AdminPanel from '@/views/admin/AdminPanel.vue';
+
+// Guide
+import UserGuide from '@/views/guide/UserGuide.vue';
+
 import authService from '@/services/auth.service';
 
 const routes: Array<RouteRecordRaw> = [
@@ -79,7 +91,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/pdf-viewer',
-    component: PdfViewer
+    component: UserGuide
   }
 ]
 

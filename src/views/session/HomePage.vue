@@ -57,7 +57,9 @@
         </IonRow>
       </IonGrid>
     </IonContent>
-
+    
+    <hr>
+    
     <IonFooter class="footer">
       <IonToolbar>
         <IonGrid>
@@ -99,30 +101,5 @@ const openUserGuide = () => {
 </script>
 
 <style scoped>
-
-.full-height {
-  height: 100%;
-}
-
-.custom-button {
-  --background: #e6f3f2;
-  --color: #4b9b90;
-  --border-radius: 16px;
-  --border-color: #377c73;
-  --border-width: 1px;
-  text-transform: none;
-  font-size: 20px;
-  --ion-font-family: "Nunito", sans-serif;
-}
-
-.footer-button {
-  --border-color: #000;
-  --border-width: 1px;
-  --color: #000;
-  --border-radius: 12px;
-  text-transform: none;
-  font-weight: 500;
-  font-size: 14px;
-}
 </style>
 
