@@ -14,7 +14,7 @@
               <IonGrid>
                 <IonRow class="ion-justify-content-center">
                   <IonCol size="12" class="ion-text-center">
-                    <img src="/src/assets/kangur_no_background.png" />
+                    <img src="/src/assets/kangur_new_petit.png" />
                   </IonCol>
                 </IonRow>
                 <IonRow class="ion-justify-content-center">

@@ -3,7 +3,7 @@
     <div class="centered-wrapper">
       <h2 class="titol">Iniciar pell amb pell</h2>
       <div class="ion-text-center">
-        <img src="/src/assets/kangur.jpg" alt="KangurApp Logo"
+        <img src="/src/assets/kangur_new.png" alt="KangurApp Logo"
               :class="{ 'imatge_pulse': estaActiu }"
               class="crono-img" />
       </div>

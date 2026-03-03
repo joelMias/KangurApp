@@ -44,7 +44,7 @@
                               <IonRow>
                                 <IonCol size="auto">
                                   <IonAvatar>
-                                    <img src="/src/assets/kangur_no_background.png" />
+                                    <img src="/src/assets/kangur_new_petit.png" />
                                   </IonAvatar>
                                 </IonCol>
                                 <IonCol>

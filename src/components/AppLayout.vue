@@ -9,7 +9,7 @@
         </IonButtons>
 
         <IonTitle>
-          <img src="/src/assets/kangur_no_background.png" class="header-logo" alt="logo" />
+          <img src="/src/assets/kangur_new_petit.png" class="header-logo" alt="logo" />
           <strong>KANGURAPP</strong>
         </IonTitle>
 

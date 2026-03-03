@@ -3,7 +3,7 @@
       <div class="centered-wrapper">
 
         <div class="logo-section">
-          <img src="/src/assets/kangur.jpg" alt="KangurApp Logo" class="logo-img" />
+          <img src="/src/assets/kangur_new.png" alt="KangurApp Logo" class="logo-img" />
           <h1 class="app-title">KANGURAPP</h1>
         </div>
 

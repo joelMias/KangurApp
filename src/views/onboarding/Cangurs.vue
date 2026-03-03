@@ -2,7 +2,7 @@
   <IonPage>
     <IonHeader>
       <IonToolbar class="capçalera">
-        <IonTitle> <img src="/src/assets/kangur_no_background.png" class="header-logo">KANGURAPP</IonTitle>
+        <IonTitle> <img src="/src/assets/kangur_new_petit.png" class="header-logo">KANGURAPP</IonTitle>
       </IonToolbar>
     </IonHeader>
 

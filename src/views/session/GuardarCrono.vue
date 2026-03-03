@@ -6,7 +6,7 @@
   
       <ion-grid>
         <IonRow class="ion-justify-content-center">
-          <IonCol size="10" size-lg="6" size-md="4">
+          <IonCol size="10" size-lg="10" size-md="10">
             <IonCard class="center-button">
               <IonRow class="ion-justify-content-center ion-margin-top">
                 <IonCol size="auto">

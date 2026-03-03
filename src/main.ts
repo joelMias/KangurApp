@@ -39,7 +39,9 @@ import { auth } from '@/services/firebase'
 import { StatusBar } from '@capacitor/status-bar';
 
 const app = createApp(App)
-  .use(IonicVue)
+  .use(IonicVue, {
+    mode: 'ios'
+  })
   .use(router);
 
 router.isReady().then(() => {
