@@ -1,15 +1,11 @@
 <template>
-  <AppLayout content-class="ion-padding">
-      <IonGrid>
-        
-        <IonRow>
-          <IonCol class="ion-text-center">
-            <h2 class="subtitol">Registrar pell amb pell</h2>
-          </IonCol>
-        </IonRow>
-
-        
-        <IonRow class="ion-justify-content-center ion-margin-top">
+  <AppLayout :show-back="true" back-route="/cronometre" :scroll-y="false">
+    <div class="centered-wrapper">
+    
+      <h1 class="negreta">Registrar pell amb pell</h1>
+  
+      <ion-grid>
+        <IonRow class="ion-justify-content-center">
           <IonCol size="10" size-lg="6" size-md="4">
             <IonCard class="center-button">
               <IonRow class="ion-justify-content-center ion-margin-top">
@@ -19,20 +15,18 @@
               </IonRow>
               <IonRow class="ion-justify-content-center">
                 <IonCol size="auto">
-                  <div class="temps-display">{{ formatTime(temps) }}</div>
+                  <div class="temps-display ion-text-center">{{ formatTime(temps) }}</div>
                 </IonCol>
               </IonRow>
             </IonCard>
           </IonCol>
         </IonRow>
-
        
         <IonRow>
           <IonCol class="ion-text-center ion-margin-top">
-            <IonLabel>Qui ha fet el pell amb pell?</IonLabel>
+            <IonLabel color="primary"><h1 class="negreta">Qui ha fet el pell amb pell?</h1></IonLabel>
           </IonCol>
         </IonRow>
-
         
         <IonRow class="ion-justify-content-center ion-margin-top">
           <IonCol size="12" class="ion-text-center">
@@ -43,10 +37,9 @@
             </div>
           </IonCol>
         </IonRow>
-
-      </IonGrid>
-
+      </ion-grid>
       <IonLoading :is-open="loadingCangurs" message="Carregant cangurs..." spinner="crescent"/>
+    </div>
 
     <template #footer>
       <IonFooter class="footer">
@@ -54,15 +47,16 @@
           <IonGrid>
             <IonRow class="ion-justify-content-center">
               <IonCol size="auto">
-                <IonButton expand="block" fill="outline" color="medium" class="footer-button lletra" @click="cancelar">Cancelar</IonButton>
+                <IonButton expand="block" fill="outline" color="medium" class="default-button" @click="cancelar">Cancelar</IonButton>
               </IonCol>
               <IonCol size="auto">
-                <IonButton expand="block" color="primary" fill="solid" class="footer-button lletra" @click="guardarSessio">Registrar</IonButton>
-                <IonToast :is-open="estaOk" :icon="checkbox" :message="toastMessage" :duration="3000" position="bottom" @didDismiss="estaOk = false" color="primary"></IonToast>
+                <IonButton expand="block" color="primary" fill="solid" class="default-button" @click="guardarSessio">Registrar</IonButton>
               </IonCol>
             </IonRow>
           </IonGrid>
         </IonToolbar>
+        <IonToast :is-open="estaOk" :icon="checkbox" :message="toastMessage" :duration="3000" position="bottom" @didDismiss="estaOk = false" color="primary"></IonToast>
+        <IonToast :is-open="showErrorToast" :message="errorMessage" :duration="3000" position="bottom" @didDismiss="showErrorToast = false" color="danger"></IonToast>
       </IonFooter>
     </template>
   </AppLayout>
@@ -106,6 +100,8 @@ const cangurs = ref<{ id: string; name: string }[]>([])
 const cangurSeleccionat = ref<string | null>(null)
 const estaOk = ref(false)
 const toastMessage = ref('')
+const showErrorToast = ref(false)
+const errorMessage = ref('')
 
 const formatTime = (t: number) => {
   const m = Math.floor((t % 3600) / 60)
@@ -213,7 +209,8 @@ const cancelar = () => {
 
 const guardarSessio = async () => {
   if (!cangurSeleccionat.value) {
-    alert('Selecciona un cangur primer')
+    errorMessage.value = 'Selecciona un cangur primer'
+    showErrorToast.value = true
     return
   }
   try {
@@ -304,18 +301,14 @@ const guardarSessio = async () => {
     router.push('/HomePage')
   } catch (err: any) {
     console.error('Error desant el cronòmetre:', err)
-    alert('Error desant el cronòmetre: ' + err.message)
+    errorMessage.value = 'Error desant el cronòmetre: ' + err.message
+    showErrorToast.value = true
   }
 }
 </script>
 
 
 <style scoped>
-
-.subtitol {
-  font-weight: bold;
-  margin-bottom: 10px;
-}
 
 .center-button {
   --background: #fff;

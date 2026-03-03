@@ -7,118 +7,118 @@
         </template>
 
         <IonGrid class="ion-margin-bottom">
-                <IonRow>
-                    <IonCol>
-                        <IonButton expand="block" fill="outline" class="confButton" @click="router.push('/config-familia')">
-                        Configuració de la família
-                        <IonIcon slot="end" :icon="peopleOutline"></IonIcon>
-                        </IonButton>
-                    </IonCol>
-                </IonRow>
-                <IonRow v-if="superAdmin === true">
-                  <IonCol>
-                    <IonButton expand="block" fill="outline" class="confButton" @click="router.push('/admin-panel')">
-                    Panell d'administració
-                    <IonIcon slot="end" :icon="shieldOutline"></IonIcon>
+          <IonRow>
+              <IonCol>
+                  <IonButton expand="block" fill="outline" class="confButton" @click="router.push('/config-familia')">
+                  Configuració de la família
+                  <IonIcon slot="end" :icon="peopleOutline"></IonIcon>
+                  </IonButton>
+              </IonCol>
+          </IonRow>
+          <IonRow v-if="superAdmin === true">
+            <IonCol>
+              <IonButton expand="block" fill="outline" class="confButton" @click="router.push('/admin-panel')">
+              Panell d'administració
+              <IonIcon slot="end" :icon="shieldOutline"></IonIcon>
+              </IonButton>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
+
+        <IonGrid class="ion-margin-bottom">
+          <IonRow class="ion-align-items-center ion-justify-content-between">
+            <IonCol size="auto">
+              <h2 class="titolHist">
+                  <IonIcon :icon="folderOpen"></IonIcon> Historial
+              </h2>
+            </IonCol>
+            <IonCol size="auto">
+              <IonRow class="modeBotons">
+                <IonCol size="auto">
+                    <IonButton color="dark" fill="outline" @click="recarregarHistorial">
+                      <IonIcon :icon="refreshOutline"></IonIcon>
                     </IonButton>
+                </IonCol>
+                <IonCol size="auto">
+                  <IonButton class="canviMode" :fill="mode === 'llista' ? 'solid' : 'outline'" @click="mode = 'grafic'">
+                    <IonIcon :icon="barChartOutline"></IonIcon>
+                  </IonButton>
+                </IonCol>
+                <IonCol size="auto">
+                    <IonButton class="canviMode" :fill="mode === 'grafic' ? 'solid' : 'outline'" @click="mode = 'llista'">
+                      <IonIcon :icon="listOutline"></IonIcon>
+                    </IonButton>
+                </IonCol>
+              </IonRow>
+            </IonCol>
+                  
+          </IonRow>
+          <div class="separador"></div>
+        </IonGrid>
+
+        <IonGrid class="ion-margin-bottom">
+            <IonRow class="ion-justify-content-center ion-align-items-center">
+                <IonCol size="auto" class="ion-no-padding ion-no-margin">
+                    <IonButton size="small" @click="previousWeek" fill="clear"><IonIcon :icon="chevronBack" /></IonButton>
+                </IonCol>
+                <IonCol size="auto" size-sm="7" size-md="auto" class="ion-text-center">
+                    <h3>{{ weekLabel }}</h3>
+                </IonCol>
+                <IonCol size="auto" class="ion-no-padding ion-no-margin">
+                    <IonButton size="small" @click="nextWeek" fill="clear"><IonIcon :icon="chevronForward" /></IonButton>
+                </IonCol>
+            </IonRow>
+        </IonGrid>
+
+          <IonGrid v-if="mode === 'grafic'" class="grafMode">
+              <IonRow class="ion-justify-content-center">
+                  <IonCol size="12" size-md="8" size-lg="6">
+                      <IonCard>
+                          <IonCardContent>
+                              <barChart :labels="barData.labels" :datasets="barData.datasets" />
+                          </IonCardContent>
+                      </IonCard>
                   </IonCol>
-                </IonRow>
-            </IonGrid>
+              </IonRow>
 
-            <IonGrid class="ion-margin-bottom">
-                <IonRow class="ion-align-items-center ion-justify-content-between">
-                    <IonCol size="auto">
-                        <h2 class="titolHist">
-                            <IonIcon :icon="folderOpen"></IonIcon> Historial
-                        </h2>
-                    </IonCol>
-                    <IonCol size="auto">
-                        <IonRow class="modeBotons">
-                          <IonCol size="auto">
-                              <IonButton color="dark" fill="outline" @click="recarregarHistorial">
-                                <IonIcon :icon="refreshOutline"></IonIcon>
-                              </IonButton>
-                          </IonCol>
-                          <IonCol size="auto">
-                            <IonButton class="canviMode" :fill="mode === 'llista' ? 'solid' : 'outline'" @click="mode = 'grafic'">
-                              <IonIcon :icon="barChartOutline"></IonIcon>
-                            </IonButton>
-                          </IonCol>
-                          <IonCol size="auto">
-                              <IonButton class="canviMode" :fill="mode === 'grafic' ? 'solid' : 'outline'" @click="mode = 'llista'">
-                                <IonIcon :icon="listOutline"></IonIcon>
-                              </IonButton>
-                          </IonCol>
-                        </IonRow>
-                    </IonCol>
-                    
-                </IonRow>
-                <div class="separador"></div>
-            </IonGrid>
+              <IonRow class="ion-justify-content-center">
+                  <IonCol size="12" size-md="8" size-lg="6">
+                      <IonCard>
+                          <IonCardContent>
+                              <pieChart :data="pieData" />
+                          </IonCardContent>
+                      </IonCard>
+                  </IonCol>
+              </IonRow>
+          </IonGrid>
 
-            <IonGrid class="ion-margin-bottom">
-                <IonRow class="ion-justify-content-center ion-align-items-center">
-                    <IonCol size="auto" class="ion-no-padding ion-no-margin">
-                        <IonButton size="small" @click="previousWeek" fill="clear"><IonIcon :icon="chevronBack" /></IonButton>
-                    </IonCol>
-                    <IonCol size="auto" size-sm="7" size-md="auto" class="ion-text-center">
-                        <h3>{{ weekLabel }}</h3>
-                    </IonCol>
-                    <IonCol size="auto" class="ion-no-padding ion-no-margin">
-                        <IonButton size="small" @click="nextWeek" fill="clear"><IonIcon :icon="chevronForward" /></IonButton>
-                    </IonCol>
-                </IonRow>
-            </IonGrid>
+          <IonGrid v-else class="llistaMode">
+              <IonRow v-for="(sessio, index) in sessions" :key="index">
+                  <IonCol>
+                      <IonCard class="sessio-card">
+                          <IonCardContent>
+                              <IonRow class="sessio-header ion-justify-content-between">
+                              <IonCol size="auto">
+                                  <span>{{ formatSessioDate(sessio.data, sessio.hora) }}</span>
+                              </IonCol>
+                              <IonCol size="auto">
+                                <strong>{{ formatSecondsToReadable(sessio.temps) }}</strong>
+                              </IonCol>
+                              </IonRow>
+                              <IonRow class="ion-align-items-center">
+                              <IonCol size="auto">{{ sessio.cangur }}</IonCol>
+                              <IonCol size="auto">
+                                  <IonIcon :icon="arrowForwardOutline" class="arrow-icon" />
+                              </IonCol>
+                              <IonCol size="auto">{{ sessio.nado }}</IonCol>
+                              </IonRow>
+                          </IonCardContent>
+                      </IonCard>
+                  </IonCol>
+              </IonRow>
+          </IonGrid>
 
-            <IonGrid v-if="mode === 'grafic'" class="grafMode">
-                <IonRow class="ion-justify-content-center">
-                    <IonCol size="12" size-md="8" size-lg="6">
-                        <IonCard>
-                            <IonCardContent>
-                                <barChart :labels="barData.labels" :datasets="barData.datasets" />
-                            </IonCardContent>
-                        </IonCard>
-                    </IonCol>
-                </IonRow>
-
-                <IonRow class="ion-justify-content-center">
-                    <IonCol size="12" size-md="8" size-lg="6">
-                        <IonCard>
-                            <IonCardContent>
-                                <pieChart :data="pieData" />
-                            </IonCardContent>
-                        </IonCard>
-                    </IonCol>
-                </IonRow>
-            </IonGrid>
-
-            <IonGrid v-else class="llistaMode">
-                <IonRow v-for="(sessio, index) in sessions" :key="index">
-                    <IonCol>
-                        <IonCard class="sessio-card">
-                            <IonCardContent>
-                                <IonRow class="sessio-header ion-justify-content-between">
-                                <IonCol size="auto">
-                                    <span>{{ formatSessioDate(sessio.data, sessio.hora) }}</span>
-                                </IonCol>
-                                <IonCol size="auto">
-                                  <strong>{{ formatSecondsToReadable(sessio.temps) }}</strong>
-                                </IonCol>
-                                </IonRow>
-                                <IonRow class="ion-align-items-center">
-                                <IonCol size="auto">{{ sessio.cangur }}</IonCol>
-                                <IonCol size="auto">
-                                    <IonIcon :icon="arrowForwardOutline" class="arrow-icon" />
-                                </IonCol>
-                                <IonCol size="auto">{{ sessio.nado }}</IonCol>
-                                </IonRow>
-                            </IonCardContent>
-                        </IonCard>
-                    </IonCol>
-                </IonRow>
-            </IonGrid>
-
-            <IonLoading :is-open="loadingCharts" message="Carregant gràfics..." spinner="crescent"/>
+          <IonLoading :is-open="loadingCharts" message="Carregant gràfics..." spinner="crescent"/>
             
             <IonAlert
               :is-open="showLogoutAlert"
@@ -137,12 +137,21 @@
               ]"
               @didDismiss="showLogoutAlert = false"
             />
+            
+            <IonToast 
+              :is-open="showErrorToast" 
+              :message="errorMessage" 
+              :duration="3000" 
+              position="bottom" 
+              color="danger"
+              @didDismiss="showErrorToast = false" 
+            />
 
-          </AppLayout>
+  </AppLayout>
 </template>
 
 <script setup lang="ts">
-import { IonButton, IonLoading, IonGrid, IonCol, IonRow, IonIcon, IonCard, IonCardContent, IonAlert, onIonViewDidEnter } from '@ionic/vue'
+import { IonButton, IonLoading, IonGrid, IonCol, IonRow, IonIcon, IonCard, IonCardContent, IonAlert, IonToast, onIonViewDidEnter } from '@ionic/vue'
 import { chevronBack, folderOpen, barChartOutline, listOutline, arrowForwardOutline, logOutOutline, chevronForward, refreshOutline, peopleOutline, shieldOutline } from 'ionicons/icons'
 import AppLayout from '@/components/AppLayout.vue'
 import barChart from '@/views/charts/GrafBarres.vue'
@@ -157,6 +166,8 @@ const router = useRouter()
 const loadingCharts = ref(false)
 const mode = ref<'grafic' | 'llista'>('grafic')
 const showLogoutAlert = ref(false)
+const showErrorToast = ref(false)
+const errorMessage = ref('')
 
 async function confirmLogout() {
   try {
@@ -312,45 +323,71 @@ async function carregarHistorial() {
       await loadUserAdminStatus()
       
       if (!user) return
-      const snapshot = await getDocs(collection(db, 'users', user.uid, 'cronometres'))
-      allSessions.value = snapshot.docs.map(d => { const docData = d.data()
-      let ts: number | undefined
-      if (docData.createdAt && typeof docData.createdAt.toDate === 'function') {
-        ts = docData.createdAt.toDate().getTime()
-      } else if (docData.createdAt && (typeof docData.createdAt === 'string' || typeof docData.createdAt === 'number')) {
-        ts = typeof docData.createdAt === 'number' ? docData.createdAt : Date.parse(docData.createdAt)
-      } else if (docData.dia && docData.hora) {
-        ts = new Date(`${docData.dia}T${docData.hora}`).getTime()
+      
+      try {
+        const snapshot = await getDocs(collection(db, 'users', user.uid, 'cronometres'))
+        allSessions.value = snapshot.docs.map(d => { const docData = d.data()
+        let ts: number | undefined
+        if (docData.createdAt && typeof docData.createdAt.toDate === 'function') {
+          ts = docData.createdAt.toDate().getTime()
+        } else if (docData.createdAt && (typeof docData.createdAt === 'string' || typeof docData.createdAt === 'number')) {
+          ts = typeof docData.createdAt === 'number' ? docData.createdAt : Date.parse(docData.createdAt)
+        } else if (docData.dia && docData.hora) {
+          ts = new Date(`${docData.dia}T${docData.hora}`).getTime()
+        }
+
+        let diaVal = docData.dia || ''
+        let horaVal = docData.hora || ''
+        if ((!diaVal || !horaVal) && ts) {
+          const dd = new Date(ts)
+          diaVal = diaVal || dd.toISOString().split('T')[0]
+          horaVal = horaVal || dd.toTimeString().slice(0,5)
+        }
+
+    return {
+      data: diaVal,
+      hora: horaVal,
+      temps: docData.temps || 0,
+      cangur: docData.cangurNom || '',
+      nado: docData.nadoNom || '',
+      ts
+    }
+
+  })
+
+  // Ordenem per data/hora de creació descendent
+  allSessions.value.sort((a, b) => (b.ts || 0) - (a.ts || 0))
+
+        filterDataByWeek()
+        loadingCharts.value = false
+      } catch (firebaseError: any) {
+        console.error('Error carregant historial des de Firebase:', firebaseError)
+        loadingCharts.value = false
+        
+        // Handle permission errors
+        if (firebaseError.code === 'permission-denied' || firebaseError.message.includes('permission')) {
+          errorMessage.value = 'Permís denegat. No pots accedir a l\'historial.'
+        } else {
+          errorMessage.value = 'Error carregant l\'historial. Intenta-ho més tard.'
+        }
+        
+        showErrorToast.value = true
+        
+        // Auto-hide toast after 3 seconds
+        setTimeout(() => {
+          showErrorToast.value = false
+        }, 3000)
       }
-
-      let diaVal = docData.dia || ''
-      let horaVal = docData.hora || ''
-      if ((!diaVal || !horaVal) && ts) {
-        const dd = new Date(ts)
-        diaVal = diaVal || dd.toISOString().split('T')[0]
-        horaVal = horaVal || dd.toTimeString().slice(0,5)
-      }
-
-  return {
-    data: diaVal,
-    hora: horaVal,
-    temps: docData.temps || 0,
-    cangur: docData.cangurNom || '',
-    nado: docData.nadoNom || '',
-    ts
-  }
-
-})
-
-// Ordenem per data/hora de creació descendent
-allSessions.value.sort((a, b) => (b.ts || 0) - (a.ts || 0))
-
-      filterDataByWeek()
-      loadingCharts.value = false
     })
   } catch (e) {
     console.error('Error carregant historial', e)
     loadingCharts.value = false
+    errorMessage.value = 'Error desconegut al carregar l\'historial.'
+    showErrorToast.value = true
+    
+    setTimeout(() => {
+      showErrorToast.value = false
+    }, 3000)
   }
 }
 

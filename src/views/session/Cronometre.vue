@@ -1,36 +1,60 @@
 <template>
-  <AppLayout :show-back="true" back-route="/HomePage">
-      <div class="crono-wrapper">
-        <div class="ion-text-center">
-          <img src="/src/assets/kangur.jpg" alt="KangurApp Logo"
-               :class="{ 'imatge_pulse': estaActiu }"
-               class="crono-img" />
-        </div>
-
-        <div class="ion-text-center">
-          <h1 class="crono-time">{{ formatTime(temps) }}</h1>
-        </div>
-
-        <div class="ion-text-center crono-btn-row">
-          <IonButton size="large" shape="round" fill="outline"
-            :color="estaActiu ? 'danger' : 'success'"
-            @click="toggleCronometre">
-            {{ estaActiu ? 'Aturar' : 'Iniciar' }}
-          </IonButton>
-        </div>
-
-        <div v-if="estaActiu" class="ion-text-center">
-          <transition name="slide" mode="out-in">
-            <IonCard class="marquesina-card" :key="messageKey">
-              <IonCardContent class="ion-text-center">
-                <strong>{{ currentMessage }}</strong>
-              </IonCardContent>
-            </IonCard>
-          </transition>
-        </div>
+  <AppLayout :show-back="true" back-route="/HomePage" :scroll-y="false">
+    <div class="centered-wrapper">
+      <h2 class="titol">Iniciar pell amb pell</h2>
+      <div class="ion-text-center">
+        <img src="/src/assets/kangur.jpg" alt="KangurApp Logo"
+              :class="{ 'imatge_pulse': estaActiu }"
+              class="crono-img" />
       </div>
 
+      <div class="ion-text-center">
+        <h1 class="crono-time">{{ formatTime(temps) }}</h1>
+      </div>
+
+      <div class="ion-text-center crono-btn-row">
+        <!-- <IonButton size="large" shape="round" fill="outline"
+          :color="estaActiu ? 'danger' : 'primary'"
+          @click="toggleCronometre">
+          {{ estaActiu ? 'Aturar' : 'Iniciar' }}
+        </IonButton> -->
+        <IonButton expand="block" fill="outline" 
+          :class="estaActiu ? 'big-button danger-outline-button negreta' : 'big-button green-button negreta'"
+          @click="toggleCronometre">
+          {{ estaActiu ? 'Aturar' : 'Iniciar' }}
+        </IonButton>
+      </div>
+
+      <!-- <div v-if="estaActiu" class="ion-text-center">
+        <transition name="slide" mode="out-in">
+          <IonCard class="marquesina-card" :key="messageKey">
+            <IonCardContent class="ion-text-center">
+              <strong>{{ currentMessage }}</strong>
+            </IonCardContent>
+          </IonCard>
+        </transition>
+      </div> -->
+    </div>
+
     <template #footer>
+      <IonFooter class="footer" v-if="estaActiu">
+        <IonToolbar>
+          <IonGrid>
+            <IonRow class="ion-justify-content-center">
+              <IonCol size="auto">
+                <transition name="slide" mode="out-in">
+                  <IonCard class="marquesina-card" :key="messageKey">
+                    <IonCardContent class="ion-text-center">
+                      <strong>{{ currentMessage }}</strong>
+                    </IonCardContent>
+                  </IonCard>
+                </transition>
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+        </IonToolbar>
+      </IonFooter>
+
       <IonFooter class="footer" v-if="!estaActiu">
         <IonToolbar>
           <IonGrid>
@@ -119,18 +143,6 @@ onUnmounted(() => stopCrono())
 
 <style scoped>
 
-.crono-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  min-height: calc(100vh - 56px);
-  padding: 16px;
-  gap: 16px;
-  overflow: hidden;
-}
-
 .crono-img {
   max-width: 220px;
   width: 100%;
@@ -149,9 +161,8 @@ onUnmounted(() => stopCrono())
 }
 
 .marquesina-card {
-  border: 2px solid #26a69a;
+  border: 2px solid var(--ion-color-primary, #26a69a);
   border-radius: 12px;
-  max-width: 340px;
   margin: 0 auto;
 }
 
@@ -182,19 +193,5 @@ onUnmounted(() => stopCrono())
 .slide-leave-to {
   transform: translateX(100%);
   opacity: 0;
-}
-
-.footer {
-  box-shadow: none;
-}
-
-.footer-button {
-  --border-color: #000;
-  --border-width: 1px;
-  --color: #000;
-  --border-radius: 12px;
-  text-transform: none;
-  font-weight: 500;
-  font-size: 14px;
 }
 </style>

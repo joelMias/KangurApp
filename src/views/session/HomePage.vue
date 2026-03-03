@@ -1,57 +1,52 @@
 <template>
-  <AppLayout>
+  <AppLayout :scroll-y="false">
     <template #actions>
       <IonButton @click="router.push('/perfil')">
         <IonIcon :icon="menuOutline"></IonIcon>
       </IonButton>
     </template>
-      <IonGrid class="full-height">
-        <IonRow class="ion-justify-content-center ion-align-items-center full-height">
-          <IonCol size="12" size-md="8" size-lg="6" class="center-col">
-            
-            <IonRow>
-              <IonCol class="ion-text-center">
-                <IonButton fill="outline" size="large" expand="block" @click="iniciar" class="custom-button">
-                  <IonGrid>
-                    <IonRow class="ion-justify-content-center">
-                      <IonCol size="12" class="ion-text-center">
-                        <img src="/src/assets/kangur_no_background.png" />
-                      </IonCol>
-                    </IonRow>
-                    <IonRow class="ion-justify-content-center">
-                      <IonCol size="12" class="ion-text-center">
-                        <strong><IonLabel>Iniciar pell amb pell</IonLabel></strong>
-                      </IonCol>
-                    </IonRow>
-                  </IonGrid>
-                </IonButton>
-              </IonCol>
-            </IonRow>
 
-            <IonRow class="ion-margin-top">
-              <IonCol  class="ion-text-center">
-                <IonButton fill="outline" size="large" expand="block" @click="registre" class="custom-button">
-                  <IonGrid>
-                    <IonRow class="ion-justify-content-center">
-                      <IonCol size="12" class="ion-text-center">
-                        <IonIcon :icon="businessOutline" size="large" />
-                      </IonCol>
-                    </IonRow>
-                    <IonRow class="ion-justify-content-center">
-                      <IonCol size="12" class="ion-text-center">
-                        <strong><IonLabel>Registre entrada unitat</IonLabel></strong>
-                      </IonCol>
-                    </IonRow>
-                  </IonGrid>
-                </IonButton>
-              </IonCol>
-            </IonRow>
+    <div class="centered-wrapper">
+      <IonGrid class="centered-content">
+        <IonRow class="ion-justify-content-center">
+          <IonCol size="12" size-md="8" size-lg="8" class="ion-text-center">
+            <IonButton fill="outline" size="large" expand="block" @click="iniciar" class="big-button green-button">
+              <IonGrid>
+                <IonRow class="ion-justify-content-center">
+                  <IonCol size="12" class="ion-text-center">
+                    <img src="/src/assets/kangur_no_background.png" />
+                  </IonCol>
+                </IonRow>
+                <IonRow class="ion-justify-content-center">
+                  <IonCol size="12" class="ion-text-center">
+                    <strong><IonLabel>Iniciar pell amb pell</IonLabel></strong>
+                  </IonCol>
+                </IonRow>
+              </IonGrid>
+            </IonButton>
+          </IonCol>
+        </IonRow>
+
+        <IonRow class="ion-justify-content-center ion-margin-top">
+          <IonCol size="12" size-md="8" size-lg="8" class="ion-text-center">
+            <IonButton fill="outline" size="large" expand="block" @click="registre" class="big-button green-button">
+              <IonGrid>
+                <IonRow class="ion-justify-content-center">
+                  <IonCol size="12" class="ion-text-center">
+                    <IonIcon :icon="businessOutline" size="large" />
+                  </IonCol>
+                </IonRow>
+                <IonRow class="ion-justify-content-center">
+                  <IonCol size="12" class="ion-text-center">
+                    <strong><IonLabel>Registre entrada unitat</IonLabel></strong>
+                  </IonCol>
+                </IonRow>
+              </IonGrid>
+            </IonButton>
           </IonCol>
         </IonRow>
       </IonGrid>
-    
-    <hr>
-    
+    </div>
     <template #footer>
       <IonFooter class="footer">
         <IonToolbar>
@@ -94,7 +89,3 @@ const openUserGuide = () => {
 }
 
 </script>
-
-<style scoped>
-</style>
-

@@ -1,11 +1,14 @@
 <template>
-  <AppLayout :show-back="true" content-class="ion-padding">
+  <AppLayout :show-back="true" :scroll-y="false">
 
       <IonGrid>
         <IonRow class="ion-justify-content-center">
           <IonCol size="12" size-md="6" size-lg="5">
             <IonText color="dark">
-              <h2 class="form-title">Configuracio de la familia</h2>
+              <h2 class="titol">Configuració de la familia</h2>
+            </IonText>
+            <IonText color="medium" v-if="userEmail">
+              <h2 class="user-email negreta">{{ userEmail }}</h2>
             </IonText>
           </IonCol>
         </IonRow>
@@ -34,17 +37,29 @@
         </IonRow>
       </IonGrid>
 
-    <IonButton expand="full" size="large" shape="round" fill="outline" slot="fixed" class="continuar-button" @click="guardar">
-      Guardar
-    </IonButton>
+      <template #footer>
+        <IonFooter class="footer">
+          <IonToolbar>
+            <IonGrid>
+              <IonRow class="ion-justify-content-center">
+                <IonCol size="auto">
+                  <IonButton expand="block" color="primary" fill="solid" class="default-button" @click="desar">Desar</IonButton>
+                </IonCol>
+              </IonRow>
+            </IonGrid>
+          </IonToolbar>
+          <IonToast :is-open="estaOk" :icon="checkbox" :message="toastMessage" :duration="3000" position="bottom" @didDismiss="estaOk = false" color="primary"/>
+        </IonFooter>
+    </template>
+
   </AppLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { IonButton, IonText, IonIcon, IonList, IonItem, IonLabel, IonInput, IonGrid, IonRow, IonCol } from '@ionic/vue'
-import { addOutline, personOutline, trashOutline } from 'ionicons/icons'
+import { IonButton, IonText, IonIcon, IonList, IonItem, IonLabel, IonInput, IonGrid, IonRow, IonCol, IonFooter, IonToolbar, IonToast} from '@ionic/vue'
+import { addOutline, personOutline, trashOutline, checkbox } from 'ionicons/icons'
 import AppLayout from '@/components/AppLayout.vue'
 
 // Firebase
@@ -53,14 +68,18 @@ import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore'
 import offlineService from '@/services/offline.service'
 
 const router = useRouter()
-
+const toastMessage = ref('')
+const estaOk = ref(false)
 const cangurs = ref<{ id: string; nom: string }[]>([])
 const nouCangur = ref('')
+const userEmail = ref('')
 
 onMounted(async () => {
   const user = auth.currentUser
 
   if (!user) return
+
+  userEmail.value = user.email || ''
 
   if (navigator.onLine) {
     const snapshot = await getDocs(collection(db, 'users', user.uid, 'cangurs'))
@@ -108,7 +127,7 @@ const eliminarCangur = async (index: number) => {
   cangurs.value.splice(index, 1)
 }
 
-const guardar = async () => {
+const desar = async () => {
 
   const user = auth.currentUser
   const fallbackUid = localStorage.getItem('uid')
@@ -135,20 +154,15 @@ const guardar = async () => {
 </script>
 
 <style scoped>
-.continuar-button {
-  --background: #e3f2fd;
-  --color: #26a69a;
-  --border-radius: 10px;
-  --border-width: 1px;
-  --border-color:#26a69a;
-  font-weight: 600;
-  width: 30%;
-  text-transform: none;
-  margin: 0 auto 18px auto;
-}
 
 .add-button { 
-    --background: #64b8af; 
+    --background: var(--ion-color-primary); 
+}
+
+.user-email {
+  text-align: center;
+  margin-top: 4px;
+  margin-bottom: 16px;
 }
 
 </style>

@@ -4,7 +4,7 @@
         <IonRow class="ion-justify-content-center">
           <IonCol size="12" size-md="6" size-lg="5">
             <IonText color="dark">
-              <h2 class="form-title">Crea el teu compte</h2>
+              <h2 class="titol">Crea el teu compte</h2>
             </IonText>
 
             <div v-if="error">

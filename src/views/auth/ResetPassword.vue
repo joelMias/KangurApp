@@ -4,7 +4,7 @@
         <IonRow class="ion-justify-content-center">
           <IonCol size="12" size-md="6" size-lg="5">
             <IonText color="dark">
-              <h2 class="form-title">Restablir contrasenya</h2>
+              <h2 class="titol">Restablir contrasenya</h2>
             </IonText>
 
             <strong><IonLabel position="stacked" class="input-label">Correu electrònic</IonLabel></strong>
@@ -61,7 +61,7 @@ const sendReset = async () => {
   vertical-align: middle;
 }
 
-.form-title { 
+.titol { 
     text-align: center; 
     margin-bottom: 24px; 
     font-size: 20px; 

@@ -16,7 +16,7 @@ http://ionicframework.com/docs/theming/ */
 }
 
 .capçalera{
-  color: #26a69a;
+  color: var(--ion-color-primary);
 }
 
 .header-logo{
@@ -27,11 +27,48 @@ http://ionicframework.com/docs/theming/ */
   font-family: "Nunito", sans-serif;
 }
 
-.form-title {
+/* FORMS */
+
+.titol {
   text-align: center;
   margin-bottom: 0px;
   font-size: 22px;
   font-weight: 600;
+}
+
+.logo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.input-label {
+  color: var(--ion-color-medium);
+  font-weight: 800;
+  font-size: 16px;
+  margin-bottom: 4px;  
+}
+
+.input-box {
+  --highlight-color: var(--ion-color-primary);
+  --border-radius: 10px;
+  --background: #fff;
+  margin-bottom: 12px;
+}
+
+.logo-img {
+  width: 100%;
+  max-width: 180px;
+  height: auto;
+}
+
+.app-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #26a69a;
+  margin: 0;
 }
 
 .footer{
@@ -42,23 +79,86 @@ http://ionicframework.com/docs/theming/ */
   height: 100%;
 }
 
-.custom-button {
-  --background: #e6f3f2;
-  --color: #4b9b90;
-  --border-radius: 16px;
-  --border-color: #377c73;
-  --border-width: 1px;
+.centered-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 24px;
+  gap: 40px;
+}
+
+.centered-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  max-width: 600px;
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.titol {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--ion-color-primary);
+}
+
+.big-button {  
   text-transform: none;
   font-size: 20px;
-  --ion-font-family: "Nunito", sans-serif;
+  padding: 10px 0 10px 0;
+}
+
+.default-button {
+  --border-width: 1px;
+  --border-radius: 10px;
+  text-transform: none;
+  font-size: 20px;
+}
+
+.green-button {
+  --background: #e6f3f2;
+  --color: #4b9b90;
+  --border-color: var(--ion-color-primary);
+}
+
+.green-outline-button {
+  --background: #ffffff;
+  --color: #4b9b90;
+  --border-color: #377c73;
+}
+
+.danger-button {
+  --background: #e6f3f2;
+  --color: #c74444;
+  --border-color: #c91919;
+}
+
+.danger-outline-button {
+  --background: #ffffff;
+  --color: #c74444;
+  --border-color: #c91919;
 }
 
 .footer-button {
   --border-color: #000;
   --border-width: 1px;
   --color: #000;
-  --border-radius: 12px;
+  --border-radius: 10px;
   text-transform: none;
   font-weight: 500;
   font-size: 14px;
+}
+
+.negreta {
+  font-weight: 800;
 }

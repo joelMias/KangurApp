@@ -1,71 +1,55 @@
 <template>
-  <AppLayout :show-back="true" back-route="/HomePage">
+  <AppLayout :show-back="true" back-route="/HomePage" :scroll-y="false">
     <template #actions>
       <IonButton @click="router.push('/perfil')">
         <IonIcon :icon="menuOutline"></IonIcon>
       </IonButton>
     </template>
-      <div class="entrada-wrapper">
-        <IonGrid>
-        
-        <IonRow>
-          <IonCol class="ion-text-center">
-            <div class="titol">Entrada i sortida de la unitat</div>
-          </IonCol>
-        </IonRow>
+      <div class="centered-wrapper">
+        <h2 class="titol">Entrada i sortida de la unitat</h2>
 
-        <IonRow class="ion-justify-content-center">
-          <IonCol size="12" size-md="8" size-lg="6">
-            <IonCard class="mini-card">
-                <IonGrid> 
-                  <IonRow>
-                    <IonCol>
-                      <span class="card-title">Entrada</span>
-                    </IonCol>
-                  </IonRow>
+        <IonCard class="mini-card">
+            <IonGrid> 
+              <IonRow>
+                <IonCol>
+                  <span class="card-title">Entrada</span>
+                </IonCol>
+              </IonRow>
 
-                  <IonRow class="ion-justify-content-center ion-align-items-center">
-                    <IonCol size="auto">
-                      <span class="date-bold">{{ formattedDate }}</span>
-                    </IonCol>
-                    <IonCol size="auto">
-                      <span>a les</span>
-                    </IonCol>
-                    <IonCol size="auto" class="ion-text-center ion-align-self-center">
-                      <IonDatetime class="time-picker bold-picker" presentation="time" :value="entryTime" @ionChange="onEntryChange"/>
-                    </IonCol>
-                  </IonRow>
-                </IonGrid>
-            </IonCard>
-          </IonCol>
-        </IonRow>
+              <IonRow class="ion-justify-content-center ion-align-items-center">
+                <IonCol size="auto">
+                  <span class="negreta">{{ formattedDate }}</span>
+                </IonCol>
+                <IonCol size="auto">
+                  <span>a les</span>
+                </IonCol>
+                <IonCol size="auto" class="ion-text-center ion-align-self-center">
+                  <IonDatetime class="time-picker negreta" presentation="time" :value="entryTime" @ionChange="onEntryChange"/>
+                </IonCol>
+              </IonRow>
+            </IonGrid>
+        </IonCard>
 
-        <IonRow class="ion-justify-content-center">
-          <IonCol size="12" size-md="8" size-lg="6">
-            <IonCard class="mini-card">    
-                <IonGrid>
-                   <IonRow>
-                    <IonCol>
-                      <span class="card-title">Sortida</span>
-                    </IonCol>
-                  </IonRow>
-                  <IonRow class="ion-justify-content-center ion-align-items-center">
-                    <IonCol size="auto">
-                      <span class="date-bold">{{ formattedDate }}</span>
-                    </IonCol>
-                    <IonCol size="auto">
-                      <span>a les</span>
-                    </IonCol>
-                    <IonCol size="auto" class="ion-text-center ion-align-self-center">
-                      <IonDatetime class="time-picker bold-picker" presentation="time" :value="exitTime" @ionChange="onExitChange"/>
-                    </IonCol>
-                  </IonRow>
-                </IonGrid>
-            </IonCard>
-          </IonCol>
-        </IonRow>
-
-      </IonGrid>
+        <IonCard class="mini-card">    
+            <IonGrid>
+               <IonRow>
+                <IonCol>
+                  <span class="card-title">Sortida</span>
+                </IonCol>
+              </IonRow>
+              <IonRow class="ion-justify-content-center ion-align-items-center">
+                <IonCol size="auto">
+                  <span class="negreta">{{ formattedDate }}</span>
+                </IonCol>
+                <IonCol size="auto">
+                  <span>a les</span>
+                </IonCol>
+                <IonCol size="auto" class="ion-text-center ion-align-self-center">
+                  <IonDatetime class="time-picker bold-picker" presentation="time" :value="exitTime" @ionChange="onExitChange"/>
+                </IonCol>
+              </IonRow>
+            </IonGrid>
+        </IonCard>
       </div>
 
     <template #footer>
@@ -74,10 +58,10 @@
           <IonGrid>
             <IonRow class="ion-justify-content-center">
               <IonCol size="auto">
-                <IonButton expand="block" fill="outline" color="medium" class="footer-button lletra" @click="cancelar">Cancelar</IonButton>
+                <IonButton expand="block" fill="outline" color="medium" class="default-button" @click="cancelar">Cancelar</IonButton>
               </IonCol>
               <IonCol size="auto">
-                <IonButton expand="block" color="primary" fill="solid" class="footer-button lletra" @click="registrar">Registrar</IonButton>
+                <IonButton expand="block" color="primary" fill="solid" class="default-button" @click="registrar">Registrar</IonButton>
               </IonCol>
             </IonRow>
           </IonGrid>
@@ -187,27 +171,10 @@ const registrar = async () => {
 
 <style scoped>
 
-.entrada-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  min-height: calc(100vh - 56px);
-  padding: 16px;
-  gap: 12px;
-  overflow: hidden;
-}
-
-.titol {
-  font-size: 16px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 10px;
-}
-
 .mini-card {
-  border: 1px solid #6ad4d4;
+  width: 100%;
+  max-width: 480px;
+  border: 1px solid var(--ion-color-primary);
   border-radius: 10px;
 }
 
@@ -215,7 +182,7 @@ const registrar = async () => {
   position:relative;
   font-weight: bold;
   font-size: 16px;
-  color: #6ad4d4;
+  color: var(--ion-color-primary);
 }
 
 .time-picker {
@@ -226,20 +193,4 @@ const registrar = async () => {
   font-weight: 700;
   display: inline-block;
 }
-
-.date-bold {
-  font-weight: 700;
-}
-
-.bold-picker {
-  font-weight: 700;
-}
-
-.footer-button {
-  --border-radius: 7px;
-  font-weight: 600;
-  text-transform: none;
-  font-size: 18px;
-}
-
 </style>

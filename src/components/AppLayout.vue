@@ -9,8 +9,8 @@
         </IonButtons>
 
         <IonTitle>
-          <img src="/src/assets/kangur_resized.jpg" class="header-logo" alt="logo" />
-          KANGURAPP
+          <img src="/src/assets/kangur_no_background.png" class="header-logo" alt="logo" />
+          <strong>KANGURAPP</strong>
         </IonTitle>
 
         <IonButtons v-if="$slots.actions" slot="end">
@@ -19,7 +19,7 @@
       </IonToolbar>
     </IonHeader>
 
-    <IonContent :class="contentClass" fullscreen>
+    <IonContent :class="contentClass" fullscreen :scroll-y="scrollY">
       <slot />
     </IonContent>
 
@@ -39,10 +39,12 @@ const props = withDefaults(defineProps<{
   showBack?: boolean
   backRoute?: string
   contentClass?: string
+  scrollY?: boolean
 }>(), {
   showBack: false,
   backRoute: '',
-  contentClass: ''
+  contentClass: '',
+  scrollY: true
 })
 
 const router = useRouter()
@@ -59,9 +61,21 @@ const handleBack = () => {
 <style scoped>
 .capçalera {
   color: #26a69a;
+  --min-height: 70px;
+  height: 70px;
 }
 
 .header-logo {
   vertical-align: middle;
+}
+
+hr {
+  border: none;
+  height: 8px;
+  background-color: #b3e5fc;
+  border-radius: 4px;
+  margin: 16px auto;
+  width: 90%;
+  max-width: 300px;
 }
 </style>

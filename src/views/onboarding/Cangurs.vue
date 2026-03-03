@@ -2,7 +2,7 @@
   <IonPage>
     <IonHeader>
       <IonToolbar class="capçalera">
-        <IonTitle> <img src="/src/assets/kangur_resized.jpg" class="header-logo">KANGURAPP</IonTitle>
+        <IonTitle> <img src="/src/assets/kangur_no_background.png" class="header-logo">KANGURAPP</IonTitle>
       </IonToolbar>
     </IonHeader>
 
@@ -12,7 +12,7 @@
         <IonRow class="ion-justify-content-center">
           <IonCol size="12" size-md="6" size-lg="5">
             <IonText class="lletra" color="dark">
-              <h2 class="form-title"><strong>Crea el teu compte</strong></h2>
+              <h2 class="titol"><strong>Crea el teu compte</strong></h2>
             </IonText>
 
             <IonText class="lletra" color="dark">
@@ -42,7 +42,7 @@
               </IonRow>
             </IonGrid>
 
-            <IonButton expand="block" size="large" shape="round" fill="outline" class="continuar-button ion-margin-top" @click="guardarCangurs">
+            <IonButton expand="block" size="large" shape="round" fill="outline" class="default-button ion-margin-top" @click="guardarCangurs">
               Continuar
             </IonButton>
           </IonCol>
@@ -191,7 +191,7 @@ const guardarCangurs = async () => {
 
 <style scoped>
 
-.form-title {
+.titol {
   text-align: center;
   margin-bottom: 20px;
   font-size: 22px;
@@ -208,16 +208,6 @@ const guardarCangurs = async () => {
 .add-button { 
   --background: #64b8af;
   height: 100%;
-}
-
-.continuar-button {
-  --background: #e3f2fd;
-  --color: #26a69a;
-  --border-radius: 10px;
-  --border-width: 1px;
-  --border-color: #26a69a;
-  font-weight: 600;
-  text-transform: none;
 }
 
 </style>

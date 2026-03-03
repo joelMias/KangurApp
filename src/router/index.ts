@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
 
 // Auth
-import Login from '@/views/auth/Login.vue';
+import Login from '@/views/auth/UserLogin.vue';
 import Register from '@/views/auth/Register.vue';
 import ResetPassword from '@/views/auth/ResetPassword.vue';
 
