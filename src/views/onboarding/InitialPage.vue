@@ -1,7 +1,7 @@
 <template>
   <IonPage>
     <IonContent fullscreen :scroll-y="false">
-      <div class="page-wrapper">
+      <div class="centered-wrapper">
         <div class="centered-wrapper">
           <div class="logo-section">
             <img src="/src/assets/kangur_new.png" alt="KangurApp Logo" class="logo-img" />
@@ -10,12 +10,12 @@
               Registra i monitoritza els moments de pell amb pell del teu nadó per fer un seguiment del seu desenvolupament i benestar.
             </p>
           </div>
-          <div class="form-section">
+          <div class="form-section">            
+            <IonButton expand="block" size="large" size-md="5" fill="solid" color="primary" router-link="/login">
+              Iniciar sessió
+            </IonButton>
             <IonButton expand="block" size="large" size-md="5" fill="outline" color="primary" router-link="/register">
               Registrar-se
-            </IonButton>
-            <IonButton expand="block" size="large" size-md="5" fill="outline" color="primary" router-link="/login">
-              Iniciar sessió
             </IonButton>
           </div>
         </div>
@@ -32,12 +32,6 @@ import { IonButton, IonPage, IonContent } from '@ionic/vue'
 </script>
 
 <style scoped>
-.page-wrapper {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  justify-content: space-between;
-}
 
 .app-description {
   text-align: center;
@@ -53,10 +47,10 @@ import { IonButton, IonPage, IonContent } from '@ionic/vue'
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 16px 0;
+  padding: 10px 0;
 }
 
-.footer-logo {
+.logo-footer img {
   height: 32px;
   width: auto;
   opacity: 0.7;

@@ -75,7 +75,7 @@ export async function processQueue() {
         continue
       }
 
-      if (item.collection === 'nados' && item.data && item.data.__tempId) {
+      if (item.collection === 'nadons' && item.data && item.data.__tempId) {
         const temp = item.data.__tempId as string
         if (tempIdMap.has(temp)) {
           console.log('Nado for temp id already created, skipping', temp)
@@ -83,7 +83,7 @@ export async function processQueue() {
         }
         const payload = { ...item.data }
         delete payload.__tempId
-        const docRef = await addDoc(collection(db, 'users', user.uid, 'nados'), payload)
+        const docRef = await addDoc(collection(db, 'users', user.uid, 'nadons'), payload)
         tempIdMap.set(temp, docRef.id)
         console.log('Created nado for temp id', temp, '=>', docRef.id)
         continue 
@@ -95,7 +95,7 @@ export async function processQueue() {
           item.data.nadoId = tempIdMap.get(localId)
         } else {
           const name = item.data.nadoNom || item.data.nadoName || 'Nadó'
-          const docRef = await addDoc(collection(db, 'users', user.uid, 'nados'), { name, createdAt: new Date() })
+          const docRef = await addDoc(collection(db, 'users', user.uid, 'nadons'), { name, createdAt: new Date() })
           tempIdMap.set(localId, docRef.id)
           item.data.nadoId = docRef.id
           console.log('Created missing nado for cronometre local id', localId, '=>', docRef.id)

@@ -29,6 +29,13 @@ http://ionicframework.com/docs/theming/ */
 
 /* FORMS */
 
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
 .titol {
   text-align: center;
   margin-bottom: 0px;
@@ -52,10 +59,25 @@ http://ionicframework.com/docs/theming/ */
 }
 
 .input-box {
-  --highlight-color: var(--ion-color-primary);
+  /* --highlight-color: var(--ion-color-primary);
+  --border-color: var(--ion-color-primary);
   --border-radius: 10px;
   --background: #fff;
-  margin-bottom: 12px;
+  margin-bottom: 12px; */
+  /* border: 2px solid var(--ion-color-primary); */
+
+  --background: #ffffff;
+  --border-color: var(--ion-color-primary);
+  --border-width: 1px;
+}
+
+.error-message {
+  color: #d32f2f;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  background-color: #ffebee;
+  border-radius: 4px;
+  text-align: center;
 }
 
 .logo-img {
@@ -84,7 +106,7 @@ http://ionicframework.com/docs/theming/ */
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  min-height: 100%;
   padding: 24px;
   gap: 40px;
 }
@@ -95,12 +117,15 @@ http://ionicframework.com/docs/theming/ */
   justify-content: center;
   width: 100%;
   max-width: 600px;
+  align-items: center;
+  gap: 24px;
 }
 
-.form-section {
+.config-content-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  align-items: center;
+  padding: 24px;
   width: 100%;
 }
 
@@ -112,10 +137,49 @@ http://ionicframework.com/docs/theming/ */
   color: var(--ion-color-primary);
 }
 
+.button-container {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  margin-top: 2em;
+  padding: 24px 16px;
+  width: 100%;
+}
+
+.button-container > ion-button {
+  flex: 1;
+}
+
 .big-button {  
   text-transform: none;
   font-size: 20px;
   padding: 10px 0 10px 0;
+  width: 100%;
+  min-width: 100%;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 20px;
+  --padding-bottom: 20px;
+}
+
+.button-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.button-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-icon img {
+  height: 40px;
+  width: auto;
 }
 
 .default-button {
@@ -161,4 +225,18 @@ http://ionicframework.com/docs/theming/ */
 
 .negreta {
   font-weight: 800;
+}
+
+.mini-card {
+  width: 100%;
+  border: 1px solid var(--ion-color-primary);
+  border-radius: 10px;
+  margin-bottom: 24px;
+}
+
+.card-title {
+  position:relative;
+  font-weight: bold;
+  font-size: 16px;
+  color: var(--ion-color-primary);
 }

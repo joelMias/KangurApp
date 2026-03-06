@@ -3,68 +3,70 @@
     <div class="centered-wrapper">
     
       <h1 class="negreta">Registrar pell amb pell</h1>
-  
-      <ion-grid>
-        <IonRow class="ion-justify-content-center">
-          <IonCol size="10" size-lg="10" size-md="10">
-            <IonCard class="center-button">
-              <IonRow class="ion-justify-content-center ion-margin-top">
-                <IonCol size="auto">
-                  <IonIcon :icon="timerOutline" class="icona-rellotge" />
-                </IonCol>
-              </IonRow>
-              <IonRow class="ion-justify-content-center">
-                <IonCol size="auto">
-                  <div class="temps-display ion-text-center">{{ formatTime(temps) }}</div>
-                </IonCol>
-              </IonRow>
-            </IonCard>
-          </IonCol>
-        </IonRow>
-       
-        <IonRow>
-          <IonCol class="ion-text-center ion-margin-top">
-            <IonLabel color="primary"><h1 class="negreta">Qui ha fet el pell amb pell?</h1></IonLabel>
-          </IonCol>
-        </IonRow>
+      <IonCard class="mini-card">
+        <ion-grid>
+          <IonRow class="ion-justify-content-center">
+            <IonCol size="10" size-lg="10" size-md="10">
+              <IonCard class="center-button">
+                <IonRow class="ion-justify-content-center ion-margin-top">
+                  <IonCol size="auto">
+                    <IonIcon :icon="timerOutline" class="icona-rellotge" />
+                  </IonCol>
+                </IonRow>
+                <IonRow class="ion-justify-content-center">
+                  <IonCol size="auto">
+                    <div class="temps-display ion-text-center">{{ formatTime(temps) }}</div>
+                  </IonCol>
+                </IonRow>
+              </IonCard>
+            </IonCol>
+          </IonRow>
         
-        <IonRow class="ion-justify-content-center ion-margin-top">
-          <IonCol size="12" class="ion-text-center">
-            <div class="cangur-cards">
-              <div v-for="c in cangurs" :key="c.id" class="cangur-card" :class="{ selected: c.id === cangurSeleccionat }" @click="cangurSeleccionat = c.id">
-                {{ c.name }}
-              </div>
-            </div>
-          </IonCol>
-        </IonRow>
-      </ion-grid>
-      <IonLoading :is-open="loadingCangurs" message="Carregant cangurs..." spinner="crescent"/>
-    </div>
+          <IonRow>
+            <IonCol class="ion-text-center ion-margin-top">
+              <IonLabel color="primary"><h1 class="negreta">Qui ha fet el pell amb pell?</h1></IonLabel>
+            </IonCol>
+          </IonRow>
+          
+          <IonRow class="ion-justify-content-center ion-margin-top">
+            <IonCol size="12" class="ion-text-center">
 
-    <template #footer>
-      <IonFooter class="footer">
-        <IonToolbar>
-          <IonGrid>
-            <IonRow class="ion-justify-content-center">
-              <IonCol size="auto">
-                <IonButton expand="block" fill="outline" color="medium" class="default-button" @click="cancelar">Cancelar</IonButton>
-              </IonCol>
-              <IonCol size="auto">
-                <IonButton expand="block" color="primary" fill="solid" class="default-button" @click="guardarSessio">Registrar</IonButton>
-              </IonCol>
-            </IonRow>
-          </IonGrid>
-        </IonToolbar>
-        <IonToast :is-open="estaOk" :icon="checkbox" :message="toastMessage" :duration="3000" position="bottom" @didDismiss="estaOk = false" color="primary"></IonToast>
-        <IonToast :is-open="showErrorToast" :message="errorMessage" :duration="3000" position="bottom" @didDismiss="showErrorToast = false" color="danger"></IonToast>
-      </IonFooter>
-    </template>
+              <div class="button-container">
+                <IonButton 
+                  v-for="c in cangurs" 
+                  :key="c.id" 
+                  expand="block" 
+                  :fill="c.id === cangurSeleccionat ? 'solid' : 'outline'"
+                  color="primary"
+                  @click="cangurSeleccionat = c.id">
+                  {{ c.name }}
+                </IonButton>
+              </div>
+            </IonCol>
+          </IonRow>
+          <br>
+        </ion-grid>
+      </IonCard>
+      
+      <div class="button-container">
+        <IonButton expand="block" size="large" fill="outline" color="medium" @click="cancelar">
+          Cancelar
+        </IonButton>
+        <IonButton expand="block" size="large" fill="solid" color="primary" :disabled="!cangurSeleccionat" @click="guardarSessio">
+          Registrar
+        </IonButton>
+      </div>
+
+      <IonLoading :is-open="loadingCangurs" message="Carregant cangurs..." spinner="crescent"/>
+      <IonToast :is-open="estaOk" :icon="checkbox" :message="toastMessage" :duration="3000" position="bottom" @didDismiss="estaOk = false" color="primary"></IonToast>
+      <IonToast :is-open="showErrorToast" :message="errorMessage" :duration="3000" position="bottom" @didDismiss="showErrorToast = false" color="danger"></IonToast>
+    </div>
   </AppLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-import {IonLoading, IonGrid, IonRow, IonCol, IonIcon, IonCard, IonToolbar, IonFooter, IonLabel, IonButton, IonToast } from '@ionic/vue'
+import {IonLoading, IonGrid, IonRow, IonCol, IonIcon, IonCard, IonLabel, IonButton, IonToast, onIonViewWillEnter } from '@ionic/vue'
 import AppLayout from '@/components/AppLayout.vue'
 import { timerOutline, checkbox } from 'ionicons/icons'
 import { useRouter, useRoute } from 'vue-router'
@@ -109,6 +111,10 @@ const formatTime = (t: number) => {
   return `${m} minuts ${s} segons`
 }
 
+onIonViewWillEnter(() => {
+  cangurSeleccionat.value = null
+})
+
 onMounted(() => {
   loadingCangurs.value = true
   const unsub = onAuthStateChanged(auth, async (user) => {
@@ -130,28 +136,26 @@ onMounted(() => {
                   const [item] = cangurs.value.splice(idx, 1)
                   cangurs.value.unshift(item)
                 }
-                
-                if (!cangurSeleccionat.value && cangurs.value.length) cangurSeleccionat.value = cangurs.value[0].id
               }
             } catch (e) {  }
           
           try { localStorage.setItem('localCangurs', JSON.stringify(cangurs.value)) } catch (e) { }
 
           try {
-            const nadoSnap = await getDocs(collection(db, 'users', user.uid, 'nados'))
-            if (!nadoSnap.empty) {
-              const nados = nadoSnap.docs.map(d => ({ id: d.id, name: d.data().name }))
-              try { localStorage.setItem('localNados', JSON.stringify(nados)) } catch (e) { }
+            const nadonsnap = await getDocs(collection(db, 'users', user.uid, 'nadons'))
+            if (!nadonsnap.empty) {
+              const nadons = nadonsnap.docs.map(d => ({ id: d.id, name: d.data().name }))
+              try { localStorage.setItem('localnadons', JSON.stringify(nadons)) } catch (e) { console.warn('Error saving localnadons', e) }
               const selId = localStorage.getItem('selectedNado')
-              if (!selId && nados.length) {
-                try { localStorage.setItem('selectedNado', nados[0].id); localStorage.setItem('selectedNadoName', nados[0].name) } catch (e) { /* ignore */ }
+              if (!selId && nadons.length) {
+                try { localStorage.setItem('selectedNado', nadons[0].id); localStorage.setItem('selectedNadoName', nadons[0].name) } catch (e) { /* ignore */ }
               } else if (selId) {
-                const found = nados.find(n => n.id === selId)
-                if (found) try { localStorage.setItem('selectedNadoName', found.name) } catch (e) { }
+                const found = nadons.find(n => n.id === selId)
+                if (found) try { localStorage.setItem('selectedNadoName', found.name) } catch (e) { /* ignore */ }
               }
             }
           } catch (e) {
-            console.warn('No s’han pogut llegir nadós per cache', e)
+            console.warn("No s'han pogut llegir nadós per cache", e);
           }
         } else {
           // Quan estem offline llegim les dades del cache local
@@ -168,7 +172,6 @@ onMounted(() => {
                   const [item] = cangurs.value.splice(idx, 1)
                   cangurs.value.unshift(item)
                 }
-                if (!cangurSeleccionat.value && cangurs.value.length) cangurSeleccionat.value = cangurs.value[0].id
               }
             } catch (e) {
               console.warn('Error llegint cangurs del cache', e)
@@ -225,9 +228,9 @@ const guardarSessio = async () => {
     if (navigator.onLine) {
       try {
         if (userIdToUse) {
-          const nadoSnap = await getDocs(collection(db, 'users', userIdToUse, 'nados'))
-          if (!nadoSnap.empty) {
-            const nadoDoc = nadoSnap.docs[0]
+          const nadonsnap = await getDocs(collection(db, 'users', userIdToUse, 'nadons'))
+          if (!nadonsnap.empty) {
+            const nadoDoc = nadonsnap.docs[0]
             nadoId = nadoDoc.id
             nadoNom = nadoDoc.data().name
           }
@@ -242,7 +245,7 @@ const guardarSessio = async () => {
 
     if ((!nadoNom || nadoNom === '') && nadoId) {
       try {
-        const raw = localStorage.getItem('localNados')
+        const raw = localStorage.getItem('localnadons')
         if (raw) {
           const list = JSON.parse(raw)
           const found = list.find((x: any) => x.id === nadoId)
@@ -251,12 +254,12 @@ const guardarSessio = async () => {
             try { localStorage.setItem('selectedNadoName', nadoNom ?? '') } catch (e) {  }
           }
         }
-      } catch (e) { console.warn('Error llegint localNados', e) }
+      } catch (e) { console.warn('Error llegint localnadons', e) }
     }
 
     if ((!nadoNom || nadoNom === '') && !nadoId) {
       try {
-        const raw = localStorage.getItem('localNados')
+        const raw = localStorage.getItem('localnadons')
         if (raw) {
           const list = JSON.parse(raw)
           if (Array.isArray(list) && list.length) {
@@ -266,7 +269,7 @@ const guardarSessio = async () => {
             try { localStorage.setItem('selectedNado', nadoId ?? ''); localStorage.setItem('selectedNadoName', nadoNom ?? '') } catch (e) { /* ignore */ }
           }
         }
-      } catch (e) { console.warn('Error llegint localNados fallback', e) }
+      } catch (e) { console.warn('Error llegint localnadons fallback', e) }
     }
 
     if (!nadoNom) nadoNom = ''
@@ -313,7 +316,6 @@ const guardarSessio = async () => {
 .center-button {
   --background: #fff;
   --color: #000;
-  border: 1px solid #26a69a;
   border-radius: 10px;
   font-weight: 600;
   font-size: 16px;
@@ -328,39 +330,4 @@ const guardarSessio = async () => {
   font-size: 24px; 
   font-weight: bold; 
 }
-
-.cangur-cards {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
-}
-
-.cangur-card {
-  padding: 12px 20px;
-  background-color: #e0e0e0;
-  border: 1px solid #000;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 600;
-  min-width: 120px;
-  transition: all 0.3s;
-}
-
-.cangur-card.selected {
-  background-color: #4b9b90;
-  color: #fff;
-  border-color: #4b9b90;
-}
-
-.footer-button {
-  --color: #4b9b90;
-  --border-color: #4b9b90;
-  --border-width: 1px;
-  --border-radius:7px;
-  font-weight: 600;
-  text-transform: none;
-  font-size: 18px;          
-}
-
 </style>

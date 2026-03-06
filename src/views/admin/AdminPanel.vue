@@ -60,7 +60,7 @@
                             </IonCol>
 
                             <IonCol size="12" size-md="3" class="ion-text-md-end ion-text-start">
-                              <div>Nadons: <IonText><strong>{{ user.nados.length }}</strong></IonText></div>
+                              <div>Nadons: <IonText><strong>{{ user.nadons.length }}</strong></IonText></div>
                               <div>Sessions: <IonText><strong>{{ user.cronometres.length }}</strong></IonText></div>
                               <div v-if="user.cangurs.length > 0">Cangurs: <IonText><strong>{{ getCangursList(user.cangurs) }}</strong></IonText></div>
                             </IonCol>
@@ -166,7 +166,7 @@ interface User {
   admin: boolean
   createdAt: any
   cronometres: any[]
-  nados: any[]
+  nadons: any[]
   cangurs: any[]
 }
 

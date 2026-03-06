@@ -23,10 +23,10 @@ async function getAllUsersData() {
         ...d.data()
       }))
       
-      // Obtenir nados de l'usuari
-      const nadosRef = collection(db, 'users', userId, 'nados')
-      const nadosSnap = await getDocs(nadosRef)
-      const nados = nadosSnap.docs.map(d => ({
+      // Obtenir nadons de l'usuari
+      const nadonsRef = collection(db, 'users', userId, 'nadons')
+      const nadonsSnap = await getDocs(nadonsRef)
+      const nadons = nadonsSnap.docs.map(d => ({
         id: d.id,
         ...d.data()
       }))
@@ -46,7 +46,7 @@ async function getAllUsersData() {
         admin: userData.admin || false,
         createdAt: userData.createdAt,
         cronometres,
-        nados,
+        nadons,
         cangurs
       })
     }

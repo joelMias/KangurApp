@@ -50,31 +50,25 @@
               </IonRow>
             </IonGrid>
         </IonCard>
+
+        <div class="button-container">
+          <IonButton expand="block" size="large" fill="outline" color="medium" @click="cancelar">
+            Cancelar
+          </IonButton>
+          <IonButton expand="block" size="large" fill="outline" color="primary" @click="registrar">
+            Registrar
+          </IonButton>
+        </div>
       </div>
 
-    <template #footer>
-      <IonFooter class="footer">
-        <IonToolbar>
-          <IonGrid>
-            <IonRow class="ion-justify-content-center">
-              <IonCol size="auto">
-                <IonButton expand="block" fill="outline" color="medium" class="default-button" @click="cancelar">Cancelar</IonButton>
-              </IonCol>
-              <IonCol size="auto">
-                <IonButton expand="block" color="primary" fill="solid" class="default-button" @click="registrar">Registrar</IonButton>
-              </IonCol>
-            </IonRow>
-          </IonGrid>
-        </IonToolbar>
-        <IonToast :is-open="estaOk" :icon="checkbox" :message="toastMessage" :duration="3000" position="bottom" @didDismiss="estaOk = false" color="primary"/>
-      </IonFooter>
-    </template>
+      <IonToast :is-open="estaOk" :icon="checkbox" :message="toastMessage" :duration="3000" position="bottom" @didDismiss="estaOk = false" color="primary"/>
+      <IonToast :is-open="showErrorToast" :message="errorMessage" :duration="3000" position="bottom" @didDismiss="showErrorToast = false" color="danger"/>
   </AppLayout>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { IonToolbar, IonGrid, IonRow, IonCol, IonFooter, IonCard, IonDatetime, IonIcon, IonButton, IonToast } from '@ionic/vue'
+import { IonGrid, IonRow, IonCol, IonCard, IonDatetime, IonIcon, IonButton, IonToast } from '@ionic/vue'
 import { menuOutline, checkbox } from 'ionicons/icons'
 import AppLayout from '@/components/AppLayout.vue'
 import { useRouter } from 'vue-router'
@@ -88,6 +82,8 @@ const router = useRouter()
 const today = new Date()
 const estaOk = ref(false)
 const toastMessage = ref('')
+const showErrorToast = ref(false)
+const errorMessage = ref('')
 
 const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long' }
 const formattedDate = new Date().toLocaleDateString('ca-ES', options).replace('de', '')
@@ -122,7 +118,8 @@ const registrar = async () => {
     exitDate.setHours(exitHour, exitMin, 0, 0)
 
     if (exitDate <= entryDate) {
-      alert("Error: L'hora de sortida no pot ser anterior a l'hora d'entrada")
+      errorMessage.value = "Error: L'hora de sortida no pot ser anterior a l'hora d'entrada"
+      showErrorToast.value = true
       return
     }
 
@@ -132,11 +129,11 @@ const registrar = async () => {
       try {
         const userIdToUse = user?.uid ?? fallbackUid ?? ''
         if (userIdToUse) {
-          const snapshot = await getDocs(collection(db, 'users', userIdToUse, 'nados'))
+          const snapshot = await getDocs(collection(db, 'users', userIdToUse, 'nadons'))
           if (!snapshot.empty) nadoId = snapshot.docs[0].id
         }
       } catch (err) {
-        console.warn('No s’han pogut llegir nadós del servidor', err)
+        console.warn('Error obtenint usuaris de firebase', err)
       }
     }
     if (!nadoId) nadoId = localStorage.getItem('selectedNado')
@@ -151,10 +148,10 @@ const registrar = async () => {
     }
 
     if (navigator.onLine) {
-      await addDoc(collection(db, 'users', userIdToUse, 'entrades'), payload)
+      await addDoc(collection(db, 'users', userIdToUse, 'estades'), payload)
       toastMessage.value = 'Temps a la unitat registrat'
     } else {
-      offlineService.addPending('entrades', payload, userIdToUse)
+      offlineService.addPending('estades', payload, userIdToUse)
       console.log('Entrada guardada localment per sincronitzar després')
       toastMessage.value = 'Guardat localment — s’enviarà quan hi hagi connexió'
     }
@@ -163,27 +160,14 @@ const registrar = async () => {
     router.push('/HomePage')
   } catch (err: any) {
     console.error("Error registrant l'entrada:", err)
-    alert("Error registrant l'entrada: " + err.message)
+    errorMessage.value = "Error registrant l'entrada: " + err.message
+    showErrorToast.value = true
   }
 }
 </script>
 
 
 <style scoped>
-
-.mini-card {
-  width: 100%;
-  max-width: 480px;
-  border: 1px solid var(--ion-color-primary);
-  border-radius: 10px;
-}
-
-.card-title {
-  position:relative;
-  font-weight: bold;
-  font-size: 16px;
-  color: var(--ion-color-primary);
-}
 
 .time-picker {
   margin-top: -40px;
@@ -193,4 +177,5 @@ const registrar = async () => {
   font-weight: 700;
   display: inline-block;
 }
+
 </style>

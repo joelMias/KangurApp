@@ -1,6 +1,8 @@
 <template>
-  <div ref="container" class="chart-container">
-    <Doughnut :data="chartData" :options="options" />
+  <div class="chart-wrapper">
+    <div ref="container" class="chart-container">
+      <Doughnut :data="chartData" :options="options" />
+    </div>
   </div>
 </template>
 
@@ -27,7 +29,11 @@ const centerTextPlugin = {
     ctx.fillStyle = "#333"
     ctx.textAlign = "center"
     ctx.textBaseline = "middle"
-    ctx.fillText(total.toFixed(0), (chartArea.left + chartArea.right) / 2, (chartArea.top + chartArea.bottom) / 2)
+    ctx.fillText(total.toFixed(0), (chartArea.left + chartArea.right) / 2, (chartArea.top + chartArea.bottom) / 2 - 12)
+    
+    ctx.font = "12px sans-serif"
+    ctx.fillStyle = "#666"
+    ctx.fillText("minuts", (chartArea.left + chartArea.right) / 2, (chartArea.top + chartArea.bottom) / 2 + 12)
   }
 }
 
@@ -90,10 +96,21 @@ onBeforeUnmount(() => {
   window.removeEventListener('orientationchange', adaptLegendForWidth)
 })
 
+// Simulate a 3-second refresh delay
+const simulateRefreshDelay = () => {
+  return new Promise(resolve => {
+    setTimeout(resolve, 3000)
+  })
+}
+
 ChartJS.register(centerTextPlugin)
 </script>
 
 <style scoped>
+.chart-wrapper {
+  width: 100%;
+}
+
 .chart-container {
   width: 100%;
   height: min(48vh, 420px);

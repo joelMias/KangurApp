@@ -109,7 +109,7 @@ router.beforeEach(async (to, from, next) => {
 
   // Protected routes (only accessible when authenticated)
   const protectedRoutes = [
-    '/HomePage', '/cangurs', '/nado', '/cronometre', '/guardarCrono',
+    '/HomePage', '/cronometre', '/guardarCrono',
     '/registerEntrada', '/perfil', '/admin-panel', '/config-familia',
     '/reset-password', '/pdf-viewer'
   ]

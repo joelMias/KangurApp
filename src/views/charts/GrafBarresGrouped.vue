@@ -8,7 +8,7 @@
 import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue'
 import { Bar } from 'vue-chartjs'
 import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js'
-import type { ChartOptions, Chart } from 'chart.js'
+import type { Chart } from 'chart.js'
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend)
 
@@ -66,12 +66,12 @@ const baseOptions = {
   },
   scales: {
     x: {
-      stacked: true,
+      stacked: false,
       grid: { display: false },
       border: { display: false }
     },
     y: {
-      stacked: true,
+      stacked: false,
       grid: { display: false },
       border: { display: false },
       title: {
@@ -88,7 +88,6 @@ const baseOptions = {
 const options = ref(baseOptions)
 
 function updateOptionsForWidth(w: number) {
-  // Reduim alguns parametres depenent de l'amplada de la finestra
   options.value = {
     ...baseOptions,
     plugins: {
@@ -98,24 +97,29 @@ function updateOptionsForWidth(w: number) {
   }
 }
 
-function onResize() {
-  windowWidth.value = window.innerWidth
-  updateOptionsForWidth(windowWidth.value)
-}
-
 onMounted(() => {
-  updateOptionsForWidth(windowWidth.value)
-  window.addEventListener('resize', onResize)
-  window.addEventListener('orientationchange', onResize)
+  if (typeof window !== 'undefined') {
+    windowWidth.value = window.innerWidth
+    updateOptionsForWidth(windowWidth.value)
+    window.addEventListener('resize', handleWindowResize)
+  }
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', onResize)
-  window.removeEventListener('orientationchange', onResize)
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('resize', handleWindowResize)
+  }
 })
 
-watch(() => props.labels, () => {
-  setTimeout(() => { if (container.value) (container.value as any).offsetHeight }, 50)
+const handleWindowResize = () => {
+  if (typeof window !== 'undefined') {
+    windowWidth.value = window.innerWidth
+    updateOptionsForWidth(windowWidth.value)
+  }
+}
+
+watch(windowWidth, (newWidth) => {
+  updateOptionsForWidth(newWidth)
 })
 </script>
 

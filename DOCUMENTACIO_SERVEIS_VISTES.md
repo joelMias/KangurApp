@@ -39,7 +39,7 @@ Funcions amb l'autenticació de Firebase Auth:
 **`login({email, password})`**
 - Fa sign-in amb Firebase Auth.
 - Guarda `uid`, `displayName`, email a `localStorage` per poder utilitzar les dades de forma offline.
-- Intenta carregar llista de `nados` (bebes) de l'usuari i la guarda a `localStorage`.
+- Intenta carregar llista de `nadons` (bebes) de l'usuari i la guarda a `localStorage`.
 - Si hi ha únic nadó, el marca automàticament com `selectedNado`.
 - Retorna `{expires_in: null}`.
 
@@ -81,7 +81,7 @@ Implementa sistema de cua per encolar operacions offline i sincronitzar-les amb 
   - Si és `cronometre` amb `nadoId` local: busca/crea el nadó placeholder.
   - Crea document a Firestore amb IDs normalitzats.
 - Guarda elements que fallen per reintentar-los més tard.
-- **Lògica de dependències:** assegura que nados es crein ABANS que cronometres/entrades que els referencien.
+- **Lògica de dependències:** assegura que nadons es crein ABANS que cronometres/estades que els referencien.
 
 **`getPendingCount()`**
 - Retorna nombre d'elements en cua (útil per indicadors UI).
@@ -169,7 +169,7 @@ L'aplicació segueix aquest flux:
 **Camps:** Nom del nadó, Setmanes (gestació), Dies.
 
 **`Registre()`:**
-- Crea document `nados` a Firestore (online) o encola amb `__tempId` (offline).
+- Crea document `nadons` a Firestore (online) o encola amb `__tempId` (offline).
 - El `__tempId` permet que `processQueue()` mapegi l'id temporal → id real de Firestore.
 - Guarda `selectedNado` i `selectedNadoName` a `localStorage`.
 - Redirigeix a `/funcionalitats`.
@@ -211,7 +211,7 @@ L'aplicació segueix aquest flux:
 **`onMounted()`:** 
 - Carrega cangurs (Firestore online / cache offline).
 - Aplica prioritat al nom amb el que s'ha fet el registre.
-- Carrega nados per validació.
+- Carrega nadons per validació.
 
 **`guardarSessio()`:**
 - Valida el cangur seleccionat.
@@ -232,7 +232,7 @@ L'aplicació segueix aquest flux:
 - Valida que el temps compleixi que: sortida > entrada.
 - Obté ID nadó (Firestore o cache).
 - Prepara payload: `{nadoId, dia, horaEntrada, horaSortida, createdAt}`.
-- Si online: crea `entrades` a Firestore.
+- Si online: crea `estades` a Firestore.
 - Si offline: guarda a la cua amb `offlineService.addPending()`.
 - Mostra toast i redirigeix a `/funcionalitats`.
 
@@ -320,7 +320,7 @@ L'aplicació segueix aquest flux:
 - `selectedNado` : ID del nadó seleccionat (fallback si no hi ha connexió).
 - `selectedNadoName` : nom del nadó seleccionat.
 - `localCangurs` : JSON array de `{id, name}` dels educadors.
-- `localNados` : JSON array de `{id, name}` dels nadós.
+- `localnadons` : JSON array de `{id, name}` dels nadós.
 - `offlineQueue` : JSON array de `PendingItem` per sincronitzar.
 
 **Per què:** Garantir que la UI es pot carregar sense connexió a internet.
@@ -335,7 +335,7 @@ L'aplicació segueix aquest flux:
 2. **Login** (Inici → Login):
    - L'usuari introdueix email/contrasenya.
    - Firebase Auth verifica credencials.
-   - Es carreguen dades a localStorage + cache de nados.
+   - Es carreguen dades a localStorage + cache de nadons.
    - Redirigeix a Funcionalitats.
 
 3. **Logout** (des de Historial):
@@ -350,9 +350,9 @@ users/
     (document principal amb name, email, createdAt)
     cangurs/ (subcollecció)
       {docId}: { name, createdAt }
-    nados/ (subcollecció)
+    nadons/ (subcollecció)
       {docId}: { name, setmanes, dies, createdAt }
     cronometres/ (subcollecció)
       {docId}: { cangurId, cangurNom, nadoId, nadoNom, temps, dia, hora, createdAt }
-    entrades/ (subcollecció)
+    estades/ (subcollecció)
       {docId}: { nadoId, horaEntrada, horaSortida, createdAt }

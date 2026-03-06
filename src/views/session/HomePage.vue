@@ -7,45 +7,25 @@
     </template>
 
     <div class="centered-wrapper">
-      <IonGrid class="centered-content">
-        <IonRow class="ion-justify-content-center">
-          <IonCol size="12" size-md="8" size-lg="8" class="ion-text-center">
-            <IonButton fill="outline" size="large" expand="block" @click="iniciar" class="big-button green-button">
-              <IonGrid>
-                <IonRow class="ion-justify-content-center">
-                  <IonCol size="12" class="ion-text-center">
-                    <img src="/src/assets/kangur_new_petit.png" />
-                  </IonCol>
-                </IonRow>
-                <IonRow class="ion-justify-content-center">
-                  <IonCol size="12" class="ion-text-center">
-                    <strong><IonLabel>Iniciar pell amb pell</IonLabel></strong>
-                  </IonCol>
-                </IonRow>
-              </IonGrid>
-            </IonButton>
-          </IonCol>
-        </IonRow>
+      <div class="centered-content">
+        <IonButton fill="outline" size="large" expand="block" @click="iniciar" class="big-button green-button">
+          <div class="button-content">
+            <div class="button-icon">
+              <img src="/src/assets/kangur_new_petit.png" />
+            </div>
+            <strong><IonLabel>Iniciar pell amb pell</IonLabel></strong>
+          </div>
+        </IonButton>
 
-        <IonRow class="ion-justify-content-center ion-margin-top">
-          <IonCol size="12" size-md="8" size-lg="8" class="ion-text-center">
-            <IonButton fill="outline" size="large" expand="block" @click="registre" class="big-button green-button">
-              <IonGrid>
-                <IonRow class="ion-justify-content-center">
-                  <IonCol size="12" class="ion-text-center">
-                    <IonIcon :icon="businessOutline" size="large" />
-                  </IonCol>
-                </IonRow>
-                <IonRow class="ion-justify-content-center">
-                  <IonCol size="12" class="ion-text-center">
-                    <strong><IonLabel>Registre entrada unitat</IonLabel></strong>
-                  </IonCol>
-                </IonRow>
-              </IonGrid>
-            </IonButton>
-          </IonCol>
-        </IonRow>
-      </IonGrid>
+        <IonButton fill="outline" size="large" expand="block" @click="registre" class="big-button green-button">
+          <div class="button-content">
+            <div class="button-icon">
+              <IonIcon :icon="businessOutline" size="large" />
+            </div>
+            <strong><IonLabel>Registre entrada unitat</IonLabel></strong>
+          </div>
+        </IonButton>
+      </div>
     </div>
     <template #footer>
       <IonFooter class="footer">

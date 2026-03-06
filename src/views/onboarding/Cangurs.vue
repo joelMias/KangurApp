@@ -1,76 +1,78 @@
 <template>
-  <IonPage>
-    <IonHeader>
-      <IonToolbar class="capçalera">
-        <IonTitle> <img src="/src/assets/kangur_new_petit.png" class="header-logo">KANGURAPP</IonTitle>
-      </IonToolbar>
-    </IonHeader>
+  <AppLayout :show-back="true" :scroll-y="false" back-route="/nado" content-class="ion-padding">
+    <RegistrationProgress :current-step="3" />
+    
+    <IonGrid>
+      <IonRow class="ion-justify-content-center">
+        <IonCol size="12" size-md="6" size-lg="5">
+          <IonText color="dark">
+            <h2 class="titol">3. Afegeix cangurs</h2>
+          </IonText>
 
-    <IonContent class="ion-padding">
-
-      <IonGrid>
-        <IonRow class="ion-justify-content-center">
-          <IonCol size="12" size-md="6" size-lg="5">
-            <IonText class="lletra" color="dark">
-              <h2 class="titol"><strong>Crea el teu compte</strong></h2>
+          <div v-if="error">
+            <IonText color="danger">
+              <p class="error-message">{{ error }}</p>
             </IonText>
+          </div>
 
-            <IonText class="lletra" color="dark">
-              <h3><strong>Cangurs</strong></h3>
-            </IonText>
+          <IonList v-if="cangurs.length">
+            <IonItem v-for="(cangur, index) in cangurs" :key="index">
+              <IonIcon :icon="personOutline" slot="start" />
+              <IonLabel>{{ cangur.nom }}</IonLabel>
+              <IonButton v-if="index != 0" fill="clear" color="dark" slot="end" @click="eliminarCangur(index)">
+                <IonIcon :icon="trashOutline" />
+              </IonButton>
+            </IonItem>
+          </IonList>
 
-            <IonList v-if="cangurs.length">
-              <IonItem v-for="(cangur, index) in cangurs" :key="index">
-                <IonIcon :icon="personOutline" slot="start" />
-                <IonLabel>{{ cangur.nom }}</IonLabel>
-                <IonButton v-if="index != 0" fill="clear" color="dark" slot="end" @click="eliminarCangur(index)">
-                  <IonIcon :icon="trashOutline" />
+          <IonGrid class="ion-margin-top">
+            <IonRow>
+              <IonCol size="10">
+                <IonInput v-model="nouCangur" placeholder="Afegeix un cangur" fill="outline" class="input-box"/>
+              </IonCol>
+              <IonCol size="2">
+                <IonButton class="add-button" expand="block" :disabled="!nouCangur.trim()" @click="afegirCangur">
+                  <IonIcon :icon="addOutline" />
                 </IonButton>
-              </IonItem>
-            </IonList>
+              </IonCol>
+            </IonRow>
+          </IonGrid>
 
-            <IonGrid class="ion-no-padding ion-margin-top">
-              <IonRow class="ion-align-items-stretch">
-                <IonCol size="11" class="ion-padding-end">
-                  <IonInput v-model="nouCangur" placeholder="Afegeix un cangur" class="input-box"/>
-                </IonCol>
-                <IonCol size="1">
-                  <IonButton class="add-button ion-no-margin" expand="block" @click="afegirCangur">
-                    <IonIcon :icon="addOutline" />
-                  </IonButton>
-                </IonCol>
-              </IonRow>
-            </IonGrid>
-
-            <IonButton expand="block" size="large" shape="round" fill="outline" class="default-button ion-margin-top" @click="guardarCangurs">
-              Continuar
-            </IonButton>
-          </IonCol>
-        </IonRow>
-      </IonGrid>
-
-    </IonContent>
-  </IonPage>
+          <br>
+          <IonButton expand="block" size="large" fill="outline" @click="guardarCangurs" class="ion-margin-top" :disabled="loading">
+            <IonSpinner v-if="loading" name="crescent"></IonSpinner>
+            <span v-else>Continuar</span>
+          </IonButton>
+        </IonCol>
+      </IonRow>
+    </IonGrid>
+  </AppLayout>
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonGrid, IonText, IonLabel, IonCol, IonRow, IonItem, IonList, IonHeader, IonToolbar, IonTitle, IonContent, IonInput, IonButton, IonIcon, onIonViewWillEnter } from '@ionic/vue'
+import { IonGrid, IonText, IonLabel, IonCol, IonRow, IonItem, IonList, IonInput, IonButton, IonIcon, IonSpinner, onIonViewWillEnter } from '@ionic/vue'
 import { ref, onMounted } from 'vue'
 import { addOutline, personOutline, trashOutline } from 'ionicons/icons'
 import { useRouter } from 'vue-router'
 import { db, auth } from '@/services/firebase'
 import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore'
 import offlineService from '@/services/offline.service'
+import AppLayout from '@/components/AppLayout.vue'
+import RegistrationProgress from '@/components/RegistrationProgress.vue'
 
 const router = useRouter()
 
 // Ara cada cangur té { id, nom }
 const cangurs = ref<{ id: string; nom: string }[]>([])
 const nouCangur = ref('')
+const error = ref('')
+const loading = ref(false)
 
 onIonViewWillEnter(() => {
   nouCangur.value = ''
   cangurs.value = []
+  error.value = ''
+  loading.value = false
 })
 
 // Carregar cangurs de Firestore
@@ -94,7 +96,7 @@ onMounted(async () => {
           cangurs.value.unshift({ id: `local-reg-${Date.now()}`, nom: regName })
         }
       }
-    } catch (e) {  }
+    } catch (e) { console.warn(e) }
 
     localStorage.setItem('localCangurs', JSON.stringify(cangurs.value))
   } else {
@@ -115,7 +117,7 @@ onMounted(async () => {
           cangurs.value.unshift({ id: `local-reg-${Date.now()}`, nom: regName })
         }
       }
-    } catch (e) { }
+    } catch (e) { console.warn(e) }
 })
 
 // Afegir nous cangur
@@ -155,13 +157,14 @@ const eliminarCangur = async (index: number) => {
 
 // Guardar les dades i passar a la pàgina del nadó
 const guardarCangurs = async () => {
+  loading.value = true
  
   const user = auth.currentUser
   const fallbackUid = localStorage.getItem('uid')
   const userIdToUse = user?.uid ?? fallbackUid ?? ''
 
   if (!userIdToUse) {
-    router.push('/nado')
+    router.push('/HomePage')
     return
   }
 
@@ -183,9 +186,11 @@ const guardarCangurs = async () => {
     }
   }
 
-  try { localStorage.setItem('localCangurs', JSON.stringify(cangurs.value)) } catch (e) { }
+  try { 
+    localStorage.setItem('localCangurs', JSON.stringify(cangurs.value)) 
+  } catch (e) { console.warn(e) }
 
-  router.push('/nado')
+  router.push('/HomePage')
 }
 </script>
 
@@ -196,13 +201,6 @@ const guardarCangurs = async () => {
   margin-bottom: 20px;
   font-size: 22px;
   font-weight: 600;
-}
-
-.input-box {
-  border: 1px solid #26a69a;
-  border-radius: 8px;
-  --highlight-height: 0;
-  --padding-start: 10px;
 }
 
 .add-button { 

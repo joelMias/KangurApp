@@ -111,16 +111,16 @@ async function login(payload: { email: string; password: string }) {
   }
 
   try {
-    const nadosSnap = await getDocs(collection(db, 'users', user.uid, 'nados'))
-    if (!nadosSnap.empty) {
-      const nados = nadosSnap.docs.map(d => ({ id: d.id, name: d.data().name }))
-      try { localStorage.setItem('localNados', JSON.stringify(nados)) } catch (e) { }
-      if (nados.length === 1) {
-        try { localStorage.setItem('selectedNado', nados[0].id); localStorage.setItem('selectedNadoName', nados[0].name) } catch (e) { /* ignore */ }
+    const nadonsSnap = await getDocs(collection(db, 'users', user.uid, 'nadons'))
+    if (!nadonsSnap.empty) {
+      const nadons = nadonsSnap.docs.map(d => ({ id: d.id, name: d.data().name }))
+      try { localStorage.setItem('localnadons', JSON.stringify(nadons)) } catch (e) { }
+      if (nadons.length === 1) {
+        try { localStorage.setItem('selectedNado', nadons[0].id); localStorage.setItem('selectedNadoName', nadons[0].name) } catch (e) { /* ignore */ }
       }
     }
   } catch (e) {
-    console.warn('No hi ha nados al cache', e)
+    console.warn('No hi ha nadons al cache', e)
   }
 
   return {
@@ -150,7 +150,7 @@ async function logout() {
   localStorage.removeItem('name')
   localStorage.removeItem('email')
   localStorage.removeItem('admin')
-  localStorage.removeItem('localNados')
+  localStorage.removeItem('localnadons')
   localStorage.removeItem('selectedNado')
   localStorage.removeItem('selectedNadoName')
   localStorage.removeItem('localCangurs')

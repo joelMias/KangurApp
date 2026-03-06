@@ -1,10 +1,12 @@
 <template>
-  <AppLayout :show-back="true" back-route="/initialPage" content-class="ion-padding">
+  <AppLayout :show-back="true" :scroll-y="false" back-route="/initialPage" content-class="ion-padding">
+      <RegistrationProgress :current-step="1" />
+      
       <IonGrid>
         <IonRow class="ion-justify-content-center">
           <IonCol size="12" size-md="6" size-lg="5">
             <IonText color="dark">
-              <h2 class="titol">Crea el teu compte</h2>
+              <h2 class="titol">1. Crea el teu compte</h2>
             </IonText>
 
             <div v-if="error">
@@ -24,25 +26,25 @@
 
             <strong><IonLabel position="stacked" class="input-label">Confirma la teva contrasenya</IonLabel></strong>
             <IonInput v-model="passwordConfirm" type="password" placeholder="Confirma la contrasenya" fill="outline" class="input-box"/>
-
-            <IonButton expand="block" size="large" fill="outline" class="continuar-button" @click="Register">
-              Continuar
+            <br>
+            <IonButton expand="block" size="large" fill="outline" @click="Register" class="ion-margin-top" :disabled="loading">
+              <IonSpinner v-if="loading" name="crescent"></IonSpinner>
+              <span v-else>Continuar</span>
             </IonButton>
           </IonCol>
         </IonRow>
       </IonGrid>
 
-      <!--<IonLoading :is-open="loading" message="Creant el compte..." spinner="crescent"/>-->
-
     </AppLayout>
 </template>
 
 <script setup lang="ts">
-import { IonText, IonGrid, IonCol, IonRow, IonLabel, IonInput, IonButton, onIonViewWillEnter } from '@ionic/vue'
+import { IonText, IonGrid, IonCol, IonRow, IonLabel, IonInput, IonButton, IonSpinner, onIonViewWillEnter } from '@ionic/vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import authService from '@/services/auth.service'
 import AppLayout from '@/components/AppLayout.vue'
+import RegistrationProgress from '@/components/RegistrationProgress.vue'
 
 const router = useRouter()
 
@@ -68,7 +70,7 @@ onIonViewWillEnter(() => {
     localStorage.removeItem('email')
     localStorage.removeItem('selectedNado')
     localStorage.removeItem('selectedNadoName')
-  } catch (e) { }
+  } catch (e) { console.warn(e) }
 })
 
 const Register = async () => {
@@ -99,8 +101,8 @@ const Register = async () => {
   localStorage.setItem('email', user.email || email.value)
   localStorage.setItem('admin', 'false')
 
-  console.log('Navegant cap a /cangurs...')
-  router.push('/cangurs')
+  console.log('Navegant cap a /nado...')
+  router.push('/nado')
 } catch (err: any) {
   console.error('Error en el registre:', err)
   error.value = err.message || 'Error en el registre. Torna-ho a intentar.'
@@ -111,40 +113,3 @@ const Register = async () => {
 
 }
 </script>
-
-<style scoped>
-
-.input-label {
-  color:grey;
-  font-family: 'Nunito', sans-serif;
-  font-size: 18px;
-  margin-bottom: 6px;
-}
-
-.input-box {
-  --border-color: #26a69a;
-  --highlight-color: #26a69a;
-  --border-radius: 10px;
-  --background: #fff;
-  margin-bottom: 20px;
-}
-
-.continuar-button {
-  --background: #e3f2fd;
-  --color: #26a69a;
-  --border-radius: 10px;
-  --border-width: 1px;
-  --border-color: #90caf9;
-  font-weight: 600;
-  text-transform: none;
-}
-
-.error-message {
-  color: #d32f2f;
-  margin-bottom: 16px;
-  padding: 8px 12px;
-  background-color: #ffebee;
-  border-radius: 4px;
-  text-align: center;
-}
-</style>

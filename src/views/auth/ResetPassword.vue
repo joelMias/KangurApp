@@ -75,16 +75,6 @@ const sendReset = async () => {
     margin-bottom: 16px
 }
 
-.continuar-button { 
-    --background: #e3f2fd; 
-    --color: #26a69a; 
-    --border-radius: 10px; 
-    --border-width: 1px; 
-    --border-color: #90caf9; 
-    font-weight: 600; 
-    text-transform: none 
-}
-
 .capçalera { 
     color: #26a69a 
 }

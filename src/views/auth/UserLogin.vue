@@ -16,12 +16,12 @@
             <IonInput v-model="password" type="password" placeholder="Contrasenya" fill="outline" class="input-box  ion-margin-top ion-margin-bottom"/>
           </div>
           <br>
-          <IonButton expand="block" size="large" fill="outline" color="primary" @click="Login">
+          <IonButton expand="block" size="large" fill="solid" color="primary" @click="Login">
             Inicia sessió
           </IonButton>
           
           
-          <IonButton fill="clear" @click="router.push('/reset-password')" color="medium">He oblidat la contrasenya</IonButton>
+          <IonButton fill="outline" @click="router.push('/reset-password')" color="medium">He oblidat la contrasenya</IonButton>
           
         </div>
 
