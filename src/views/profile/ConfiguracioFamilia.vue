@@ -104,7 +104,7 @@
               <IonList>
                 <IonItem v-for="(c, i) in cangurs" :key="c.id">
                   <IonIcon :icon="personOutline" slot="start" />
-                  <IonLabel>{{ c.nom }}</IonLabel>
+                  <IonLabel>{{ c.nom }} <small>({{ c.parentesc }})</small></IonLabel>
                   <IonButton fill="clear" color="dark" slot="end" @click="eliminarCangur(i)">
                     <IonIcon :icon="trashOutline" />
                   </IonButton>
@@ -113,11 +113,22 @@
 
               <IonGrid class="ion-margin-top">
                 <IonRow>
-                  <IonCol size="9">
+                  <IonCol size="5">
                     <IonInput v-model="nouCangur" placeholder="Afegeix un cangur" />
                   </IonCol>
-                  <IonCol size="3">
-                    <IonButton class="add-button" expand="block" :disabled="!nouCangur.trim()" @click="afegirCangur">
+                  <IonCol size="5">
+                    <IonSelect v-model="nouParentesc" placeholder="Parentesc" interface="alert" required>
+                      <IonSelectOption value="pare">Pare</IonSelectOption>
+                      <IonSelectOption value="mare">Mare</IonSelectOption>
+                      <IonSelectOption value="avi">Avi</IonSelectOption>
+                      <IonSelectOption value="àvia">Àvia</IonSelectOption>
+                      <IonSelectOption value="tiet">Tiet</IonSelectOption>
+                      <IonSelectOption value="tieta">Tieta</IonSelectOption>
+                      <IonSelectOption value="altres">Altres</IonSelectOption>
+                    </IonSelect>
+                </IonCol>
+                  <IonCol size="2">
+                    <IonButton class="add-button" expand="block" :disabled="!nouCangur.trim() || !nouParentesc.trim()" @click="afegirCangur">
                       <IonIcon :icon="addOutline" />
                     </IonButton>
                   </IonCol>
@@ -141,7 +152,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { IonButton, IonText, IonIcon, IonList, IonItem, IonLabel, IonInput, IonGrid, IonRow, IonCol, IonToast, IonCard} from '@ionic/vue'
+import { IonButton, IonText, IonIcon, IonList, IonItem, IonLabel, IonInput, IonGrid, IonRow, IonCol, IonToast, IonCard, IonSelect, IonSelectOption} from '@ionic/vue'
 import { addOutline, personOutline, trashOutline, checkbox } from 'ionicons/icons'
 import AppLayout from '@/components/AppLayout.vue'
 
@@ -153,7 +164,7 @@ import offlineService from '@/services/offline.service'
 const router = useRouter()
 const toastMessage = ref('')
 const estaOk = ref(false)
-const cangurs = ref<{ id: string; nom: string }[]>([])
+const cangurs = ref<{ id: string; nom: string; parentesc: string }[]>([])
 const nouCangur = ref('')
 const nadoName = ref('')
 const nadoId = ref<string | null>(null)
@@ -167,6 +178,7 @@ const diesId = ref<string | null>(null)
 const estadaEntrada = ref('')
 const estadaSortida = ref('')
 const estadaId = ref<string | null>(null)
+const nouParentesc = ref('')
 
 onMounted(async () => {
   const user = auth.currentUser
@@ -179,7 +191,7 @@ onMounted(async () => {
     if (navigator.onLine) {
       // Load cangurs
       const cangursSnapshot = await getDocs(collection(db, 'users', user.uid, 'cangurs'))
-      cangurs.value = cangursSnapshot.docs.map(d => ({ id: d.id, nom: d.data().name }))
+      cangurs.value = cangursSnapshot.docs.map(d => ({ id: d.id, nom: d.data().name, parentesc: d.data().parentesc || '' }))
       localStorage.setItem('localCangurs', JSON.stringify(cangurs.value))
 
       // Load nadó (only one)
@@ -238,24 +250,32 @@ onMounted(async () => {
 })
 
 const afegirCangur = async () => {
-  if (!nouCangur.value.trim()) return
-
+  if (!nouCangur.value.trim() || !nouParentesc.value.trim()) return
+  
   const user = auth.currentUser
   const fallbackUid = localStorage.getItem('uid')
   const userIdToUse = user?.uid ?? fallbackUid ?? ''
   const name = nouCangur.value.trim()
+  const parentesc = nouParentesc.value // Guardamos el valor actual
 
   if (navigator.onLine && userIdToUse) {
-    const docRef = await addDoc(collection(db, 'users', userIdToUse, 'cangurs'), { name, createdAt: new Date() })
-    cangurs.value.push({ id: docRef.id, nom: name })
+    // AÑADIR parentesc AQUÍ
+    const docRef = await addDoc(collection(db, 'users', userIdToUse, 'cangurs'), { 
+      name, 
+      parentesc, 
+      createdAt: new Date() 
+    })
+    cangurs.value.push({ id: docRef.id, nom: name, parentesc: parentesc })
   } else {
     const tempId = `local-${Date.now()}-${Math.random().toString(36).slice(2,6)}`
-    cangurs.value.push({ id: tempId, nom: name })
+    cangurs.value.push({ id: tempId, nom: name, parentesc: parentesc })
     localStorage.setItem('localCangurs', JSON.stringify(cangurs.value))
-    offlineService.addPending('cangurs', { name, createdAt: new Date() }, userIdToUse)
+    // AÑADIR parentesc AQUÍ TAMBIÉN
+    offlineService.addPending('cangurs', { name, parentesc, createdAt: new Date() }, userIdToUse)
   }
 
   nouCangur.value = ''
+  nouParentesc.value = ''
 }
 
 const eliminarCangur = async (index: number) => {
@@ -283,7 +303,7 @@ const desar = async () => {
   for (let i = 0; i < cangurs.value.length; i++) {
     const c = cangurs.value[i]
     if (!c.id || c.id.startsWith('local-') || c.id.startsWith('local-reg-')) {
-      const payload = { name: c.nom, createdAt: new Date() }
+      const payload = { name: c.nom, parentesc: c.parentesc, createdAt: new Date() }
       try {
         if (navigator.onLine && userIdToUse) {
           const docRef = await addDoc(collection(db, 'users', userIdToUse, 'cangurs'), payload)
