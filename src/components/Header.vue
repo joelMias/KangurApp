@@ -13,9 +13,9 @@ const router = useRouter()
             <IonToolbar>
                 <IonTitle class="capçalera"> <img src="/src/assets/kangur_new_petit.png" class="header-logo">KANGURAPP</IonTitle>
                 <IonButtons slot="end">
-                <IonButton @click="router.push('/perfil')">
-                    <IonIcon :icon="menuOutline"></IonIcon>
-                </IonButton>
+                    <IonButton @click="router.push('/perfil')">
+                        <IonIcon :icon="menuOutline"></IonIcon>
+                    </IonButton>
                 </IonButtons>
             </IonToolbar>
         </IonHeader>

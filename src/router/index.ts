@@ -105,13 +105,12 @@ router.beforeEach(async (to, from, next) => {
   const isAuthenticated = await authService.isTokenValid()
 
   // Public routes (only accessible when NOT authenticated)
-  const guestOnlyRoutes = ['/login', '/register', '/initialPage']
+  const guestOnlyRoutes = ['/login', '/register', '/initialPage', '/reset-password']
 
   // Protected routes (only accessible when authenticated)
   const protectedRoutes = [
     '/HomePage', '/cronometre', '/guardarCrono',
-    '/registerEntrada', '/perfil', '/admin-panel', '/config-familia',
-    '/reset-password', '/pdf-viewer'
+    '/registerEntrada', '/perfil', '/admin-panel', '/config-familia', '/pdf-viewer'
   ]
 
   if (isAuthenticated && guestOnlyRoutes.includes(to.path)) {

@@ -43,7 +43,7 @@ async function getAllUsersData() {
         uid: userId,
         name: userData.name,
         email: userData.email,
-        admin: userData.admin || false,
+        rol: userData.rol || 'usuari',
         createdAt: userData.createdAt,
         cronometres,
         nadons,
@@ -61,10 +61,10 @@ async function getAllUsersData() {
 /**
  * Canviar l'estatus d'admin d'un usuari
  */
-async function toggleAdminStatus(userId: string, isAdmin: boolean) {
+async function updateUserRol(userId: string, rol: string) {
   try {
     const userRef = doc(db, 'users', userId)
-    await updateDoc(userRef, { admin: isAdmin })
+    await updateDoc(userRef, { rol: rol })
     return { success: true }
   } catch (error) {
     console.error('Error canviant l\'estatus d\'admin:', error)
@@ -76,7 +76,8 @@ async function toggleAdminStatus(userId: string, isAdmin: boolean) {
  * Verificar si l'usuari actual és superusuari
  */
 function isCurrentUserAdmin(): boolean {
-  return localStorage.getItem('admin') === 'true'
+  const role = localStorage.getItem('rol')
+  return role === 'admin'
 }
 
 /**
@@ -89,7 +90,11 @@ async function getCurrentUserAdminStatus() {
     
     const userDoc = await getDoc(doc(db, 'users', user.uid))
     if (userDoc.exists()) {
-      return userDoc.data().admin === true
+      const data = userDoc.data()
+      const role = typeof data.ro === 'string'
+        ? data.ro
+        : (typeof data.rol === 'string' ? data.rol : undefined)
+      return role === 'admin'
     }
     return false
   } catch (error) {
@@ -100,7 +105,7 @@ async function getCurrentUserAdminStatus() {
 
 export default {
   getAllUsersData,
-  toggleAdminStatus,
+  updateUserRol,
   isCurrentUserAdmin,
   getCurrentUserAdminStatus
 }

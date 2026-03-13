@@ -24,7 +24,7 @@
     </div>
 
     <template #footer>
-      <IonFooter class="footer" v-if="estaActiu">
+      <IonFooter class="footer" v-show="estaActiu">
         <IonToolbar>
           <IonGrid>
             <IonRow class="ion-justify-content-center">
@@ -42,7 +42,7 @@
         </IonToolbar>
       </IonFooter>
 
-      <IonFooter class="footer" v-if="!estaActiu">
+      <IonFooter class="footer" v-show="!estaActiu">
         <IonToolbar>
           <IonGrid>
             <IonRow class="ion-justify-content-center">
@@ -179,6 +179,7 @@ onUnmounted(() => stopCrono())
   border: 2px solid var(--ion-color-primary, #26a69a);
   border-radius: 12px;
   margin: 0 auto;
+   z-index: 1;
 }
 
 .imatge_pulse {
@@ -208,5 +209,9 @@ onUnmounted(() => stopCrono())
 .slide-leave-to {
   transform: translateX(100%);
   opacity: 0;
+}
+
+.footer{
+   z-index: 10;
 }
 </style>

@@ -5,147 +5,160 @@
         <IonIcon :icon="logOutOutline"></IonIcon>
       </IonButton>
     </template>
+    <IonText color="dark">
+      <h1><strong>Panell d'administració</strong></h1>
+      <p>Gestió de tots els usuaris i dades del sistema</p>
+    </IonText>
+
+    <IonLoading :is-open="loading" message="Carregant dades..." spinner="crescent" />
+
+    <!-- Tabs per a navegació -->
+    <div v-if="!loading" class="ion-margin-top">
+      <IonSegment v-model="currentTab" @ionChange="currentTab = ($event.detail.value as string)">
+        <IonSegmentButton value="usuaris">
+          <IonLabel>Usuaris</IonLabel>
+        </IonSegmentButton>
+        <IonSegmentButton value="cronometres">
+          <IonLabel>Sessions</IonLabel>
+        </IonSegmentButton>
+      </IonSegment>
+    </div>
+
+    <!-- TAB: Usuaris -->
+    <div v-if="currentTab === 'usuaris' && !loading" class="ion-margin-top">
       <IonText color="dark">
-        <h1><strong>Panell d'administració</strong></h1>
-        <p>Gestió de tots els usuaris i dades del sistema</p>
+        <h2><strong>Gestió d'Usuaris</strong></h2>
       </IonText>
 
-      <IonLoading :is-open="loading" message="Carregant dades..." spinner="crescent" />
+      <IonGrid class="ion-margin-top">
+        <IonRow v-if="allUsers.length">
+          <IonCol size="12">
+            <IonGrid>
+              <IonRow v-for="user in allUsers" :key="user.uid" class="ion-margin-vertical">
+                <IonCol size="12">
+                  <IonCard>
+                    <IonCardContent>
+                      <IonGrid>
+                        <IonRow class="ion-align-items-center">
+                          <IonCol size="12" size-md="8">
+                            <IonRow>
+                              <IonCol size="auto">
+                                <IonAvatar>
+                                  <img src="/src/assets/kangur_new_petit.png" />
+                                </IonAvatar>
+                              </IonCol>
+                              <IonCol>
+                                <div><strong>{{ user.name }}</strong></div>
+                                <div>{{ user.email }}</div>
+                                <div>Creat: {{ formatDate(user.createdAt) }}</div>
+                              </IonCol>
+                            </IonRow>
+                          </IonCol>
 
-      <!-- Tabs per a navegació -->
-      <div v-if="!loading" class="ion-margin-top">
-        <IonSegment v-model="currentTab" @ionChange="currentTab = ($event.detail.value as string)">
-          <IonSegmentButton value="usuaris">
-            <IonLabel>Usuaris</IonLabel>
-          </IonSegmentButton>
-          <IonSegmentButton value="cronometres">
-            <IonLabel>Sessions</IonLabel>
-          </IonSegmentButton>
-        </IonSegment>
-      </div>
+                          <IonCol size="12" class="separador-mobile">
+                            <div class="separador"></div>
+                          </IonCol>
 
-      <!-- TAB: Usuaris -->
-      <div v-if="currentTab === 'usuaris' && !loading" class="ion-margin-top">
-        <IonText color="dark">
-          <h2><strong>Gestió d'Usuaris</strong></h2>
-        </IonText>
+                          <IonCol size="12" size-md="3" class="ion-text-md-end ion-text-start">
+                            <div>Nadons: <IonText><strong>{{ user.nadons.length }}</strong></IonText>
+                            </div>
+                            <div>Sessions: <IonText><strong>{{ user.cronometres.length }}</strong></IonText>
+                            </div>
+                            <div v-if="user.cangurs.length > 0">Cangurs: <IonText><strong>{{
+                                  getCangursList(user.cangurs)
+                                  }}</strong></IonText>
+                            </div>
+                          </IonCol>
 
-        <IonGrid class="ion-margin-top">
-          <IonRow v-if="allUsers.length">
-            <IonCol size="12">
-              <IonGrid>
-                <IonRow v-for="user in allUsers" :key="user.uid" class="ion-margin-vertical">
-                  <IonCol size="12">
-                    <IonCard>
-                      <IonCardContent>
-                        <IonGrid>
-                          <IonRow class="ion-align-items-center">
-                            <IonCol size="12" size-md="8">
-                              <IonRow>
-                                <IonCol size="auto">
-                                  <IonAvatar>
-                                    <img src="/src/assets/kangur_new_petit.png" />
-                                  </IonAvatar>
-                                </IonCol>
-                                <IonCol>
-                                  <div><strong>{{ user.name }}</strong></div>
-                                  <div>{{ user.email }}</div>
-                                  <div>Creat: {{ formatDate(user.createdAt) }}</div>
-                                </IonCol>
-                              </IonRow>
-                            </IonCol>
+                          <IonCol size="12" class="separador-mobile">
+                            <div class="separador"></div>
+                          </IonCol>
 
-                            <IonCol size="12" class="separador-mobile">
-                              <div class="separador"></div>
-                            </IonCol>
+                          <IonCol size="12" size-md="4" class="ion-text-center ion-text-md-end">
+                            <IonItem lines="none" class="select-rol-item">
+                              <IonSelect label="Assignar Rol" label-placement="stacked" interface="popover"
+                                :toggle-icon="chevronDownOutline" :value="user.rol"
+                                :disabled="isSavingAdminId === user.uid"
+                                @ionChange="toggleAdmin(user.uid, $event.detail.value)">
+                                <IonSelectOption value="admin">Administrador</IonSelectOption>
+                                <IonSelectOption value="gestor">Gestor</IonSelectOption>
+                                <IonSelectOption value="usuari">Usuari</IonSelectOption>
+                              </IonSelect>
+                            </IonItem>
 
-                            <IonCol size="12" size-md="3" class="ion-text-md-end ion-text-start">
-                              <div>Nadons: <IonText><strong>{{ user.nadons.length }}</strong></IonText></div>
-                              <div>Sessions: <IonText><strong>{{ user.cronometres.length }}</strong></IonText></div>
-                              <div v-if="user.cangurs.length > 0">Cangurs: <IonText><strong>{{ getCangursList(user.cangurs) }}</strong></IonText></div>
-                            </IonCol>
+                            <div v-if="isSavingAdminId === user.uid" class="ion-text-center">
+                              <IonSpinner name="dots" size="small" color="primary"></IonSpinner>
+                            </div>
+                          </IonCol>
+                        </IonRow>
+                      </IonGrid>
+                    </IonCardContent>
+                  </IonCard>
+                </IonCol>
+              </IonRow>
+            </IonGrid>
+          </IonCol>
+        </IonRow>
 
-                            <IonCol size="12" class="separador-mobile">
-                              <div class="separador"></div>
-                            </IonCol>
-                            
-                            <IonCol size="12" size-md="1" class="ion-text-center ion-text-md-start">
-                                <IonGrid>
-                                    <IonRow>
-                                        <IonCol class="ion-text-center ion-text-md-start">
-                                            <IonCheckbox :checked="user.admin" :disabled="isSavingAdminId === user.uid" @ionChange="toggleAdmin(user.uid, $event.detail.checked)"/>
-                                        </IonCol>
-                                    </IonRow>
-                                    <IonRow>
-                                        <IonCol class="ion-text-center ion-text-md-start"> <IonText>Rol: {{ user.admin ? 'Admin' : 'Usuari' }}</IonText> </IonCol>
-                                    </IonRow>
-                                </IonGrid>
-                            </IonCol>
-                          </IonRow>
-                        </IonGrid>
-                      </IonCardContent>
-                    </IonCard>
-                  </IonCol>
-                </IonRow>
-              </IonGrid>
-            </IonCol>
-          </IonRow>
+        <IonRow v-else>
+          <IonCol>
+            <IonText color="medium">
+              <p class="ion-text-center">No hi ha usuaris disponibles</p>
+            </IonText>
+          </IonCol>
+        </IonRow>
+      </IonGrid>
+    </div>
 
-          <IonRow v-else>
-            <IonCol>
-              <IonText color="medium">
-                <p class="ion-text-center">No hi ha usuaris disponibles</p>
-              </IonText>
-            </IonCol>
-          </IonRow>
-        </IonGrid>
-      </div>
+    <!-- TAB: Totes les sessions -->
+    <div v-if="currentTab === 'cronometres' && !loading" class="ion-margin-top">
+      <IonText color="dark">
+        <h2><strong>Totes les sessions</strong></h2>
+      </IonText>
 
-      <!-- TAB: Totes les sessions -->
-      <div v-if="currentTab === 'cronometres' && !loading" class="ion-margin-top">
-        <IonText color="dark">
-          <h2><strong>Totes les sessions</strong></h2>
-        </IonText>
+      <IonGrid class="ion-margin-top">
+        <IonRow v-for="userGroup in cronometresByUser" :key="userGroup.userEmail" class="ion-margin-vertical">
+          <IonCol size="12">
+            <IonCard>
+              <IonCardContent>
+                <IonGrid>
+                  <IonRow class="ion-align-items-center">
+                    <IonCol size="12" size-md="9"><strong>{{ userGroup.userEmail }}</strong></IonCol>
+                    <IonCol size="12" size-md="3" class="ion-text-end">{{ userGroup.cronometres.length }} sessions
+                    </IonCol>
+                  </IonRow>
 
-        <IonGrid class="ion-margin-top">
-          <IonRow v-for="userGroup in cronometresByUser" :key="userGroup.userEmail" class="ion-margin-vertical">
-            <IonCol size="12">
-              <IonCard>
-                <IonCardContent>
-                  <IonGrid>
-                    <IonRow class="ion-align-items-center">
-                      <IonCol size="12" size-md="9"><strong>{{ userGroup.userEmail }}</strong></IonCol>
-                      <IonCol size="12" size-md="3" class="ion-text-end">{{ userGroup.cronometres.length }} sessions</IonCol>
-                    </IonRow>
+                  <IonRow class="ion-margin-top">
+                    <IonCol size="12" size-md="8">
+                      <IonText color="medium"><strong>Cangur → Nadó:</strong></IonText>
+                    </IonCol>
+                  </IonRow>
 
-                    <IonRow class="ion-margin-top">
-                      <IonCol size="12" size-md="8">
-                        <IonText color="medium"><strong>Cangur → Nadó:</strong></IonText>
-                      </IonCol>
-                    </IonRow>
-                    
-                    <IonRow v-for="crono in userGroup.cronometres" :key="crono.id" class="ion-margin-top sessions">
-                      <IonCol size="12" size-md="8">{{ crono.cangurNom }} → {{ crono.nadoNom }}</IonCol>
-                      <IonCol size="12" size-md="4" class="ion-text-md-end ion-text-start">{{ formatDate(crono.createdAt) }} • <strong>{{ formatSecondsToMMSS(crono.temps) }}</strong></IonCol>
-                    </IonRow>
-                    
-                  </IonGrid>
-                </IonCardContent>
-              </IonCard>
-            </IonCol>
-          </IonRow>
-        </IonGrid>
+                  <IonRow v-for="crono in userGroup.cronometres" :key="crono.id" class="ion-margin-top sessions">
+                    <IonCol size="12" size-md="8">{{ crono.cangurNom }} → {{ crono.nadoNom }}</IonCol>
+                    <IonCol size="12" size-md="4" class="ion-text-md-end ion-text-start">{{ formatDate(crono.createdAt)
+                      }} •
+                      <strong>{{ formatSecondsToMMSS(crono.temps) }}</strong>
+                    </IonCol>
+                  </IonRow>
 
-        <IonText v-if="!cronometresByUser.length" color="medium">
-          <p class="ion-text-center">No hi ha sessions disponibles</p>
-        </IonText>
-      </div>
+                </IonGrid>
+              </IonCardContent>
+            </IonCard>
+          </IonCol>
+        </IonRow>
+      </IonGrid>
+
+      <IonText v-if="!cronometresByUser.length" color="medium">
+        <p class="ion-text-center">No hi ha sessions disponibles</p>
+      </IonText>
+    </div>
   </AppLayout>
 </template>
 
 <script setup lang="ts">
- import { IonButton, IonCheckbox, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonLabel, IonSegment, IonSegmentButton, IonLoading, IonText, IonAvatar, onIonViewDidEnter } from '@ionic/vue'
-import { logOutOutline } from 'ionicons/icons'
+import { IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonLabel, IonSegment, IonSegmentButton, IonLoading, IonText, IonAvatar, onIonViewDidEnter, IonSpinner, IonItem, IonSelect, IonSelectOption } from '@ionic/vue'
+import { logOutOutline, chevronDownOutline } from 'ionicons/icons'
 import AppLayout from '@/components/AppLayout.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -163,7 +176,7 @@ interface User {
   uid: string
   name: string
   email: string
-  admin: boolean
+  rol: string
   createdAt: any
   cronometres: any[]
   nadons: any[]
@@ -275,16 +288,20 @@ async function loadAdminData() {
   }
 }
 
-async function toggleAdmin(userId: string, newStatus: boolean) {
+async function toggleAdmin(userId: string, newRole: string) {
+  if (!newRole) return
+
   isSavingAdminId.value = userId
+  
   try {
-    await adminService.toggleAdminStatus(userId, newStatus)
+    await adminService.updateUserRol(userId, newRole)
+
     const userIndex = allUsers.value.findIndex(u => u.uid === userId)
     if (userIndex !== -1) {
-      allUsers.value[userIndex].admin = newStatus
+      allUsers.value[userIndex].rol = newRole
     }
   } catch (error) {
-    console.error('Error canviant estatus d\'admin:', error)
+    console.error('Error al canviar el rol:', error)
   } finally {
     isSavingAdminId.value = ''
   }
@@ -310,13 +327,12 @@ onIonViewDidEnter(async () => {
 </script>
 
 <style scoped>
-
 .separador {
-  border-top: 2px solid #26a69a; 
+  border-top: 2px solid #26a69a;
   margin: 0 8px;
 }
 
-.sessions{
+.sessions {
   box-shadow: none;
   border-bottom: 1px solid #26a69a;
 }
@@ -325,11 +341,30 @@ onIonViewDidEnter(async () => {
   display: block;
 }
 
+.select-rol-item {
+  --background: transparent;
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  --min-height: 30px;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+ion-select::part(icon) {
+  margin-inline-start: 4px;
+  font-size: 16px;
+  color: #26a69a;
+}
+
 @media (min-width: 768px) {
   .separador-mobile {
     display: none;
   }
+
+  .select-rol-item {
+    margin: 5px 0;
+    justify-content: flex-start;
+  }
 }
-
 </style>
-

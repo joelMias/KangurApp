@@ -188,7 +188,7 @@ async function confirmLogout() {
   try {
     await signOut(auth)
     superAdmin.value = false
-    localStorage.removeItem('admin')
+    localStorage.removeItem('rol')
     router.push('/initialPage')
   } catch (error) {
     console.error('Error al tancar la sessió:', error)
@@ -371,8 +371,13 @@ const superAdmin = ref(false)
 
 async function loadUserAdminStatus() {
   try {
-    const adminStatus = localStorage.getItem('admin')
-    superAdmin.value = adminStatus === 'true'
+    const role = localStorage.getItem('role') || localStorage.getItem('rol')
+    if (role) {
+      superAdmin.value = role === 'admin'
+    } else {
+      const adminStatus = localStorage.getItem('admin')
+      superAdmin.value = adminStatus === 'true'
+    }
   } catch (e) {
     console.error('Error carregant estatus d\'admin:', e)
     superAdmin.value = false

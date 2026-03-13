@@ -19,7 +19,7 @@
             <IonItem v-for="(cangur, index) in cangurs" :key="index">
               <IonIcon :icon="personOutline" slot="start" />
               <IonLabel>{{ cangur.nom }}</IonLabel>
-              <IonButton v-if="index != 0" fill="clear" color="dark" slot="end" @click="eliminarCangur(index)">
+              <IonButton fill="clear" color="dark" slot="end" @click="eliminarCangur(index)">
                 <IonIcon :icon="trashOutline" />
               </IonButton>
             </IonItem>
@@ -85,18 +85,6 @@ onMounted(async () => {
       id: d.id,
       nom: d.data().name
     }))
-    try {
-      const regName = (localStorage.getItem('name') || '').trim()
-      if (regName) {
-        const idx = cangurs.value.findIndex(c => (c.nom || '').toLowerCase() === regName.toLowerCase())
-        if (idx > 0) {
-          const [item] = cangurs.value.splice(idx, 1)
-          cangurs.value.unshift(item)
-        } else if (idx === -1) {
-          cangurs.value.unshift({ id: `local-reg-${Date.now()}`, nom: regName })
-        }
-      }
-    } catch (e) { console.warn(e) }
 
     localStorage.setItem('localCangurs', JSON.stringify(cangurs.value))
   } else {
@@ -190,7 +178,7 @@ const guardarCangurs = async () => {
     localStorage.setItem('localCangurs', JSON.stringify(cangurs.value)) 
   } catch (e) { console.warn(e) }
 
-  router.push('/HomePage')
+  router.push('/perfil')
 }
 </script>
 

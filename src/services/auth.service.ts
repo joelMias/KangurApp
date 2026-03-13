@@ -78,7 +78,7 @@ async function register(payload: { name: string; email: string; password: string
     name: payload.name,
     email: payload.email,
     createdAt: new Date(),
-    admin: false
+    ro: 'usuario'
   })
 
   localStorage.setItem('name', payload.name)
@@ -103,11 +103,21 @@ async function login(payload: { email: string; password: string }) {
     const userDoc = await getDoc(doc(db, 'users', user.uid))
     if (userDoc.exists()) {
       const userData = userDoc.data()
-      localStorage.setItem('admin', userData.admin === true ? 'true' : 'false')
+      const role = typeof userData.ro === 'string'
+        ? userData.ro
+        : (typeof userData.rol === 'string'
+          ? userData.rol
+          : (userData.admin === true ? 'admin' : 'usuario'))
+
+      localStorage.setItem('role', role)
+      localStorage.setItem('admin', role === 'admin' ? 'true' : 'false')
+      localStorage.setItem('rol', role)
     }
   } catch (e) {
     console.warn('Error carregant dades de l\'usuari', e)
+    localStorage.setItem('role', 'usuario')
     localStorage.setItem('admin', 'false')
+    localStorage.setItem('rol', 'usuario')
   }
 
   try {
@@ -148,8 +158,9 @@ async function logout() {
   // Netejar totes les dades de sessió
   localStorage.removeItem('uid')
   localStorage.removeItem('name')
+  localStorage.removeItem('rol')
   localStorage.removeItem('email')
-  localStorage.removeItem('admin')
+  //localStorage.removeItem('admin')
   localStorage.removeItem('localnadons')
   localStorage.removeItem('selectedNado')
   localStorage.removeItem('selectedNadoName')
