@@ -31,6 +31,7 @@
     "vue": "^3.3.0",
     "vue-chartjs": "^5.3.3",
     "vue-router": "^4.2.0",
+    "vue-wheel-picker": "^0.3.2",
     "workbox-background-sync": "^7.4.0",
     "workbox-core": "^7.4.0",
     "workbox-routing": "^7.4.0",

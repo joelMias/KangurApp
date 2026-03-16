@@ -1,7 +1,7 @@
 <template>
   <AppLayout :show-back="true" :scroll-y="false" back-route="/register" content-class="ion-padding">
     <RegistrationProgress :current-step="2" />
-    
+
     <IonGrid>
       <IonRow class="ion-justify-content-center">
         <IonCol size="12" size-md="6" size-lg="5">
@@ -15,17 +15,27 @@
             </IonText>
           </div>
 
-          <strong><IonLabel position="stacked" class="input-label">Nom del nadó</IonLabel></strong>
-          <IonInput v-model="nomNado" placeholder="Nom del nadó" fill="outline" class="input-box"/>
-          
-          <strong><IonLabel position="stacked" class="input-label">Edat gestacional del nadó (Setmanes)</IonLabel></strong>
-          <IonInput v-model.number="setmanes" placeholder="Setmanes" fill="outline" class="input-box"/>
+          <div style="margin-bottom: 20px;">
+            <strong>
+              <IonLabel class="input-label">Nom del nadó</IonLabel>
+            </strong>
+            <IonInput v-model="nomNado" placeholder="Nom del nadó" fill="outline" class="input-box" />
+          </div>
 
-          <strong><IonLabel position="stacked" class="input-label">Edat gestacional del nadó (Dies)</IonLabel></strong>
-          <IonInput v-model.number="dies" placeholder="Dies" fill="outline" class="input-box"/>
+          <div class="datetime-wheel-container" @click="openGestationPicker">
+            <div class="wheel-labels">
+              <span>Dies</span>
+              <span>Setmanes</span>
+            </div>
+
+            <div class="wheel-display">
+              {{ dies }} + {{ setmanes }}
+            </div>
+          </div>
 
           <br>
-          <IonButton expand="block" size="large" fill="outline" @click="Registre" class="ion-margin-top" :disabled="loading">
+          <IonButton expand="block" size="large" fill="outline" @click="Registre" class="ion-margin-top"
+            :disabled="loading">
             <IonSpinner v-if="loading" name="crescent"></IonSpinner>
             <span v-else>Continuar</span>
           </IonButton>
@@ -39,6 +49,7 @@
 import { IonGrid, IonCol, IonRow, IonText, IonInput, IonLabel, IonButton, IonSpinner, onIonViewWillEnter } from '@ionic/vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { pickerController } from '@ionic/vue'
 import { db, auth } from '@/services/firebase'
 import { collection, addDoc } from 'firebase/firestore'
 import offlineService from '@/services/offline.service'
@@ -48,21 +59,47 @@ import RegistrationProgress from '@/components/RegistrationProgress.vue'
 const router = useRouter()
 
 const nomNado = ref('')
-const setmanes = ref<number | null>(null)
-const dies = ref<number | null>(null)
 const error = ref('')
 const loading = ref(false)
+const setmanes = ref(22)
+const dies = ref(0)
+
+async function openGestationPicker() {
+  const picker = await pickerController.create({
+    columns: [
+      {
+        name: 'dies',
+        options: Array.from({ length: 8 }, (_, i) => ({ text: `${i}`, value: i }))
+      },
+      {
+        name: 'setmanes',
+        options: Array.from({ length: 22 }, (_, i) => ({ text: `${i + 22}`, value: i + 22 }))
+      }
+    ],
+    buttons: [
+      { text: 'Cancel', role: 'cancel' },
+      { 
+        text: 'Ok', 
+        handler: (val: any) => {
+          dies.value = val.dies.value
+          setmanes.value = val.setmanes.value
+        }
+      }
+    ]
+  })
+  picker.present()
+}
 
 onIonViewWillEnter(() => {
   nomNado.value = ''
-  setmanes.value = null
-  dies.value = null
+  setmanes.value = 22
+  dies.value = 0
   error.value = ''
   loading.value = false
 })
 
 const Registre = async () => {
-  if (!nomNado.value || !setmanes.value || !dies.value) {
+  if (!nomNado.value.trim()) {
     error.value = 'Omple tots els camps.'
     return
   }
@@ -74,7 +111,6 @@ const Registre = async () => {
     const user = auth.currentUser
     if (!user) throw new Error('Usuari no autenticat')
 
-    // Guardem el nadó dins la subcol·lecció "nadons" de l’usuari
     const nadoData = {
       name: nomNado.value,
       setmanes: setmanes.value,
@@ -85,13 +121,11 @@ const Registre = async () => {
     const fallbackUid = localStorage.getItem('uid')
     const userIdToUse = user.uid ?? fallbackUid ?? ''
     if (navigator.onLine) {
-      //Si tenim connexió, guardem el nado a la base de dades directament
       const docRef = await addDoc(collection(db, 'users', userIdToUse, 'nadons'), nadoData)
       console.log('Nadó desat:', nadoData)
-      // Guardem l'id del nadó per reutilitzar-lo
       localStorage.setItem('selectedNado', docRef.id)
       localStorage.setItem('selectedNadoName', nomNado.value)
-      
+
       try {
         const raw = localStorage.getItem('localnadons')
         const list = raw ? JSON.parse(raw) : []
@@ -99,8 +133,7 @@ const Registre = async () => {
         localStorage.setItem('localnadons', JSON.stringify(list))
       } catch (e) { console.warn('Error caching local nadons', e) }
     } else {
-      // Si no hi ha connexió, es crea id temporal local
-      const tempId = `local-${Date.now()}-${Math.random().toString(36).slice(2,6)}`
+      const tempId = `local-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
       localStorage.setItem('selectedNado', tempId)
       localStorage.setItem('selectedNadoName', nomNado.value)
       try {
@@ -108,9 +141,7 @@ const Registre = async () => {
         const list = raw ? JSON.parse(raw) : []
         list.push({ id: tempId, name: nomNado.value })
         localStorage.setItem('localnadons', JSON.stringify(list))
-      } catch (e) { 
-        console.warn('Error al guardar el nado en local', e) 
-      }
+      } catch (e) { console.warn('Error al guardar el nado en local', e) }
       offlineService.addPending('nadons', { ...nadoData, __tempId: tempId }, userIdToUse)
       console.log('Nadó guardat localment per sincronitzar després')
     }
@@ -125,12 +156,43 @@ const Registre = async () => {
 </script>
 
 <style scoped>
-
 .input-label {
   font-weight: bold;
-  font-family: "Nunito",sans-serif;
+  font-family: "Nunito", sans-serif;
   color: grey;
 }
 
+.datetime-wheel-container {
+  background: #f4f4f4;
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
 
+.wheel-labels {
+  display: flex;
+  justify-content: space-around;
+  position: absolute;
+  top: 10px;
+  width: 100%;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.wheel-labels span {
+  font-size: 12px;
+  color: #888;
+  font-weight: bold;
+  text-transform: uppercase;
+  flex: 1;
+  text-align: center;
+}
+
+.wheel-display {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  padding: 70px 0 20px;
+}
 </style>
