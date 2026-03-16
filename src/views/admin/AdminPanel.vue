@@ -1,15 +1,17 @@
 <template>
   <AppLayout :show-back="true">
-    <template #actions>
-      <IonButton @click="logout">
-        <IonIcon :icon="logOutOutline"></IonIcon>
-      </IonButton>
-    </template>
-    <IonText color="dark">
-      <h1><strong>Panell d'administració</strong></h1>
-      <p>Gestió de tots els usuaris i dades del sistema</p>
-    </IonText>
-
+    <IonGrid>
+        <IonRow class="ion-justify-content-center">
+          <IonCol size="12">
+            <IonText color="dark">
+              <h2 class="titol">Panell d'administració</h2>
+            </IonText>
+            <IonText color="medium" class="ion-text-center">
+              <h2 class="user-email negreta">Gestió de tots els usuaris i dades del sistema</h2>
+            </IonText>
+          </IonCol>
+        </IonRow>
+      </IonGrid>
     <IonLoading :is-open="loading" message="Carregant dades..." spinner="crescent" />
 
     <!-- Tabs per a navegació -->
@@ -26,88 +28,89 @@
 
     <!-- TAB: Usuaris -->
     <div v-if="currentTab === 'usuaris' && !loading" class="ion-margin-top">
-      <IonText color="dark">
-        <h2><strong>Gestió d'Usuaris</strong></h2>
-      </IonText>
+      <IonCard class="mini-card users-card">
+        <IonCardContent>
+          <IonText color="primary">
+            <h2>Gestió d'Usuaris</h2>
+          </IonText>
 
-      <IonGrid class="ion-margin-top">
-        <IonRow v-if="allUsers.length">
-          <IonCol size="12">
-            <IonGrid>
-              <IonRow v-for="user in allUsers" :key="user.uid" class="ion-margin-vertical">
-                <IonCol size="12">
-                  <IonCard>
-                    <IonCardContent>
-                      <IonGrid>
-                        <IonRow class="ion-align-items-center">
-                          <IonCol size="12" size-md="8">
-                            <IonRow>
-                              <IonCol size="auto">
-                                <IonAvatar>
-                                  <img src="/src/assets/kangur_new_petit.png" />
-                                </IonAvatar>
+          <IonGrid class="ion-margin-top">
+            <IonRow v-if="allUsers.length">
+              <IonCol size="12">
+                <IonGrid>
+                  <IonRow v-for="user in allUsers" :key="user.uid" class="user-row">
+                    <IonCol size="12">
+                      <IonCard>
+                        <IonCardContent>
+                          <IonGrid>
+                            <IonRow class="ion-align-items-center">
+                              <IonCol size="12" size-md="8">
+                                <IonRow>
+                                  <IonCol size="auto">
+                                    <IonAvatar>
+                                      <img src="/src/assets/kangur_new_petit.png" />
+                                    </IonAvatar>
+                                  </IonCol>
+                                  <IonCol>
+                                    <div><strong>{{ user.name }}</strong></div>
+                                    <div>{{ user.email }}</div>
+                                    <div>Creat: {{ formatDate(user.createdAt) }}</div>
+                                  </IonCol>
+                                </IonRow>
                               </IonCol>
-                              <IonCol>
-                                <div><strong>{{ user.name }}</strong></div>
-                                <div>{{ user.email }}</div>
-                                <div>Creat: {{ formatDate(user.createdAt) }}</div>
+
+                              <IonCol size="12" class="separador-mobile">
+                                <div class="separador"></div>
+                              </IonCol>
+
+                              <IonCol size="12" size-md="3" class="ion-text-md-end ion-text-start">
+                                <div>Nadons: <IonText><strong>{{ user.nadons.length }}</strong></IonText>
+                                </div>
+                                <div>Sessions: <IonText><strong>{{ user.cronometres.length }}</strong></IonText>
+                                </div>
+                                <div v-if="user.cangurs.length > 0">Cangurs: <IonText><strong>{{
+                                      getCangursList(user.cangurs)
+                                      }}</strong></IonText>
+                                </div>
+                              </IonCol>
+
+                              <IonCol size="12" class="separador-mobile">
+                                <div class="separador"></div>
+                              </IonCol>
+
+                              <IonCol size="12" size-md="4" class="ion-text-center ion-text-md-end">
+                                <IonItem lines="none" class="select-rol-item">
+                                  <IonLabel>Usuari Administrador</IonLabel>
+                                  <IonToggle 
+                                    :checked="user.rol === 'admin'" 
+                                    @ionChange="(event) => onToggleChange(user.uid, event)">
+                                  </IonToggle>
+                                </IonItem>
+
+                                <div v-if="isSavingAdminId === user.uid" class="ion-text-center">
+                                  <IonSpinner name="dots" size="small" color="primary"></IonSpinner>
+                                </div>
                               </IonCol>
                             </IonRow>
-                          </IonCol>
+                          </IonGrid>
+                        </IonCardContent>
+                      </IonCard>
+                    </IonCol>
+                  </IonRow>
+                </IonGrid>
+              </IonCol>
+            </IonRow>
 
-                          <IonCol size="12" class="separador-mobile">
-                            <div class="separador"></div>
-                          </IonCol>
-
-                          <IonCol size="12" size-md="3" class="ion-text-md-end ion-text-start">
-                            <div>Nadons: <IonText><strong>{{ user.nadons.length }}</strong></IonText>
-                            </div>
-                            <div>Sessions: <IonText><strong>{{ user.cronometres.length }}</strong></IonText>
-                            </div>
-                            <div v-if="user.cangurs.length > 0">Cangurs: <IonText><strong>{{
-                                  getCangursList(user.cangurs)
-                                  }}</strong></IonText>
-                            </div>
-                          </IonCol>
-
-                          <IonCol size="12" class="separador-mobile">
-                            <div class="separador"></div>
-                          </IonCol>
-
-                          <IonCol size="12" size-md="4" class="ion-text-center ion-text-md-end">
-                            <IonItem lines="none" class="select-rol-item">
-                              <IonSelect label="Assignar Rol" label-placement="stacked" interface="popover"
-                                :toggle-icon="chevronDownOutline" :value="user.rol"
-                                :disabled="isSavingAdminId === user.uid"
-                                @ionChange="toggleAdmin(user.uid, $event.detail.value)">
-                                <IonSelectOption value="admin">Administrador</IonSelectOption>
-                                <IonSelectOption value="gestor">Gestor</IonSelectOption>
-                                <IonSelectOption value="usuari">Usuari</IonSelectOption>
-                              </IonSelect>
-                            </IonItem>
-
-                            <div v-if="isSavingAdminId === user.uid" class="ion-text-center">
-                              <IonSpinner name="dots" size="small" color="primary"></IonSpinner>
-                            </div>
-                          </IonCol>
-                        </IonRow>
-                      </IonGrid>
-                    </IonCardContent>
-                  </IonCard>
-                </IonCol>
-              </IonRow>
-            </IonGrid>
-          </IonCol>
-        </IonRow>
-
-        <IonRow v-else>
-          <IonCol>
-            <IonText color="medium">
-              <p class="ion-text-center">No hi ha usuaris disponibles</p>
-            </IonText>
-          </IonCol>
-        </IonRow>
-      </IonGrid>
+            <IonRow v-else>
+              <IonCol>
+                <IonText color="medium">
+                  <p class="ion-text-center">No hi ha usuaris disponibles</p>
+                </IonText>
+              </IonCol>
+            </IonRow>
+          </IonGrid>
+        </IonCardContent>
+      </IonCard>
     </div>
 
     <!-- TAB: Totes les sessions -->
@@ -157,7 +160,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonLabel, IonSegment, IonSegmentButton, IonLoading, IonText, IonAvatar, onIonViewDidEnter, IonSpinner, IonItem, IonSelect, IonSelectOption } from '@ionic/vue'
+import { IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonLabel, IonSegment, IonSegmentButton, IonLoading, IonText, IonAvatar, onIonViewDidEnter, IonSpinner, IonItem, IonSelect, IonSelectOption, IonToggle } from '@ionic/vue'
 import { logOutOutline, chevronDownOutline } from 'ionicons/icons'
 import AppLayout from '@/components/AppLayout.vue'
 import { ref } from 'vue'
@@ -171,6 +174,7 @@ const router = useRouter()
 const loading = ref(true)
 const currentTab = ref('usuaris')
 const isSavingAdminId = ref('')
+const isActive = ref(false)
 
 interface User {
   uid: string
@@ -202,6 +206,12 @@ interface CronometresGroup {
 const allUsers = ref<User[]>([])
 const allCronometres = ref<Cronometres[]>([])
 const cronometresByUser = ref<CronometresGroup[]>([])
+
+function onToggleChange(userId: string, event: CustomEvent) {
+  const checked = event.detail.checked
+  const newRole = checked ? 'admin' : 'usuari'
+  toggleAdmin(userId, newRole)
+}
 
 function formatDate(date: any): string {
   if (!date) return '-'
@@ -355,6 +365,11 @@ ion-select::part(icon) {
   margin-inline-start: 4px;
   font-size: 16px;
   color: #26a69a;
+}
+
+.users-card {
+  max-width: 98%;
+  margin: 50px auto;
 }
 
 @media (min-width: 768px) {
