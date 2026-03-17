@@ -1,5 +1,5 @@
 <template>
-  <AppLayout :show-back="true" back-route="/HomePage" :scroll-y="false">
+  <AppLayout :show-back="true" back-route="/HomePage" :scroll-y="true">
     <div class="centered-wrapper">
       <h2 class="titol">Iniciar pell amb pell</h2>
       <div class="ion-text-center">

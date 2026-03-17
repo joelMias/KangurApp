@@ -10,6 +10,7 @@ import ResetPassword from '@/views/auth/ResetPassword.vue';
 import InitialPage from '@/views/onboarding/InitialPage.vue';
 import Cangurs from '@/views/onboarding/Cangurs.vue';
 import Nado from '@/views/onboarding/Nado.vue';
+import PregFinals from '@/views/onboarding/PregFinals.vue';
 
 // Session
 import HomePage from '@/views/session/HomePage.vue';
@@ -92,6 +93,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/pdf-viewer',
     component: UserGuide
+  },
+  {
+    path: '/preguntes-finals',
+    component: PregFinals
   }
 ]
 

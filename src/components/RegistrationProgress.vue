@@ -29,15 +29,15 @@
 import { computed } from 'vue'
 
 interface Props {
-  currentStep: number // 1, 2, or 3
+  currentStep: number // 1, 2, 3 or 4
 }
 
 const props = defineProps<Props>()
 
-const steps = ['Dades usuari', 'Dades nadó', 'Cangurs']
+const steps = ['Dades usuari', 'Dades nadó', 'Cangurs', 'Pregunes finals']
 
 const progressPercentage = computed(() => {
-  return ((props.currentStep - 1) / 2) * 100
+  return ((props.currentStep - 1) / (steps.length - 1)) * 100
 })
 </script>
 

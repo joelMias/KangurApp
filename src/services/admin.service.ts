@@ -73,11 +73,28 @@ async function updateUserRol(userId: string, rol: string) {
 }
 
 /**
+ * Obtenir les dades d'un usuari concret
+ */
+async function getUserData(userId: string) {
+  try {
+    const userDoc = await getDoc(doc(db, 'users', userId));
+    if (userDoc.exists()) {
+      return { uid: userDoc.id, ...userDoc.data() };
+    }
+    throw new Error("L'usuari no existeix");
+  } catch (error) {
+    console.error('Error obtenint dades de l’usuari:', error);
+    throw error;
+  }
+}
+
+
+/**
  * Verificar si l'usuari actual és superusuari
  */
 function isCurrentUserAdmin(): boolean {
   const role = localStorage.getItem('rol')
-  return role === 'admin'
+  return role === 'admin' || role === 'gestor'
 }
 
 /**
@@ -91,10 +108,10 @@ async function getCurrentUserAdminStatus() {
     const userDoc = await getDoc(doc(db, 'users', user.uid))
     if (userDoc.exists()) {
       const data = userDoc.data()
-      const role = typeof data.ro === 'string'
-        ? data.ro
+      const role = typeof data.rol === 'string'
+        ? data.rol
         : (typeof data.rol === 'string' ? data.rol : undefined)
-      return role === 'admin'
+      return data.rol === 'admin' || data.rol === 'gestor'
     }
     return false
   } catch (error) {
@@ -106,6 +123,7 @@ async function getCurrentUserAdminStatus() {
 export default {
   getAllUsersData,
   updateUserRol,
+  getUserData,
   isCurrentUserAdmin,
   getCurrentUserAdminStatus
 }

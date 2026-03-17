@@ -82,6 +82,7 @@
                                 <IonItem lines="none" class="select-rol-item">
                                   <IonLabel>Usuari Administrador</IonLabel>
                                   <IonToggle 
+                                    :disabled="currentRole !== 'admin'"
                                     :checked="user.rol === 'admin'" 
                                     @ionChange="(event) => onToggleChange(user.uid, event)">
                                   </IonToggle>
@@ -138,9 +139,18 @@
                   </IonRow>
 
                   <IonRow v-for="crono in userGroup.cronometres" :key="crono.id" class="ion-margin-top sessions">
-                    <IonCol size="12" size-md="8">{{ crono.cangurNom }} → {{ crono.nadoNom }}</IonCol>
-                    <IonCol size="12" size-md="4" class="ion-text-md-end ion-text-start">{{ formatDate(crono.createdAt)
-                      }} •
+                    <IonCol size="12" size-md="8">
+                      <div>{{ crono.cangurNom }} → {{ crono.nadoNom }}</div>
+                      
+                      <div v-if="crono.motiuFinal" class="ion-margin-top motiu-container">
+                        <IonText color="medium">
+                          <small><strong>Motiu finalització:</strong> {{ crono.motiuFinal }}</small>
+                        </IonText>
+                      </div>
+                    </IonCol>
+
+                    <IonCol size="12" size-md="4" class="ion-text-md-end ion-text-start">
+                      {{ formatDate(crono.createdAt) }} •
                       <strong>{{ formatSecondsToMMSS(crono.temps) }}</strong>
                     </IonCol>
                   </IonRow>
@@ -175,6 +185,7 @@ const loading = ref(true)
 const currentTab = ref('usuaris')
 const isSavingAdminId = ref('')
 const isActive = ref(false)
+const currentRole = ref('')
 
 interface User {
   uid: string
@@ -194,6 +205,7 @@ interface Cronometres {
   cangurNom: string
   nadoNom: string
   temps: number
+  motiuFinal?: string
   createdAt: any
 }
 
@@ -250,6 +262,7 @@ async function loadAdminData() {
           cangurNom: crono.cangurNom || 'Desconegut',
           nadoNom: crono.nadoNom || 'Desconegut',
           temps: crono.temps || 0,
+          motiuFinal: crono.motiuFinal || '',
           createdAt: crono.createdAt
         })
       })
@@ -327,12 +340,35 @@ async function logout() {
 }
 
 onIonViewDidEnter(async () => {
-  const isAdmin = await adminService.getCurrentUserAdminStatus()
-  if (!isAdmin) {
+  loading.value = true
+  
+  try {
+    const user = auth.currentUser
+    if (!user) {
+      router.push('/login')
+      return
+    }
+
+    // obtenim les dades de l'usuari (per saber si és admin o gestor)
+    const userData: any = await adminService.getUserData(user.uid)
+    currentRole.value = userData?.rol || 'usuari'
+
+    const hasAccess = await adminService.getCurrentUserAdminStatus()
+    
+    if (!hasAccess) {
+      console.warn("Accés denegat: Rol insuficient")
+      router.back()
+      return
+    }
+
+    await loadAdminData()
+
+  } catch (error) {
+    console.error('Error en el control d’accés:', error)
     router.back()
-    return
+  } finally {
+    loading.value = false
   }
-  loadAdminData()
 })
 </script>
 

@@ -208,7 +208,7 @@ const guardarCangurs = async () => {
     localStorage.setItem('localCangurs', JSON.stringify(cangurs.value)) 
   } catch (e) { console.warn(e) }
 
-  router.push('/login')
+  router.push('/preguntes-finals')
 }
 </script>
 

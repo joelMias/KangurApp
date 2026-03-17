@@ -176,6 +176,7 @@ import { useRouter } from 'vue-router'
 import { auth, db } from '@/services/firebase'
 import { signOut, onAuthStateChanged } from 'firebase/auth'
 import { collection, getDocs } from 'firebase/firestore'
+import adminService from '@/services/admin.service'
 
 const router = useRouter()
 const loadingCharts = ref(false)
@@ -371,12 +372,22 @@ const superAdmin = ref(false)
 
 async function loadUserAdminStatus() {
   try {
-    const role = localStorage.getItem('role') || localStorage.getItem('rol')
-    if (role) {
-      superAdmin.value = role === 'admin'
+    // 1. Intentem primer la via ràpida (localStorage)
+    const role = localStorage.getItem('rol') || localStorage.getItem('role')
+    
+    if (role === 'admin' || role === 'gestor') {
+      superAdmin.value = true
     } else {
-      const adminStatus = localStorage.getItem('admin')
-      superAdmin.value = adminStatus === 'true'
+      // 2. Si no hi ha res al localStorage, preguntem al servei (Firebase)
+      // Això és el que realment salvarà al 'gestor'
+      const hasAccess = await adminService.getCurrentUserAdminStatus()
+      superAdmin.value = hasAccess
+      
+      // Aprofitem per actualitzar el localStorage i que la pròxima vegada sigui ràpid
+      if (hasAccess) {
+        // Hauríem de saber si és admin o gestor, però per ara amb 'gestor' n'hi ha prou
+        localStorage.setItem('rol', 'gestor') 
+      }
     }
   } catch (e) {
     console.error('Error carregant estatus d\'admin:', e)

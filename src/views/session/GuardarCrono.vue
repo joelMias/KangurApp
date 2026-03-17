@@ -1,72 +1,77 @@
 <template>
-  <AppLayout :show-back="true" back-route="/cronometre" :scroll-y="false">
-    <div class="centered-wrapper">
-    
-      <h1 class="negreta">Registrar pell amb pell</h1>
+  <AppLayout :show-back="true" back-route="/cronometre" :scroll-y="true"> <div class="centered-wrapper">
+      
+      <h1 class="negreta ion-text-center">Registrar pell amb pell</h1>
+
       <IonCard class="mini-card">
         <ion-grid>
           <IonRow class="ion-justify-content-center">
-            <IonCol size="10" size-lg="10" size-md="10">
-              <IonCard class="center-button">
-                <IonRow class="ion-justify-content-center ion-margin-top">
-                  <IonCol size="auto">
-                    <IonIcon :icon="timerOutline" class="icona-rellotge" />
-                  </IonCol>
-                </IonRow>
-                <IonRow class="ion-justify-content-center">
-                  <IonCol size="auto">
-                    <div class="temps-display ion-text-center">{{ formatTime(temps) }}</div>
-                  </IonCol>
-                </IonRow>
-              </IonCard>
+            <IonCol size="12" class="ion-text-center">
+              <div class="timer-container">
+                <IonIcon :icon="timerOutline" class="icona-rellotge" color="primary" style="font-size: 36px; margin: 0;"/>
+                <div class="temps-display"><h2 class="negreta">{{ formatTime(temps) }}</h2></div>
+              </div>
             </IonCol>
           </IonRow>
-        
-          <IonRow>
-            <IonCol class="ion-text-center ion-margin-top">
-              <IonLabel color="primary"><h1 class="negreta">Qui ha fet el pell amb pell?</h1></IonLabel>
+
+          <IonRow class="ion-justify-content-center ion-margin-top">
+            <IonCol size="11">
+              <div class="input-centered-group">
+                <IonLabel color="primary" class="label-centrat">
+                  <h2 class="negreta">Per què has hagut de finalitzar?</h2>
+                </IonLabel>
+                <IonTextarea 
+                  v-model="motiuFinal" 
+                  placeholder="Opcional..." 
+                  fill="outline" 
+                  :rows="3"
+                  class="custom-textarea">
+                </IonTextarea>
+              </div>
             </IonCol>
           </IonRow>
-          
+
           <IonRow class="ion-justify-content-center ion-margin-top">
             <IonCol size="12" class="ion-text-center">
-
-              <div class="button-container">
+              <IonLabel color="primary">
+                <h2 class="negreta">Qui ha fet el pell amb pell?</h2>
+              </IonLabel>
+              
+              <div class="button-grid-container">
                 <IonButton 
                   v-for="c in cangurs" 
                   :key="c.id" 
-                  expand="block" 
                   :fill="c.id === cangurSeleccionat ? 'solid' : 'outline'"
                   color="primary"
+                  class="btn-cangur"
                   @click="cangurSeleccionat = c.id">
                   {{ c.name }}
                 </IonButton>
               </div>
             </IonCol>
           </IonRow>
-          <br>
         </ion-grid>
       </IonCard>
       
-      <div class="button-container">
-        <IonButton expand="block" size="large" fill="outline" color="medium" @click="cancelar">
-          Cancelar
+      <div class="action-buttons">
+        <IonButton expand="block" fill="outline" color="medium" @click="cancelar">
+          Cancel·lar
         </IonButton>
-        <IonButton expand="block" size="large" fill="solid" color="primary" :disabled="!cangurSeleccionat" @click="guardarSessio">
+        <IonButton expand="block" fill="solid" color="primary" :disabled="!cangurSeleccionat || !motiuFinal.trim()" @click="guardarSessio">
           Registrar
         </IonButton>
       </div>
 
-      <IonLoading :is-open="loadingCangurs" message="Carregant cangurs..." spinner="crescent"/>
-      <IonToast :is-open="estaOk" :icon="checkbox" :message="toastMessage" :duration="3000" position="bottom" @didDismiss="estaOk = false" color="primary"></IonToast>
-      <IonToast :is-open="showErrorToast" :message="errorMessage" :duration="3000" position="bottom" @didDismiss="showErrorToast = false" color="danger"></IonToast>
+      <IonLoading :is-open="loadingCangurs" message="Carregant cangurs..." />
+      <IonToast :is-open="estaOk" :icon="checkbox" :message="toastMessage" :duration="3000" color="primary" />
+      <IonToast :is-open="showErrorToast" :message="errorMessage" :duration="3000" color="danger" />
     </div>
   </AppLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-import {IonLoading, IonGrid, IonRow, IonCol, IonIcon, IonCard, IonLabel, IonButton, IonToast, onIonViewWillEnter } from '@ionic/vue'
+import {IonLoading, IonGrid, IonRow, IonCol, IonIcon, IonCard, IonLabel, IonButton, IonToast, onIonViewWillEnter, IonItem, IonTextarea } from '@ionic/vue'
 import AppLayout from '@/components/AppLayout.vue'
 import { timerOutline, checkbox } from 'ionicons/icons'
 import { useRouter, useRoute } from 'vue-router'
@@ -83,6 +88,7 @@ import { cronoTemp, loadCronoTempFromStorage, clearCronoTemp } from '@/stores/te
 
 const loadingCangurs = ref(false)
 const temps = ref(0)
+const motiuFinal = ref('')
 
 watch(
   () => route.query.temps,
@@ -284,6 +290,7 @@ const guardarSessio = async () => {
       nadoNom,
       nadoId,
       temps: temps.value,
+      motiuFinal: motiuFinal.value,
       dia,
       hora,
       createdAt: now
@@ -300,7 +307,10 @@ const guardarSessio = async () => {
     }
 
     estaOk.value = true
+
     clearCronoTemp()
+    motiuFinal.value = ''
+
     router.push('/HomePage')
   } catch (err: any) {
     console.error('Error desant el cronòmetre:', err)
@@ -312,22 +322,71 @@ const guardarSessio = async () => {
 
 
 <style scoped>
-
-.center-button {
-  --background: #fff;
-  --color: #000;
-  border-radius: 10px;
-  font-weight: 600;
-  font-size: 16px;
+.centered-wrapper {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.icona-rellotge { 
-  font-size: 36px; 
-  margin-bottom: 10px; 
+.mini-card {
+  width: 100%;
+  max-width: 500px;
+  margin: 10px 0;
+  padding: 10px;
+  box-shadow: none; /* Opcional: según tu diseño */
+  border: 1px solid #e0e0e0;
 }
 
-.temps-display { 
-  font-size: 24px; 
-  font-weight: bold; 
+/* Centrado del Label y TextArea */
+.input-centered-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.label-centrat {
+  margin-bottom: 10px;
+  display: block;
+}
+
+.custom-textarea {
+  --background: #f9f9f9;
+  --padding-start: 10px;
+  --padding-end: 10px;
+  margin-top: 5px;
+  text-align: left; /* El texto dentro suele quedar mejor a la izquierda, pero el contenedor está centrado */
+  width: 100%;
+}
+
+/* Contenedor de botones de canguros para que no se desborden */
+.button-grid-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.btn-cangur {
+  margin: 0;
+  min-width: 100px;
+}
+
+.timer-container {
+  padding: 20px;
+  background: #fcfcfc;
+  border-radius: 15px;
+}
+
+.action-buttons {
+  width: 100%;
+  max-width: 500px;
+  margin-top: 20px;
+}
+
+.negreta {
+  font-weight: 700;
 }
 </style>
