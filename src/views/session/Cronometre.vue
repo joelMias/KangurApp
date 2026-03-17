@@ -69,7 +69,6 @@ import { documentTextOutline } from 'ionicons/icons'
 import AppLayout from '@/components/AppLayout.vue'
 import { useRouter } from 'vue-router'
 import { setCronoTemp } from '@/stores/temps'
-import marquesinaData from '@/data/marquesina.json'
 
 // Firebase
 import { db, auth } from '@/services/firebase'
@@ -85,10 +84,10 @@ const errorMessage = ref('')
 let cronoInterval: ReturnType<typeof setInterval> | null = null
 let messageInterval: ReturnType<typeof setInterval> | null = null
 
-const messages = marquesinaData.messages
+const messages = ref<string[]>([])
 
 const messageIndex = ref(0)
-const currentMessage = ref(messages[0])
+const currentMessage = ref('')
 const messageKey = ref(`msg-${messageIndex.value}`)
 
 onMounted(async () => {
@@ -98,8 +97,17 @@ onMounted(async () => {
   try {
     const snapshot = await getDocs(collection(db, 'users', user.uid, 'cangurs'))
     cangurs.value = snapshot.docs.map(d => ({ id: d.id, name: d.data().name }))
+
+    //Recollida de marquesines de firebase colection
+    const marquesinesSnapshot = await getDocs(collection(db, 'marquesines'))
+    messages.value = marquesinesSnapshot.docs.map(d => d.data().missatge)
+
+    if (messages.value.length > 0) {
+      currentMessage.value = messages.value[0]
+      messageKey.value = `msg-0`
+    }
   } catch (e) {
-    console.warn('Error loading cangurs:', e)
+    console.warn('Error loading data:', e)
   }
 })
 
@@ -109,14 +117,18 @@ const openUserGuide = () => {
 }
 
 function startCrono() {
+  if(messages.value.length === 0) return
+
   estaActiu.value = true
   cronoInterval = setInterval(() => { temps.value += 1 }, 1000)
+
   messageIndex.value = 0
-  currentMessage.value = messages[0]
+  currentMessage.value = messages.value[0]
   messageKey.value = `msg-0`
+
   messageInterval = setInterval(() => {
-    messageIndex.value = (messageIndex.value + 1) % messages.length
-    currentMessage.value = messages[messageIndex.value]
+    messageIndex.value = (messageIndex.value + 1) % messages.value.length
+    currentMessage.value = messages.value[messageIndex.value]
     messageKey.value = `msg-${messageIndex.value}`
   }, 8000)
 }
