@@ -28,6 +28,15 @@
 
     <!-- TAB: Usuaris -->
     <div v-if="currentTab === 'usuaris' && !loading" class="ion-margin-top">
+
+      <IonRow class="ion-justify-content-center ion-margin-top">
+        <IonCol size="12" size-md="6">
+          <IonItem>
+            <IonInput v-model="searchQuery" debounce="300" placeholder="Escriu nom del nadó o correu"></IonInput>
+          </IonItem>
+        </IonCol>
+      </IonRow>
+
       <IonCard class="mini-card users-card">
         <IonCardContent>
           <IonText color="primary">
@@ -38,7 +47,7 @@
             <IonRow v-if="allUsers.length">
               <IonCol size="12">
                 <IonGrid>
-                  <IonRow v-for="user in allUsers" :key="user.uid" class="user-row">
+                  <IonRow v-for="user in filteredUsers" :key="user.uid" class="user-row">
                     <IonCol size="12">
                       <IonCard>
                         <IonCardContent>
@@ -170,10 +179,10 @@
 </template>
 
 <script setup lang="ts">
-import { IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonLabel, IonSegment, IonSegmentButton, IonLoading, IonText, IonAvatar, onIonViewDidEnter, IonSpinner, IonItem, IonSelect, IonSelectOption, IonToggle } from '@ionic/vue'
+import { IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonLabel, IonSegment, IonSegmentButton, IonLoading, IonText, IonAvatar, onIonViewDidEnter, IonSpinner, IonItem, IonSelect, IonSelectOption, IonToggle, IonInput } from '@ionic/vue'
 import { logOutOutline, chevronDownOutline } from 'ionicons/icons'
 import AppLayout from '@/components/AppLayout.vue'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { auth } from '@/services/firebase'
 import { signOut } from 'firebase/auth'
@@ -186,6 +195,7 @@ const currentTab = ref('usuaris')
 const isSavingAdminId = ref('')
 const isActive = ref(false)
 const currentRole = ref('')
+const searchQuery = ref('')
 
 interface User {
   uid: string
@@ -218,6 +228,25 @@ interface CronometresGroup {
 const allUsers = ref<User[]>([])
 const allCronometres = ref<Cronometres[]>([])
 const cronometresByUser = ref<CronometresGroup[]>([])
+
+const filteredUsers = computed(() => {
+  if (!searchQuery.value) return allUsers.value
+
+  const query = searchQuery.value.toLowerCase()
+
+  return allUsers.value.filter(user => {
+    // Buscar por email
+    const matchEmail = user.email.toLowerCase().includes(query)
+
+    // Buscar por nombre de nadons
+    const matchNadons = user.nadons.some(n => {
+      const name = n.name || n.nom || ''
+      return name.toLowerCase().includes(query)
+    })
+
+    return matchEmail || matchNadons
+  })
+})
 
 function onToggleChange(userId: string, event: CustomEvent) {
   const checked = event.detail.checked

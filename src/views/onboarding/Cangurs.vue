@@ -121,19 +121,6 @@ onMounted(async () => {
     }
   }
 
-  try {
-    const regName = (localStorage.getItem('name') || '').trim()
-    if (regName) {
-      const exists = loadedCangurs.some(c => (c.nom || '').toLowerCase() === regName.toLowerCase())
-      if (!exists) {
-        loadedCangurs.unshift({ 
-          id: `local-reg-${Date.now()}`, 
-          nom: regName, 
-          parentesc: ''
-        })
-      }
-    }
-  } catch (e) { console.warn(e) }
   cangurs.value = loadedCangurs
 })
 

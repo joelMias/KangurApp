@@ -109,7 +109,10 @@ const Registre = async () => {
 
   try {
     const user = auth.currentUser
-    if (!user) throw new Error('Usuari no autenticat')
+    const fallbackUid = localStorage.getItem('uid')
+    const userIdToUse = user?.uid ?? fallbackUid ?? ''
+
+    if (!userIdToUse) throw new Error('Usuari no identificat')
 
     const nadoData = {
       name: nomNado.value,
@@ -118,38 +121,27 @@ const Registre = async () => {
       createdAt: new Date()
     }
 
-    const fallbackUid = localStorage.getItem('uid')
-    const userIdToUse = user.uid ?? fallbackUid ?? ''
+    let nadoFinalId = ''
+
     if (navigator.onLine) {
       const docRef = await addDoc(collection(db, 'users', userIdToUse, 'nadons'), nadoData)
-      console.log('Nadó desat:', nadoData)
-      localStorage.setItem('selectedNado', docRef.id)
-      localStorage.setItem('selectedNadoName', nomNado.value)
-
-      try {
-        const raw = localStorage.getItem('localnadons')
-        const list = raw ? JSON.parse(raw) : []
-        list.push({ id: docRef.id, name: nomNado.value })
-        localStorage.setItem('localnadons', JSON.stringify(list))
-      } catch (e) { console.warn('Error caching local nadons', e) }
+      nadoFinalId = docRef.id
     } else {
-      const tempId = `local-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
-      localStorage.setItem('selectedNado', tempId)
-      localStorage.setItem('selectedNadoName', nomNado.value)
-      try {
-        const raw = localStorage.getItem('localnadons')
-        const list = raw ? JSON.parse(raw) : []
-        list.push({ id: tempId, name: nomNado.value })
-        localStorage.setItem('localnadons', JSON.stringify(list))
-      } catch (e) { console.warn('Error al guardar el nado en local', e) }
-      offlineService.addPending('nadons', { ...nadoData, __tempId: tempId }, userIdToUse)
-      console.log('Nadó guardat localment per sincronitzar després')
+      nadoFinalId = `local-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
+      offlineService.addPending('nadons', { ...nadoData, __tempId: nadoFinalId }, userIdToUse)
     }
+
+    const nuevaListaNadons = [{ id: nadoFinalId, name: nomNado.value }];
+    
+    localStorage.setItem('selectedNado', nadoFinalId)
+    localStorage.setItem('selectedNadoName', nomNado.value)
+    localStorage.setItem('localnadons', JSON.stringify(nuevaListaNadons))
 
     router.push('/cangurs')
   } catch (err: any) {
     console.error('Error desant el nadó:', err)
-    error.value = err.message || 'Error desant el nadó. Torna-ho a intentar.'
+    error.value = 'Error desant el nadó. Torna-ho a intentar.'
+  } finally {
     loading.value = false
   }
 }
