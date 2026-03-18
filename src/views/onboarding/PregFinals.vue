@@ -18,7 +18,7 @@
               <IonRadioGroup v-model="fetImmediat">
                 <IonItem lines="none">
                   <IonLabel>Sí</IonLabel>
-                  <IonRadio slot="start" value="si" />
+                  <IonRadio slot="start" value="si" color="primary"/>
                 </IonItem>
                 <IonItem lines="none">
                   <IonLabel>No</IonLabel>
@@ -176,3 +176,24 @@ const finalitzar = async () => {
   }
 }
 </script>
+
+<style scoped>
+ion-radio {
+    --size: 20px;
+  --color: #ccc;
+  --color-checked: var(--ion-color-primary);
+  width: 20px;
+  height: 20px;
+}
+
+ion-radio::part(container) {
+  border: 2px solid var(--color);
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+}
+
+ion-radio.radio-checked::part(container) {
+  border-color: var(--color-checked);
+}
+</style>
