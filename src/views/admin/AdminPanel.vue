@@ -102,15 +102,20 @@
                 </div>
 
                 <div class="flex-item-date">
-                  <IonItem lines="none" class="input-data-compact">
-                    <IonLabel position="stacked">Des de:</IonLabel>
-                    <IonInput type="date" v-model="exportDateFrom" class="custom-date-input"></IonInput>
+                  <IonItem lines="none" class="input-data-compact date-item">
+                    <div class="containerDate">
+                      <IonLabel class="labelDate">Des de:</IonLabel>
+                      <input ref="exportDateFromRef" type="date" v-model="exportDateFrom" class="custom-date-input" />
+                    </div>
                   </IonItem>
                 </div>
                 <div class="flex-item-date">
-                  <IonItem lines="none" class="input-data-compact">
-                    <IonLabel position="stacked">Fins a:</IonLabel>
-                    <IonInput type="date" v-model="exportDateTo" class="custom-date-input"></IonInput>
+                  <IonItem lines="none" class="input-data-compact date-item">
+                    <div class="containerDate">
+                      <IonLabel class="labelDate">Fins a:</IonLabel>
+                      <input ref="exportDateToRef" type="date" v-model="exportDateTo" class="custom-date-input" />
+                    </div>
+                    
                   </IonItem>
                 </div>
 
@@ -199,11 +204,11 @@
 import {
   IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardContent,
   IonLabel, IonSegment, IonSegmentButton, IonLoading, IonText, IonAvatar,
-  onIonViewDidEnter, IonSpinner, IonItem, IonToggle, IonInput,
+  onIonViewDidEnter, IonSpinner, IonItem, IonToggle, 
   IonBadge, IonModal, IonHeader, IonToolbar, IonTitle,
   IonButtons, IonContent, IonList, IonCheckbox, IonSearchbar, IonToast
 } from '@ionic/vue'
-import { downloadOutline, chevronForwardOutline, mailOutline } from 'ionicons/icons'
+import { downloadOutline, chevronForwardOutline, mailOutline, calendarOutline } from 'ionicons/icons'
 import AppLayout from '@/components/AppLayout.vue'
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
@@ -227,6 +232,14 @@ const selectedExportUsers = ref<string[]>([])
 const showToast = ref(false)
 const toastMessage = ref('')
 const toastColor = ref('success')
+
+const exportDateFromRef = ref<HTMLInputElement | null>(null)
+const exportDateToRef = ref<HTMLInputElement | null>(null)
+
+const focusDateInput = (which: 'from' | 'to') => {
+  const ref = which === 'from' ? exportDateFromRef : exportDateToRef
+  ref.value?.focus()
+}
 
 interface User {
   uid: string;
@@ -484,8 +497,20 @@ onIonViewDidEnter(async () => {
   --border-radius: 8px;
   --min-height: 56px;
   --padding-start: 12px;
+  --padding-top: 0;
+  --padding-bottom: 0;
   margin: 0;
-  height: 100%;
+  height: 56px;
+  display: flex;
+  align-items: center;
+}
+
+.containerDate{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
 }
 
 .selector-content {
@@ -518,6 +543,7 @@ onIonViewDidEnter(async () => {
 .flex-item-date {
   flex: 1.5;
   min-width: 110px;
+  height: 56px;
 }
 
 .flex-item-actions {
@@ -530,14 +556,47 @@ onIonViewDidEnter(async () => {
   --background: #f0f2f2;
   --border-radius: 8px;
   --min-height: 56px;
+  --padding-top: 0;
+  --padding-bottom: 0;
   margin: 0;
+  height: 56px;
+  display: flex;
+  align-items: center;
+}
+
+.date-item {
+  --background: transparent;
+  --border-radius: 0;
+  box-shadow: none;
 }
 
 .custom-date-input {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  --padding-top: 8px;
+  height: 100%;
+  flex: 1;
+  min-width: 120px;
+  padding-right: 2.5rem;
+  background: transparent;
+  border: none;
+  outline: none;
+  position: relative;
+  z-index: 1;
 }
+
+.custom-date-input::-webkit-calendar-picker-indicator {
+  opacity: 0.8;
+}
+
+.date-icon {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 1.1rem;
+  cursor: pointer;
+  margin-left: 4px;
+  position: relative;
+  z-index: 2;
+}
+
 
 .btn-export-inline {
   --border-radius: 8px;
@@ -616,7 +675,14 @@ onIonViewDidEnter(async () => {
 .titol {
   text-align: center;
   margin-bottom: 24px;
-  font-size: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.labelDate {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   font-weight: 600;
 }
 
