@@ -141,7 +141,7 @@
         </IonCol>
       </IonRow>
 
-      <div class="ion-padding">
+      <div v-if="cronometresByUser.length > 0" class="ion-padding">
         <div v-for="userGroup in cronometresByUser" :key="userGroup.userEmail" class="session-group">
           <div class="group-header">
             <span class="user-title">{{ userGroup.userName || userGroup.userEmail }}</span>
@@ -176,6 +176,9 @@
             </IonCardContent>
           </IonCard>
         </div>
+      </div>
+      <div v-else class="ion-padding ion-text-center">
+        <IonText color="medium">No hi ha sessions disponibles.</IonText>
       </div>
     </div>
 
@@ -496,6 +499,7 @@ async function deleteSessionConfirmed() {
     toastColor.value = 'success'
     showToast.value = true
     await loadAdminData()
+    currentTab.value = 'cronometres'
   } catch (error) {
     console.error('Error esborrant sessió:', error)
     toastMessage.value = 'Error esborrant sessió. Torna-ho a intentar.'

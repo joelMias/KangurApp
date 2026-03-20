@@ -121,94 +121,112 @@ onIonViewWillEnter(() => {
   cangurSeleccionat.value = null
 })
 
+const normalizeCangur = (source: any, id: string) => ({
+  id,
+  name: source?.name || source?.nom || source?.nomCangur || source?.nado || ''
+})
+
+const loadCangursFromCache = (): { id: string; name: string }[] => {
+  const raw = localStorage.getItem('localCangurs')
+  if (!raw) return []
+  try {
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+    return parsed
+      .filter((c: any) => !c.eliminado)
+      .map((c: any) => ({
+        id: c.id,
+        name: c.name || c.nom || c.nomCangur || ''
+      }))
+      .filter(c => c.name)
+  } catch (e) {
+    console.warn('Error llegint cangurs del cache', e)
+    return []
+  }
+}
+
+const saveCangursToCache = (list: { id: string; name: string }[]) => {
+  try {
+    localStorage.setItem('localCangurs', JSON.stringify(list))
+  } catch (e) {
+    console.warn('Error guardant cangurs al cache', e)
+  }
+}
+
+const mergeCangurs = (server: { id: string; name: string }[], local: { id: string; name: string }[]) => {
+  const map = new Map(server.map(c => [c.id, c]))
+  local.forEach(c => {
+    if (!map.has(c.id) && c.name) map.set(c.id, c)
+  })
+  return Array.from(map.values())
+}
+
 onMounted(() => {
   loadingCangurs.value = true
   const unsub = onAuthStateChanged(auth, async (user) => {
     if (user) {
       try {
-        // Quan estem online, llegim els cangurs de la base de dades, sinó anem al "else"
+        let fetchedCangurs: { id: string; name: string }[] = []
+
         if (navigator.onLine) {
           const snapshot = await getDocs(collection(db, 'users', user.uid, 'cangurs'))
-          cangurs.value = snapshot.docs.map(d => ({
-            id: d.id,
-            name: d.data().name || d.data().nom
-          }))
-            
-            try {
-              const regName = localStorage.getItem('name') || ''
-              if (regName) {
-                const idx = cangurs.value.findIndex(c => (c.name || '').toLowerCase() === regName.toLowerCase())
-                if (idx > 0) {
-                  const [item] = cangurs.value.splice(idx, 1)
-                  cangurs.value.unshift(item)
-                }
-              }
-            } catch (e) {  }
-          
-          try { localStorage.setItem('localCangurs', JSON.stringify(cangurs.value)) } catch (e) { }
+          fetchedCangurs = snapshot.docs
+            .filter(d => !d.data().eliminado)
+            .map(d => normalizeCangur(d.data(), d.id))
+            .filter(c => c.name)
 
-          try {
-            const nadonsnap = await getDocs(collection(db, 'users', user.uid, 'nadons'))
-            if (!nadonsnap.empty) {
-              const nadons = nadonsnap.docs.map(d => ({ id: d.id, name: d.data().name }))
-              try { localStorage.setItem('localnadons', JSON.stringify(nadons)) } catch (e) { console.warn('Error saving localnadons', e) }
-              const selId = localStorage.getItem('selectedNado')
-              if (!selId && nadons.length) {
-                try { localStorage.setItem('selectedNado', nadons[0].id); localStorage.setItem('selectedNadoName', nadons[0].name) } catch (e) { /* ignore */ }
-              } else if (selId) {
-                const found = nadons.find(n => n.id === selId)
-                if (found) try { localStorage.setItem('selectedNadoName', found.name) } catch (e) { /* ignore */ }
-              }
-            }
-          } catch (e) {
-            console.warn("No s'han pogut llegir nadós per cache", e);
+          if (fetchedCangurs.length) {
+            saveCangursToCache(fetchedCangurs)
           }
+        }
+
+        const cachedCangurs = loadCangursFromCache()
+
+        if (!navigator.onLine) {
+          cangurs.value = cachedCangurs
         } else {
-          // Quan estem offline llegim les dades del cache local
-          const raw = localStorage.getItem('localCangurs')
-          if (raw) {
-            try {
-              const parsed = JSON.parse(raw)
-              cangurs.value = parsed.map((c: any) => ({ id: c.id, name: c.name || c.nom }))
-              
-              const regName = localStorage.getItem('name') || ''
-              if (regName) {
-                const idx = cangurs.value.findIndex((c: any) => (c.name || '').toLowerCase() === regName.toLowerCase())
-                if (idx > 0) {
-                  const [item] = cangurs.value.splice(idx, 1)
-                  cangurs.value.unshift(item)
-                }
-              }
-            } catch (e) {
-              console.warn('Error llegint cangurs del cache', e)
+          cangurs.value = mergeCangurs(fetchedCangurs, cachedCangurs)
+        }
+
+        try {
+          const regName = localStorage.getItem('name') || ''
+          if (regName) {
+            const idx = cangurs.value.findIndex(c => (c.name || '').toLowerCase() === regName.toLowerCase())
+            if (idx > 0) {
+              const [item] = cangurs.value.splice(idx, 1)
+              cangurs.value.unshift(item)
             }
           }
+        } catch (e) { }
+
+        try {
+          const nadonsnap = await getDocs(collection(db, 'users', user.uid, 'nadons'))
+          if (!nadonsnap.empty) {
+            const nadons = nadonsnap.docs.map(d => ({ id: d.id, name: d.data().name }))
+            try { localStorage.setItem('localnadons', JSON.stringify(nadons)) } catch (e) { console.warn('Error saving localnadons', e) }
+            const selId = localStorage.getItem('selectedNado')
+            if (!selId && nadons.length) {
+              try { localStorage.setItem('selectedNado', nadons[0].id); localStorage.setItem('selectedNadoName', nadons[0].name) } catch (e) { }
+            } else if (selId) {
+              const found = nadons.find(n => n.id === selId)
+              if (found) try { localStorage.setItem('selectedNadoName', found.name) } catch (e) { }
+            }
+          }
+        } catch (e) {
+          console.warn("No s'han pogut llegir nadós per cache", e)
         }
       } catch (err) {
         console.error('Error carregant cangurs', err)
-        const raw = localStorage.getItem('localCangurs')
-        if (raw) {
-          try {
-            const parsed = JSON.parse(raw)
-            cangurs.value = parsed.map((c: any) => ({ id: c.id, name: c.name || c.nom }))
-          } catch (e) { console.warn(e) }
-        }
+        cangurs.value = loadCangursFromCache()
       } finally {
         loadingCangurs.value = false
       }
     } else {
       console.warn('No hi ha usuari autenticat')
-      // si no hi ha usuari, intentem carregar els cangurs que hi ha al cache per usuaris anteriors
-      const raw = localStorage.getItem('localCangurs')
-      if (raw) {
-        try {
-          const parsed = JSON.parse(raw)
-          cangurs.value = parsed.map((c: any) => ({ id: c.id, name: c.name || c.nom }))
-        } catch (e) { console.warn(e) }
-      }
+      cangurs.value = loadCangursFromCache()
       loadingCangurs.value = false
     }
-    unsub() // deixem d’escoltar un cop tenim resposta
+    unsub()
   })
 })
 

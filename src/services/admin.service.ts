@@ -1,5 +1,6 @@
 import { auth, db } from './firebase'
 import { collection, getDocs, doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore'
+import authService from './auth.service'
 
 /**
  * Obtenir totes les dades de la base de dades (només per superusuaris)
@@ -136,11 +137,14 @@ async function getUserData(userId: string) {
 
 
 /**
- * Verificar si l'usuari actual és superusuari
+ * Verificar si l'usuari actual és superusuari (basat en permisos)
  */
 function isCurrentUserAdmin(): boolean {
-  const role = localStorage.getItem('rol')
-  return role === 'admin' || role === 'gestor'
+  return (
+    authService.userHasPermission('sessions_all_read') ||
+    authService.userHasPermission('sessions_all_edit') ||
+    authService.userHasPermission('sessions_all_delete')
+  )
 }
 
 /**
@@ -150,16 +154,23 @@ async function getCurrentUserAdminStatus() {
   try {
     const user = auth.currentUser
     if (!user) return false
-    
+
     const userDoc = await getDoc(doc(db, 'users', user.uid))
-    if (userDoc.exists()) {
-      const data = userDoc.data()
-      const role = typeof data.rol === 'string'
-        ? data.rol
-        : undefined
-      return role === 'admin' || role === 'gestor'
-    }
-    return false
+    const role = userDoc.exists()
+      ? (typeof userDoc.data().rol === 'string'
+          ? userDoc.data().rol
+          : (userDoc.data().admin === true ? 'admin' : 'usuari'))
+      : (localStorage.getItem('rol') || 'usuari')
+
+    const permissions = await authService.fetchRolePermissions(role)
+    // Store updated permissions locally for faster checks
+    localStorage.setItem('permissions', JSON.stringify(permissions))
+
+    return (
+      permissions.sessions_all_read ||
+      permissions.sessions_all_edit ||
+      permissions.sessions_all_delete
+    )
   } catch (error) {
     console.error('Error obtenint l\'estatus d\'admin:', error)
     return false

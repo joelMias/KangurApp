@@ -117,7 +117,7 @@
 
         <!-- vista llistat -->
         <IonList v-else>
-            <IonItem v-for="(sessio, index) in sessions" :key="index">
+            <IonItem v-for="(sessio, index) in sessions" :key="sessio.id || index">
                 <IonLabel class="ion-text-wrap">
                     <div class="sessio-header">
                         <span class="sessio-date">{{ formatSessioDate(sessio.data, sessio.hora) }}</span>
@@ -129,6 +129,9 @@
                         <span>{{ sessio.nado }}</span>
                     </div>
                 </IonLabel>
+                <IonButton fill="clear" color="danger" size="small" @click.stop="promptDeleteSession(sessio.id)">
+                  <IonIcon :icon="trashOutline" />
+                </IonButton>
             </IonItem>
         </IonList>
 
@@ -151,6 +154,25 @@
             ]"
             @didDismiss="showLogoutAlert = false"
           />
+
+          <IonAlert
+            :is-open="showDeleteSessionAlert"
+            header="Esborrar sessió"
+            message="Segur que vols esborrar aquesta sessió?"
+            :buttons="[
+              {
+                text: 'Cancelar',
+                role: 'cancel',
+                handler: cancelDeleteSession
+              },
+              {
+                text: 'Esborrar',
+                role: 'destructive',
+                handler: deleteSessionConfirmed
+              }
+            ]"
+            @didDismiss="cancelDeleteSession"
+          />
           
           <IonToast 
             :is-open="showErrorToast" 
@@ -166,7 +188,7 @@
 
 <script setup lang="ts">
 import { IonButton, IonLoading, IonGrid, IonCol, IonRow, IonIcon, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonAlert, IonToast, onIonViewDidEnter, IonList, IonItem, IonLabel, IonRefresher, IonRefresherContent } from '@ionic/vue'
-import { chevronBack, folderOpen, barChartOutline, listOutline, arrowForwardOutline, logOutOutline, chevronForward, peopleOutline, shieldOutline } from 'ionicons/icons'
+import { chevronBack, folderOpen, barChartOutline, listOutline, arrowForwardOutline, logOutOutline, chevronForward, peopleOutline, shieldOutline, trashOutline } from 'ionicons/icons'
 import AppLayout from '@/components/AppLayout.vue'
 import barChart from '@/views/charts/GrafBarres.vue'
 import barChartGrouped from '@/views/charts/GrafBarresGrouped.vue'
@@ -182,6 +204,8 @@ const router = useRouter()
 const loadingCharts = ref(false)
 const mode = ref<'grafic' | 'llista'>('grafic')
 const showLogoutAlert = ref(false)
+const showDeleteSessionAlert = ref(false)
+const pendingDeleteSessionId = ref<string | null>(null)
 const showErrorToast = ref(false)
 const errorMessage = ref('')
 
@@ -200,13 +224,48 @@ function logout() {
   showLogoutAlert.value = true
 }
 
+function promptDeleteSession(sessionId: string) {
+  pendingDeleteSessionId.value = sessionId
+  showDeleteSessionAlert.value = true
+}
+
+function cancelDeleteSession() {
+  showDeleteSessionAlert.value = false
+  pendingDeleteSessionId.value = null
+}
+
+async function deleteSessionConfirmed() {
+  if (!pendingDeleteSessionId.value) return
+
+  const user = auth.currentUser
+  if (!user) return
+
+  try {
+    await adminService.deleteSession(user.uid, pendingDeleteSessionId.value)
+    allSessions.value = allSessions.value.filter(session => session.id !== pendingDeleteSessionId.value)
+    filterDataByWeek()
+  } catch (err) {
+    console.error('Error esborrant sessió:', err)
+    showErrorToast.value = true
+    errorMessage.value = 'No s’ha pogut esborrar la sessió. Torna-ho a intentar.'
+
+    setTimeout(() => {
+      showErrorToast.value = false
+      errorMessage.value = ''
+    }, 3000)
+  } finally {
+    pendingDeleteSessionId.value = null
+    showDeleteSessionAlert.value = false
+  }
+}
+
 interface Dataset { label: string; data: number[]; backgroundColor: string }
 
 const barData = ref<{ labels: string[]; datasets: Dataset[] }>({ labels: [], datasets: [] })
 const pieData = ref<Record<string, number>>({})
 const comparisonData = ref<{ labels: string[]; datasets: Dataset[] }>({ labels: [], datasets: [] })
-const sessions = ref<{ data: string; hora: string; temps: number; cangur: string; nado: string; ts?: number }[]>([])
-const allSessions = ref<any[]>([])
+const sessions = ref<{ id:string; data: string; hora: string; temps: number; cangur: string; nado: string; ts?: number }[]>([])
+const allSessions = ref<{ id:string; data: string; hora: string; temps: number; cangur: string; nado: string; ts?: number }[]>([])
 const allEstades = ref<{ dia: string; horaEntrada: string; horaSortida: string }[]>([])
 
 // --- Funcions auxiliars ---
@@ -373,22 +432,20 @@ const superAdmin = ref(false)
 async function loadUserAdminStatus() {
   try {
     // intentem primer la via ràpida (localStorage)
-    const role = localStorage.getItem('rol') || localStorage.getItem('role')
-    
-    if (role === 'admin' || role === 'gestor') {
+    const permissionsStr = localStorage.getItem('permissions')
+    const permissions = permissionsStr ? JSON.parse(permissionsStr) : null
+
+    if (
+      permissions?.sessions_all_read ||
+      permissions?.sessions_all_edit ||
+      permissions?.sessions_all_delete
+    ) {
       superAdmin.value = true
-    } else {
-      // si no hi ha res al localStorage, preguntem al servei (Firebase)
-      // Això és el que realment salvarà al 'gestor'
-      const hasAccess = await adminService.getCurrentUserAdminStatus()
-      superAdmin.value = hasAccess
-      
-      // Aprofitem per actualitzar el localStorage i que la pròxima vegada sigui ràpid
-      if (hasAccess) {
-        // Hauríem de saber si és admin o gestor, però per ara amb 'gestor' n'hi ha prou
-        localStorage.setItem('rol', 'gestor') 
-      }
+      return
     }
+
+    const hasAccess = await adminService.getCurrentUserAdminStatus()
+    superAdmin.value = hasAccess
   } catch (e) {
     console.error('Error carregant estatus d\'admin:', e)
     superAdmin.value = false
@@ -408,39 +465,41 @@ async function handleRefresh(event: any) {
         .filter(d => !d.data().eliminado)
         .map(d => {
           const docData = d.data()
-        let ts: number | undefined
-        if (docData.createdAt && typeof docData.createdAt.toDate === 'function') {
-          ts = docData.createdAt.toDate().getTime()
-        } else if (docData.createdAt && (typeof docData.createdAt === 'string' || typeof docData.createdAt === 'number')) {
-          ts = typeof docData.createdAt === 'number' ? docData.createdAt : Date.parse(docData.createdAt)
-        } else if (docData.dia && docData.hora) {
-          ts = new Date(`${docData.dia}T${docData.hora}`).getTime()
-        }
+          let ts: number | undefined
 
-        let diaVal = docData.dia || ''
-        let horaVal = docData.hora || ''
-        if ((!diaVal || !horaVal) && ts) {
-          const dd = new Date(ts)
-          diaVal = diaVal || dd.toISOString().split('T')[0]
-          horaVal = horaVal || dd.toTimeString().slice(0,5)
-        }
+          if (docData.createdAt && typeof docData.createdAt.toDate === 'function') {
+            ts = docData.createdAt.toDate().getTime()
+          } else if (docData.createdAt && (typeof docData.createdAt === 'string' || typeof docData.createdAt === 'number')) {
+            ts = typeof docData.createdAt === 'number' ? docData.createdAt : Date.parse(docData.createdAt)
+          } else if (docData.dia && docData.hora) {
+            ts = new Date(`${docData.dia}T${docData.hora}`).getTime()
+          }
 
-        return {
-          data: diaVal,
-          hora: horaVal,
-          temps: docData.temps || 0,
-          cangur: docData.cangurNom || '',
-          nado: docData.nadoNom || '',
-          ts
-        }
-      })
+          let diaVal = docData.dia || ''
+          let horaVal = docData.hora || ''
+          if ((!diaVal || !horaVal) && ts) {
+            const dd = new Date(ts)
+            diaVal = diaVal || dd.toISOString().split('T')[0]
+            horaVal = horaVal || dd.toTimeString().slice(0,5)
+          }
+
+          return {
+            id: d.id,
+            data: diaVal,
+            hora: horaVal,
+            temps: docData.temps || 0,
+            cangur: docData.cangurNom || '',
+            nado: docData.nadoNom || '',
+            ts
+          }
+        })
 
       allSessions.value.sort((a, b) => (b.ts || 0) - (a.ts || 0))
       filterDataByWeek()
     }
-    
+
     loadingCharts.value = false
-    
+
     // Add 3-second delay before completing the refresh
     await new Promise(resolve => setTimeout(resolve, 3000))
     event.detail.complete()
@@ -483,6 +542,7 @@ async function carregarHistorial() {
         }
 
     return {
+      id: d.id,
       data: diaVal,
       hora: horaVal,
       temps: docData.temps || 0,
