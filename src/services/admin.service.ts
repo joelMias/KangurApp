@@ -18,26 +18,32 @@ async function getAllUsersData() {
       // Obtenir cronometres de l'usuari
       const cronometresRef = collection(db, 'users', userId, 'cronometres')
       const cronometresSnap = await getDocs(cronometresRef)
-      const cronometres = cronometresSnap.docs.map(d => ({
-        id: d.id,
-        ...d.data()
-      }))
+      const cronometres = cronometresSnap.docs
+        .filter(d => !d.data().eliminado)
+        .map(d => ({
+          id: d.id,
+          ...d.data()
+        }))
       
       // Obtenir nadons de l'usuari
       const nadonsRef = collection(db, 'users', userId, 'nadons')
       const nadonsSnap = await getDocs(nadonsRef)
-      const nadons = nadonsSnap.docs.map(d => ({
-        id: d.id,
-        ...d.data()
-      }))
+      const nadons = nadonsSnap.docs
+        .filter(d => !d.data().eliminado)
+        .map(d => ({
+          id: d.id,
+          ...d.data()
+        }))
 
       // Obtenir cangurs de l'usuari
       const cangursRef = collection(db, 'users', userId, 'cangurs')
       const cangursSnap = await getDocs(cangursRef)
-      const cangurs = cangursSnap.docs.map(d => ({
-        id: d.id,
-        ...d.data()
-      }))
+      const cangurs = cangursSnap.docs
+        .filter(d => !d.data().eliminado)
+        .map(d => ({
+          id: d.id,
+          ...d.data()
+        }))
       
       allUsersData.push({
         uid: userId,
@@ -45,6 +51,7 @@ async function getAllUsersData() {
         email: userData.email,
         rol: userData.rol || 'usuari',
         createdAt: userData.createdAt,
+        eliminado: !!userData.eliminado,
         cronometres,
         nadons,
         cangurs
@@ -65,40 +72,40 @@ async function deleteUser(userId: string) {
   try {
     const userRef = doc(db, 'users', userId)
 
-    // Esborrem subcol·leccions si es vol (cronometres, nadons, cangurs)
+    await updateDoc(userRef, { eliminado: true })
+    
     const subCollections = ['cronometres', 'nadons', 'cangurs']
     for (const col of subCollections) {
       const colRef = collection(db, 'users', userId, col)
       const colSnap = await getDocs(colRef)
       for (const docItem of colSnap.docs) {
-        await deleteDoc(doc(db, 'users', userId, col, docItem.id))
+        await updateDoc(doc(db, 'users', userId, col, docItem.id), { eliminado: true })
       }
     }
 
-    await deleteDoc(userRef)
     return { success: true }
   } catch (error) {
-    console.error('Error esborrant usuari:', error)
+    console.error('Error marcant usuari com a eliminat:', error)
     throw error
   }
 }
 
 /**
- * Esborrar una sessió d'un usuari
+ * Soft delete a user session
  */
 async function deleteSession(userId: string, sessionId: string) {
   try {
     const sessionRef = doc(db, 'users', userId, 'cronometres', sessionId)
-    await deleteDoc(sessionRef)
+    await updateDoc(sessionRef, { eliminado: true })
     return { success: true }
   } catch (error) {
-    console.error('Error esborrant sessió:', error)
+    console.error('Error marcant sessió com a eliminada:', error)
     throw error
   }
 }
 
 /**
- * Canviar l'estatus d'admin d'un usuari
+ * Update user role
  */
 async function updateUserRol(userId: string, rol: string) {
   try {
@@ -112,7 +119,7 @@ async function updateUserRol(userId: string, rol: string) {
 }
 
 /**
- * Obtenir les dades d'un usuari concret
+ * Get data for a specific user
  */
 async function getUserData(userId: string) {
   try {
@@ -149,8 +156,8 @@ async function getCurrentUserAdminStatus() {
       const data = userDoc.data()
       const role = typeof data.rol === 'string'
         ? data.rol
-        : (typeof data.rol === 'string' ? data.rol : undefined)
-      return data.rol === 'admin' || data.rol === 'gestor'
+        : undefined
+      return role === 'admin' || role === 'gestor'
     }
     return false
   } catch (error) {

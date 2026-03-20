@@ -12,7 +12,7 @@ import { doc, setDoc, getDoc, collection, getDocs } from 'firebase/firestore'
 
 const TOKEN_KEY = 'token'
 const TOKEN_EXPIRY_KEY = 'tokenExpiry'
-const TOKEN_EXPIRY_HOURS = 7 * 24 // 7 dies
+const TOKEN_EXPIRY_HOURS = 7 * 24 // 7 days
 
 function generateToken(): string {
   return `token_${Date.now()}_${Math.random().toString(36).slice(2)}`
@@ -52,15 +52,15 @@ async function isTokenValid(): Promise<boolean> {
     return false
   }
 
-  // Esperar a que Firebase restauri la sessió
+  // Wait for Firebase to restore the session
   return new Promise((resolve) => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       unsubscribe()
       if (user) {
-        // Usuari autenticat a Firebase i token vàlid
+        // Authenticated user and valid token
         resolve(true)
       } else {
-        // No hi ha usuari autenticat, netejar token
+        // No authenticated user, clear token
         removeToken().then(() => resolve(false))
       }
     })
@@ -78,7 +78,8 @@ async function register(payload: { name: string; email: string; password: string
     name: payload.name,
     email: payload.email,
     createdAt: new Date(),
-    ro: 'usuario'
+    rol: 'usuari',
+    eliminado: false
   })
 
   localStorage.setItem('name', payload.name)
@@ -91,7 +92,7 @@ async function login(payload: { email: string; password: string }) {
   const userCredential = await signInWithEmailAndPassword(auth, payload.email, payload.password)
   const user = userCredential.user
 
-  // Generar i guardar token amb expiració
+  // Generate and save token with expiration
   const token = generateToken()
   await saveToken(token)
 
@@ -103,21 +104,19 @@ async function login(payload: { email: string; password: string }) {
     const userDoc = await getDoc(doc(db, 'users', user.uid))
     if (userDoc.exists()) {
       const userData = userDoc.data()
-      const role = typeof userData.ro === 'string'
-        ? userData.ro
-        : (typeof userData.rol === 'string'
-          ? userData.rol
-          : (userData.admin === true ? 'admin' : 'usuario'))
+      const role = typeof userData.rol === 'string'
+        ? userData.rol
+        : (userData.admin === true ? 'admin' : 'usuari')
 
       localStorage.setItem('role', role)
       localStorage.setItem('admin', role === 'admin' ? 'true' : 'false')
       localStorage.setItem('rol', role)
     }
   } catch (e) {
-    console.warn('Error carregant dades de l\'usuari', e)
-    localStorage.setItem('role', 'usuario')
+    console.warn('Error loading user data', e)
+    localStorage.setItem('role', 'usuari')
     localStorage.setItem('admin', 'false')
-    localStorage.setItem('rol', 'usuario')
+    localStorage.setItem('rol', 'usuari')
   }
 
   try {
@@ -130,7 +129,7 @@ async function login(payload: { email: string; password: string }) {
       }
     }
   } catch (e) {
-    console.warn('No hi ha nadons al cache', e)
+    console.warn('No babies in local cache', e)
   }
 
   return {
@@ -155,7 +154,7 @@ async function logout() {
   await signOut(auth)
   await removeToken()
   
-  // Netejar totes les dades de sessió
+  // Clear all session data
   localStorage.removeItem('uid')
   localStorage.removeItem('name')
   localStorage.removeItem('rol')

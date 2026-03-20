@@ -372,13 +372,13 @@ const superAdmin = ref(false)
 
 async function loadUserAdminStatus() {
   try {
-    // 1. Intentem primer la via ràpida (localStorage)
+    // intentem primer la via ràpida (localStorage)
     const role = localStorage.getItem('rol') || localStorage.getItem('role')
     
     if (role === 'admin' || role === 'gestor') {
       superAdmin.value = true
     } else {
-      // 2. Si no hi ha res al localStorage, preguntem al servei (Firebase)
+      // si no hi ha res al localStorage, preguntem al servei (Firebase)
       // Això és el que realment salvarà al 'gestor'
       const hasAccess = await adminService.getCurrentUserAdminStatus()
       superAdmin.value = hasAccess
@@ -404,8 +404,10 @@ async function handleRefresh(event: any) {
     const user = auth.currentUser
     if (user) {
       const snapshot = await getDocs(collection(db, 'users', user.uid, 'cronometres'))
-      allSessions.value = snapshot.docs.map(d => {
-        const docData = d.data()
+      allSessions.value = snapshot.docs
+        .filter(d => !d.data().eliminado)
+        .map(d => {
+          const docData = d.data()
         let ts: number | undefined
         if (docData.createdAt && typeof docData.createdAt.toDate === 'function') {
           ts = docData.createdAt.toDate().getTime()
@@ -460,7 +462,9 @@ async function carregarHistorial() {
       
       try {
         const snapshot = await getDocs(collection(db, 'users', user.uid, 'cronometres'))
-        allSessions.value = snapshot.docs.map(d => { const docData = d.data()
+        allSessions.value = snapshot.docs
+          .filter(d => !d.data().eliminado)
+          .map(d => { const docData = d.data()
         let ts: number | undefined
         if (docData.createdAt && typeof docData.createdAt.toDate === 'function') {
           ts = docData.createdAt.toDate().getTime()

@@ -523,7 +523,7 @@ async function loadAdminData() {
   loading.value = true
   try {
     const data = await adminService.getAllUsersData()
-    allUsers.value = data
+    allUsers.value = data.filter((u: any) => !u.eliminado)
     selectedExportUsers.value = data.map(u => u.email)
 
     const list: any[] = []

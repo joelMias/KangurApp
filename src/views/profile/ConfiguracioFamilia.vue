@@ -175,7 +175,7 @@ const toastMessage = ref('')
 const estaOk = ref(false)
 const showDeleteCangurAlert = ref(false)
 const pendingDeleteCangur = ref<{ index: number; nom: string } | null>(null)
-const cangurs = ref<{ id: string; nom: string; parentesc: string }[]>([])
+const cangurs = ref<{ id: string; nom: string; parentesc: string; eliminado?: boolean }[]>([])
 
 const deleteCangurMessage = computed(() => {
   if (!pendingDeleteCangur.value) return ''
@@ -224,13 +224,13 @@ onMounted(async () => {
     if (navigator.onLine) {
       // Load cangurs
       const cangursSnapshot = await getDocs(collection(db, 'users', user.uid, 'cangurs'))
-      cangurs.value = cangursSnapshot.docs.map(d => ({ id: d.id, nom: d.data().name, parentesc: d.data().parentesc || '' }))
-      localStorage.setItem('localCangurs', JSON.stringify(cangurs.value))
-
-      // Load nadó (only one)
+      cangurs.value = cangursSnapshot.docs
+        .filter(d => !d.data().eliminado)
+        .map(d => ({ id: d.id, nom: d.data().name, parentesc: d.data().parentesc || '', eliminado: !!d.data().eliminado }))
       const nadonsSnapshot = await getDocs(collection(db, 'users', user.uid, 'nadons'))
-      if (!nadonsSnapshot.empty) {
-        const nadoDoc = nadonsSnapshot.docs[0]
+      const validNadons = nadonsSnapshot.docs.filter(d => !d.data().eliminado)
+      if (validNadons.length) {
+        const nadoDoc = validNadons[0]
         nadoId.value = nadoDoc.id
         nadoName.value = nadoDoc.data().name || ''
         setmanesName.value = nadoDoc.data().setmanes?.toString() || ''
@@ -295,15 +295,16 @@ const afegirCangur = async () => {
     const docRef = await addDoc(collection(db, 'users', userIdToUse, 'cangurs'), { 
       name, 
       parentesc, 
-      createdAt: new Date() 
+      createdAt: new Date(),
+      eliminado: false
     })
-    cangurs.value.push({ id: docRef.id, nom: name, parentesc: parentesc })
+    cangurs.value.push({ id: docRef.id, nom: name, parentesc: parentesc, eliminado: false })
   } else {
     const tempId = `local-${Date.now()}-${Math.random().toString(36).slice(2,6)}`
-    cangurs.value.push({ id: tempId, nom: name, parentesc: parentesc })
+    cangurs.value.push({ id: tempId, nom: name, parentesc: parentesc, eliminado: false })
     localStorage.setItem('localCangurs', JSON.stringify(cangurs.value))
 
-    offlineService.addPending('cangurs', { name, parentesc, createdAt: new Date() }, userIdToUse)
+    offlineService.addPending('cangurs', { name, parentesc, createdAt: new Date(), eliminado: false }, userIdToUse)
   }
 
   nouCangur.value = ''
@@ -334,9 +335,9 @@ const deleteCangurConfirmed = async () => {
 
   if (c.id && !c.id.startsWith('local-')) {
     try {
-      await deleteDoc(doc(db, 'users', user.uid, 'cangurs', c.id))
+      await updateDoc(doc(db, 'users', user.uid, 'cangurs', c.id), { eliminado: true })
     } catch (e) {
-      console.error('Error esborrant cangur:', e)
+      console.error('Error marcant cangur com eliminat:', e)
       toastMessage.value = 'No s\'ha pogut eliminar el cangur. Torna-ho a intentar.'
       estaOk.value = true
       pendingDeleteCangur.value = null
@@ -363,7 +364,7 @@ const desar = async () => {
   for (let i = 0; i < cangurs.value.length; i++) {
     const c = cangurs.value[i]
     if (!c.id || c.id.startsWith('local-') || c.id.startsWith('local-reg-')) {
-      const payload = { name: c.nom, parentesc: c.parentesc, createdAt: new Date() }
+      const payload = { name: c.nom, parentesc: c.parentesc, createdAt: new Date(), eliminado: false }
       try {
         if (navigator.onLine && userIdToUse) {
           const docRef = await addDoc(collection(db, 'users', userIdToUse, 'cangurs'), payload)
@@ -383,6 +384,7 @@ const desar = async () => {
         name: nadoName.value,
         setmanes: setmanesName.value ? parseInt(setmanesName.value) : null,
         dies: diesName.value ? parseInt(diesName.value) : null,
+        eliminado: false
       }
       console.log('Saving nadó:', { nadoId: nadoId.value, data: nadoData, userIdToUse, isOnline: navigator.onLine })
       if (nadoId.value) {

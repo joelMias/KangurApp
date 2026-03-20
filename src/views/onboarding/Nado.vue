@@ -118,7 +118,8 @@ const Registre = async () => {
       name: nomNado.value,
       setmanes: setmanes.value,
       dies: dies.value,
-      createdAt: new Date()
+      createdAt: new Date(),
+      eliminado: false
     }
 
     let nadoFinalId = ''

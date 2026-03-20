@@ -293,7 +293,8 @@ const guardarSessio = async () => {
       motiuFinal: motiuFinal.value,
       dia,
       hora,
-      createdAt: now
+      createdAt: now,
+      eliminado: false
     }
 
     if (navigator.onLine) {

@@ -66,15 +66,15 @@ import { ref, onMounted } from 'vue'
 import { addOutline, personOutline, trashOutline } from 'ionicons/icons'
 import { useRouter } from 'vue-router'
 import { db, auth } from '@/services/firebase'
-import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore'
+import { collection, addDoc, getDocs, updateDoc, doc } from 'firebase/firestore'
 import offlineService from '@/services/offline.service'
 import AppLayout from '@/components/AppLayout.vue'
 import RegistrationProgress from '@/components/RegistrationProgress.vue'
 
 const router = useRouter()
 
-// Ara cada cangur té { id, nom, parentesc }
-const cangurs = ref<{ id: string; nom: string; parentesc: string }[]>([])
+// Ara cada cangur té { id, nom, parentesc, eliminado }
+const cangurs = ref<{ id: string; nom: string; parentesc: string; eliminado?: boolean }[]>([])
 const nouCangur = ref('')
 const error = ref('')
 const loading = ref(false)
@@ -98,11 +98,14 @@ onMounted(async () => {
   if (navigator.onLine) {
     try {
       const snapshot = await getDocs(collection(db, 'users', user.uid, 'cangurs'))
-      loadedCangurs = snapshot.docs.map(d => ({
-        id: d.id,
-        nom: d.data().name,
-        parentesc: d.data().parentesc || ''
-      }))
+      loadedCangurs = snapshot.docs
+        .filter(d => !d.data().eliminado)
+        .map(d => ({
+          id: d.id,
+          nom: d.data().name,
+          parentesc: d.data().parentesc || '',
+          eliminado: !!d.data().eliminado
+        }))
       
       localStorage.setItem('localCangurs', JSON.stringify(loadedCangurs))
     } catch (error) {
@@ -136,15 +139,16 @@ const afegirCangur = async () => {
     const docRef = await addDoc(collection(db, 'users', userIdToUse, 'cangurs'), {
       name,
       parentesc: nouParentesc.value,
-      createdAt: new Date()
+      createdAt: new Date(),
+      eliminado: false
     })
-    cangurs.value.push({ id: docRef.id, nom: name, parentesc: nouParentesc.value })
+    cangurs.value.push({ id: docRef.id, nom: name, parentesc: nouParentesc.value, eliminado: false })
   } else {
     const tempId = `local-${Date.now()}-${Math.random().toString(36).slice(2,6)}`
-    cangurs.value.push({ id: tempId, nom: name, parentesc: nouParentesc.value })
+    cangurs.value.push({ id: tempId, nom: name, parentesc: nouParentesc.value, eliminado: false })
 
     localStorage.setItem('localCangurs', JSON.stringify(cangurs.value))
-    offlineService.addPending('cangurs', { name, parentesc: nouParentesc.value, createdAt: new Date() }, userIdToUse)
+    offlineService.addPending('cangurs', { name, parentesc: nouParentesc.value, createdAt: new Date(), eliminado: false }, userIdToUse)
   }
   nouCangur.value = ''
   nouParentesc.value = ''
@@ -156,7 +160,16 @@ const eliminarCangur = async (index: number) => {
   if (!user) return
   const cangur = cangurs.value[index]
   if (!cangur) return
-  await deleteDoc(doc(db, 'users', user.uid, 'cangurs', cangur.id))
+
+  if (cangur.id && !cangur.id.startsWith('local-')) {
+    try {
+      await updateDoc(doc(db, 'users', user.uid, 'cangurs', cangur.id), { eliminado: true })
+    } catch (error) {
+      console.warn('No s\'ha pogut marcar cangur com eliminat', error)
+      return
+    }
+  }
+
   cangurs.value.splice(index, 1)
 }
 
@@ -176,7 +189,7 @@ const guardarCangurs = async () => {
   for (let i = 0; i < cangurs.value.length; i++) {
     const c = cangurs.value[i]
     if (!c.id || c.id.startsWith('local-') || c.id.startsWith('local-reg-')) {
-      const payload = { name: c.nom, parentesc: c.parentesc, createdAt: new Date() }
+      const payload = { name: c.nom, parentesc: c.parentesc, createdAt: new Date(), eliminado: false }
       try {
         if (navigator.onLine) {
           const docRef = await addDoc(collection(db, 'users', userIdToUse, 'cangurs'), payload)

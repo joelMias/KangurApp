@@ -144,7 +144,8 @@ const registrar = async () => {
       dia: horaNormal,
       horaEntrada: entryTime.value,
       horaSortida: exitTime.value,
-      createdAt: new Date()
+      createdAt: new Date(),
+      eliminado: false
     }
 
     if (navigator.onLine) {
