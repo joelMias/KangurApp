@@ -30,9 +30,7 @@
       <IonRow class="ion-justify-content-center ion-margin-top">
         <IonCol size="12" size-md="6">
           <IonItem lines="none" class="search-item">
-            <IonInput :value="searchQuery" @ionInput="searchQuery = String($event.target.value)" :debounce="300"
-              placeholder="Cerca per nom de nadó o correu...">
-            </IonInput>
+            <IonInput v-model="searchQuery" :debounce="300" placeholder="Cerca per nom de nadó o correu..." />
           </IonItem>
         </IonCol>
       </IonRow>
@@ -171,9 +169,7 @@
           </IonButtons>
         </IonToolbar>
         <IonToolbar>
-          <IonSearchbar :value="userSearchModal" placeholder="Cerca per nom o email..."
-            @ionInput="userSearchModal = String($event.target.value)" :debounce="200">
-          </IonSearchbar>
+          <IonSearchbar v-model="userSearchModal" placeholder="Cerca per nom o email..." :debounce="200" />
         </IonToolbar>
       </IonHeader>
       <IonContent>
@@ -204,7 +200,7 @@
 import {
   IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardContent,
   IonLabel, IonSegment, IonSegmentButton, IonLoading, IonText, IonAvatar,
-  onIonViewDidEnter, IonSpinner, IonItem, IonToggle, 
+  onIonViewDidEnter, IonSpinner, IonItem, IonInput, IonToggle, 
   IonBadge, IonModal, IonHeader, IonToolbar, IonTitle,
   IonButtons, IonContent, IonList, IonCheckbox, IonSearchbar, IonToast
 } from '@ionic/vue'

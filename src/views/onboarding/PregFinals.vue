@@ -110,7 +110,6 @@ onMounted(() => {
   userSummary.value.email = localStorage.getItem('email') || ''
 
   try {
-    // Asegúrate de que las claves coincidan EXACTAMENTE con las de los pasos anteriores
     const nadonsRaw = localStorage.getItem('localnadons') || '[]'
     const cangursRaw = localStorage.getItem('localCangurs') || '[]'
     
@@ -126,13 +125,11 @@ function finishRegister() {
 }
 
 async function confirmFinish() {
-  // Evitar doble clic si ya está cargando
   if (loading.value) return;
   
   await finalitzar()
   showSummaryModal.value = false
-  // Forzamos la navegación al final de todo
-  router.replace('/HomePage')
+  router.replace('/login')
 }
 
 const isValid = computed(() => {
@@ -156,7 +153,6 @@ const finalitzar = async () => {
   try {
     const dadesEnquesta = {
       pellAmbPellImmediat: fetImmediat.value,
-      // Aseguramos que sea un número antes de enviarlo a Firebase
       tempsPellAmbPellImmediat: fetImmediat.value === 'si' ? Number(tempsImmediat.value) : 0,
       setupCompletat: true,
       dataRegistreFinalitzat: new Date()
@@ -165,7 +161,6 @@ const finalitzar = async () => {
     const userRef = doc(db, 'users', uid)
     await updateDoc(userRef, dadesEnquesta)
     
-    // Opcional: Limpiar flags de registro si fuera necesario
     console.log("Registre finalitzat amb èxit")
     
   } catch (e: any) {
