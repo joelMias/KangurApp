@@ -79,7 +79,7 @@ async function getUserData(userId: string) {
   try {
     const userDoc = await getDoc(doc(db, 'users', userId));
     if (userDoc.exists()) {
-      return { uid: userDoc.id, ...userDoc.data() };
+      return { uid: userDoc.id, ...userDoc.data() } as any;
     }
     throw new Error("L'usuari no existeix");
   } catch (error) {

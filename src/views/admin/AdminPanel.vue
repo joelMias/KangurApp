@@ -62,10 +62,13 @@
                   </IonCol>
                   <IonCol size="12" size-md="4" class="ion-text-md-end ion-text-center admin-actions">
                     <IonItem lines="none" class="admin-toggle-item">
-                      <IonLabel>Administrador</IonLabel>
-                      <IonToggle :disabled="currentRole !== 'admin'" :checked="user.rol === 'admin'"
-                        @ionChange="(event) => onToggleChange(user.uid, event)">
-                      </IonToggle>
+                      <IonLabel>Rol del usuari</IonLabel>
+                      <IonSelect :disabled="currentRole !== 'admin'" placeholder="Selecciona rol" :value="user.rol"
+                        @ionChange="(event) => onRoleChange(user.uid, event.detail.value)">
+                        <IonSelectOption value="usuari">Usuari</IonSelectOption>
+                        <IonSelectOption value="admin">Admin</IonSelectOption>
+                        <IonSelectOption value="gestor">Gestor</IonSelectOption>
+                      </IonSelect>
                     </IonItem>
                     <IonSpinner v-if="isSavingAdminId === user.uid" name="dots" color="primary"></IonSpinner>
                   </IonCol>
@@ -200,7 +203,7 @@
 import {
   IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardContent,
   IonLabel, IonSegment, IonSegmentButton, IonLoading, IonText, IonAvatar,
-  onIonViewDidEnter, IonSpinner, IonItem, IonInput, IonToggle, 
+  onIonViewDidEnter, IonSpinner, IonItem, IonInput, IonSelect, IonSelectOption,
   IonBadge, IonModal, IonHeader, IonToolbar, IonTitle,
   IonButtons, IonContent, IonList, IonCheckbox, IonSearchbar, IonToast
 } from '@ionic/vue'
@@ -345,8 +348,16 @@ async function exportSessionsCSV() {
   link.setAttribute('href', url); link.setAttribute('download', result.filename!); link.click()
 }
 
-function onToggleChange(userId: string, event: any) {
-  toggleAdmin(userId, event.detail.checked ? 'admin' : 'usuari')
+function onRoleChange(userId: string, newRole: string) {
+  if (currentRole.value !== 'admin') {
+    toastMessage.value = 'Només els administradors poden canviar rols.'
+    toastColor.value = 'warning'
+    showToast.value = true
+    return
+  }
+
+  if (!newRole || !['usuari', 'admin', 'gestor'].includes(newRole)) return
+  toggleAdmin(userId, newRole)
 }
 
 function formatDate(date: any) {
@@ -409,7 +420,15 @@ onIonViewDidEnter(async () => {
   if (!user) return router.push('/login')
   const hasAccess = await adminService.getCurrentUserAdminStatus()
   if (!hasAccess) return router.back()
-  currentRole.value = 'admin'
+
+  try {
+    const me = await adminService.getUserData(user.uid)
+    currentRole.value = me?.rol || 'usuari';
+  } catch (err) {
+    console.warn('No s’ha pogut obtenir el rol de l’usuari actual', err)
+    currentRole.value = 'admin'
+  }
+
   await loadAdminData()
 })
 </script>

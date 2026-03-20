@@ -48,8 +48,8 @@
     </IonGrid>
 
     <IonModal :is-open="showSummaryModal" @didDismiss="showSummaryModal = false">
-      <IonContent class="ion-padding">
-        <h2 style="text-align: center;">Resum del registre</h2>
+      <IonContent class="ion-padding summary-modal-content">
+        <h2 class="summary-modal-title">Resum del registre</h2>
         <hr />
         <p><strong>Nom:</strong> {{ userSummary.name }}</p>
         <p><strong>Email:</strong> {{ userSummary.email }}</p>
@@ -174,7 +174,7 @@ const finalitzar = async () => {
 
 <style scoped>
 ion-radio {
-    --size: 20px;
+  --size: 20px;
   --color: #ccc;
   --color-checked: var(--ion-color-primary);
   width: 20px;
@@ -190,5 +190,24 @@ ion-radio::part(container) {
 
 ion-radio.radio-checked::part(container) {
   border-color: var(--color-checked);
+}
+
+.summary-modal-content {
+  background: #f8fffdf0;
+}
+
+.summary-modal-title {
+  text-align: center;
+  color: var(--ion-color-primary) !important;
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.summary-modal-content p,
+.summary-modal-content ul {
+  color: #314444;
+  line-height: 1.5;
 }
 </style>
