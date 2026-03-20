@@ -97,6 +97,15 @@ http://ionicframework.com/docs/theming/ */
   box-shadow: none;
 }
 
+html,
+body,
+ion-app,
+ion-router-outlet,
+ion-content {
+  overflow: hidden !important;
+  height: 100vh !important;
+}
+
 .full-height {
   height: 100%;
 }

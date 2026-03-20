@@ -3,7 +3,7 @@
     <div class="centered-wrapper">
       <h2 class="titol">Iniciar pell amb pell</h2>
       <div class="ion-text-center">
-        <img src="/src/assets/kangur_new.png" alt="KangurApp Logo"
+        <img :src="kangurImg" alt="KangurApp Logo"
               :class="{ 'imatge_pulse': estaActiu }"
               class="crono-img" />
       </div>
@@ -69,6 +69,7 @@ import { documentTextOutline } from 'ionicons/icons'
 import AppLayout from '@/components/AppLayout.vue'
 import { useRouter } from 'vue-router'
 import { setCronoTemp } from '@/stores/temps'
+import kangurImg from '@/assets/kangur_new.png'
 
 // Firebase
 import { db, auth } from '@/services/firebase'
