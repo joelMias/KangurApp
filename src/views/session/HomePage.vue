@@ -17,14 +17,14 @@
           </div>
         </IonButton>
 
-        <IonButton fill="outline" size="large" expand="block" @click="registre" class="big-button green-button">
+        <!--<IonButton fill="outline" size="large" expand="block" @click="registre" class="big-button green-button">
           <div class="button-content">
             <div class="button-icon">
               <IonIcon :icon="businessOutline" size="large" />
             </div>
             <strong><IonLabel>Registre entrada unitat</IonLabel></strong>
           </div>
-        </IonButton>
+        </IonButton>-->
       </div>
     </div>
     <template #footer>

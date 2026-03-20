@@ -101,7 +101,7 @@
                 </IonCol>
             </IonRow>
 
-            <IonRow>
+            <!--<IonRow>
                 <IonCol size="12" size-md="10" size-lg="8" offset-md="1" offset-lg="2">
                     <IonCard class="chart-card">
                         <IonCardHeader>
@@ -112,7 +112,7 @@
                         </IonCardContent>
                     </IonCard>
                 </IonCol>
-            </IonRow>
+            </IonRow>-->
         </IonGrid>
 
         <!-- vista llistat -->
