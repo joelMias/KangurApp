@@ -50,7 +50,7 @@
         </IonGrid>
       </IonCard>
 
-      <!-- Seccio Estada Unitat -->
+      <!-- Seccio Estada Unitat
       <IonCard class="mini-card">        
         <IonGrid>
           <IonRow class="ion-text-start">
@@ -80,7 +80,7 @@
             </IonCol>
           </IonRow>
         </IonGrid>
-      </IonCard>
+      </IonCard>-->
 
       <!-- Seccio Cangurs -->
       <IonCard class="mini-card">
@@ -105,7 +105,7 @@
                 <IonItem v-for="(c, i) in cangurs" :key="c.id">
                   <IonIcon :icon="personOutline" slot="start" />
                   <IonLabel>{{ c.nom }} <small>({{ c.parentesc }})</small></IonLabel>
-                  <IonButton fill="clear" color="dark" slot="end" @click="eliminarCangur(i)">
+                  <IonButton fill="clear" color="dark" slot="end" @click="confirmDeleteCangur(i)">
                     <IonIcon :icon="trashOutline" />
                   </IonButton>
                 </IonItem>
@@ -145,14 +145,23 @@
         </IonButton>
       </div>
     </div>
+  <IonAlert
+    :is-open="showDeleteCangurAlert"
+    header="Confirmació"
+    sub-header="Esborrar cangur"
+    :message="deleteCangurMessage"
+    :buttons="deleteCangurButtons"
+    @didDismiss="() => { showDeleteCangurAlert = false; pendingDeleteCangur = null }"
+  />
+
   <IonToast :is-open="estaOk" :icon="checkbox" :message="toastMessage" :duration="3000" position="bottom" @didDismiss="estaOk = false" color="primary"/>
   </AppLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { IonButton, IonText, IonIcon, IonList, IonItem, IonLabel, IonInput, IonGrid, IonRow, IonCol, IonToast, IonCard, IonSelect, IonSelectOption} from '@ionic/vue'
+import { IonButton, IonText, IonIcon, IonList, IonItem, IonLabel, IonInput, IonGrid, IonRow, IonCol, IonToast, IonAlert, IonCard, IonSelect, IonSelectOption } from '@ionic/vue'
 import { addOutline, personOutline, trashOutline, checkbox } from 'ionicons/icons'
 import AppLayout from '@/components/AppLayout.vue'
 
@@ -164,7 +173,31 @@ import offlineService from '@/services/offline.service'
 const router = useRouter()
 const toastMessage = ref('')
 const estaOk = ref(false)
+const showDeleteCangurAlert = ref(false)
+const pendingDeleteCangur = ref<{ index: number; nom: string } | null>(null)
 const cangurs = ref<{ id: string; nom: string; parentesc: string }[]>([])
+
+const deleteCangurMessage = computed(() => {
+  if (!pendingDeleteCangur.value) return ''
+  return `Segur que vols eliminar el cangur ${pendingDeleteCangur.value.nom}?`
+})
+
+const deleteCangurButtons = computed(() => [
+  {
+    text: 'Cancel·lar',
+    role: 'cancel',
+    cssClass: 'secondary',
+    handler: () => {
+      showDeleteCangurAlert.value = false
+      pendingDeleteCangur.value = null
+    }
+  },
+  {
+    text: 'Eliminar',
+    handler: () => deleteCangurConfirmed()
+  }
+])
+
 const nouCangur = ref('')
 const nadoName = ref('')
 const nadoId = ref<string | null>(null)
@@ -256,10 +289,9 @@ const afegirCangur = async () => {
   const fallbackUid = localStorage.getItem('uid')
   const userIdToUse = user?.uid ?? fallbackUid ?? ''
   const name = nouCangur.value.trim()
-  const parentesc = nouParentesc.value // Guardamos el valor actual
+  const parentesc = nouParentesc.value
 
   if (navigator.onLine && userIdToUse) {
-    // AÑADIR parentesc AQUÍ
     const docRef = await addDoc(collection(db, 'users', userIdToUse, 'cangurs'), { 
       name, 
       parentesc, 
@@ -270,7 +302,7 @@ const afegirCangur = async () => {
     const tempId = `local-${Date.now()}-${Math.random().toString(36).slice(2,6)}`
     cangurs.value.push({ id: tempId, nom: name, parentesc: parentesc })
     localStorage.setItem('localCangurs', JSON.stringify(cangurs.value))
-    // AÑADIR parentesc AQUÍ TAMBIÉN
+
     offlineService.addPending('cangurs', { name, parentesc, createdAt: new Date() }, userIdToUse)
   }
 
@@ -278,19 +310,47 @@ const afegirCangur = async () => {
   nouParentesc.value = ''
 }
 
-const eliminarCangur = async (index: number) => {
-  const user = auth.currentUser
-
-  if (!user) return
-
+const confirmDeleteCangur = (index: number) => {
   const c = cangurs.value[index]
-
   if (!c) return
 
-  if (c.id && !c.id.startsWith('local-')) {
-    await deleteDoc(doc(db, 'users', user.uid, 'cangurs', c.id))
+  pendingDeleteCangur.value = { index, nom: c.nom }
+  showDeleteCangurAlert.value = true
+}
+
+const deleteCangurConfirmed = async () => {
+  if (!pendingDeleteCangur.value) return
+  const { index, nom } = pendingDeleteCangur.value
+
+  const c = cangurs.value[index]
+  if (!c) {
+    pendingDeleteCangur.value = null
+    showDeleteCangurAlert.value = false
+    return
   }
+
+  const user = auth.currentUser
+  if (!user) return
+
+  if (c.id && !c.id.startsWith('local-')) {
+    try {
+      await deleteDoc(doc(db, 'users', user.uid, 'cangurs', c.id))
+    } catch (e) {
+      console.error('Error esborrant cangur:', e)
+      toastMessage.value = 'No s\'ha pogut eliminar el cangur. Torna-ho a intentar.'
+      estaOk.value = true
+      pendingDeleteCangur.value = null
+      showDeleteCangurAlert.value = false
+      return
+    }
+  }
+
   cangurs.value.splice(index, 1)
+  localStorage.setItem('localCangurs', JSON.stringify(cangurs.value))
+  toastMessage.value = `Cangur ${nom} eliminat correctament.`
+  estaOk.value = true
+  pendingDeleteCangur.value = null
+  showDeleteCangurAlert.value = false
 }
 
 const desar = async () => {

@@ -53,14 +53,14 @@
                       </div>
                     </div>
                   </IonCol>
-                  <IonCol size="12" size-md="3" class="ion-text-md-center stats-col">
+                  <IonCol size="12" size-md="3" class="stats-col">
                     <div class="stat-item">Nadons: <strong>{{ user.nadons.length }}</strong></div>
                     <div class="stat-item">Sessions: <strong>{{ user.cronometres.length }}</strong></div>
                     <div v-if="user.cangurs.length" class="stat-item cangurs-list">
                       Cangurs: <span>{{ getCangursList(user.cangurs) }}</span>
                     </div>
                   </IonCol>
-                  <IonCol size="12" size-md="4" class="ion-text-md-end ion-text-center admin-actions">
+                  <IonCol size="12" size-md="4" class="admin-actions">
                     <IonItem lines="none" class="admin-toggle-item">
                       <IonLabel>Rol del usuari</IonLabel>
                       <IonSelect :disabled="currentRole !== 'admin'" placeholder="Selecciona rol" :value="user.rol"
@@ -71,6 +71,15 @@
                       </IonSelect>
                     </IonItem>
                     <IonSpinner v-if="isSavingAdminId === user.uid" name="dots" color="primary"></IonSpinner>
+                    <IonButton
+                      fill="clear"
+                      color="danger"
+                      :disabled="currentRole !== 'admin' || isSavingAdminId === user.uid"
+                      @click="confirmDeleteUser(user.uid, user.name)"
+                      size="small"
+                    >
+                      <IonIcon :icon="trashOutline" />
+                    </IonButton>
                   </IonCol>
                 </IonRow>
               </IonCardContent>
@@ -153,6 +162,16 @@
                   <div class="s-date">{{ formatDate(crono.createdAt) }}</div>
                   <div class="s-duration">{{ formatSecondsToMMSS(crono.temps) }}</div>
                 </div>
+                <IonButton
+                  fill="clear"
+                  color="danger"
+                  class="session-delete-btn"
+                  :disabled="currentRole !== 'admin'"
+                  @click="confirmDeleteSession(crono.userId, crono.sessionId, crono.nadoNom || 'sessió')"
+                  size="small"
+                >
+                  <IonIcon :icon="trashOutline" />
+                </IonButton>
               </div>
             </IonCardContent>
           </IonCard>
@@ -162,6 +181,24 @@
 
     <IonToast :is-open="showToast" :message="toastMessage" :color="toastColor" duration="3000"
       @didDismiss="showToast = false" />
+
+    <IonAlert
+      :is-open="showDeleteUserAlert"
+      header="Confirmació"
+      sub-header="Esborrar usuari"
+      :message="`Segur que vols eliminar l'usuari ${pendingDeleteUser?.name || ''}?`"
+      :buttons="deleteUserButtons"
+      @didDismiss="() => { showDeleteUserAlert = false; pendingDeleteUser = null }"
+    />
+
+    <IonAlert
+      :is-open="showDeleteSessionAlert"
+      header="Confirmació"
+      sub-header="Esborrar sessió"
+      :message="`Segur que vols eliminar aquesta sessió de ${pendingDeleteSession?.sessionLabel || ''}?`"
+      :buttons="deleteSessionButtons"
+      @didDismiss="() => { showDeleteSessionAlert = false; pendingDeleteSession = null }"
+    />
 
     <IonModal :is-open="isModalOpen" @didDismiss="isModalOpen = false">
       <IonHeader>
@@ -204,10 +241,10 @@ import {
   IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardContent,
   IonLabel, IonSegment, IonSegmentButton, IonLoading, IonText, IonAvatar,
   onIonViewDidEnter, IonSpinner, IonItem, IonInput, IonSelect, IonSelectOption,
-  IonBadge, IonModal, IonHeader, IonToolbar, IonTitle,
+  IonBadge, IonAlert, IonModal, IonHeader, IonToolbar, IonTitle,
   IonButtons, IonContent, IonList, IonCheckbox, IonSearchbar, IonToast
 } from '@ionic/vue'
-import { downloadOutline, chevronForwardOutline, mailOutline, calendarOutline } from 'ionicons/icons'
+import { downloadOutline, chevronForwardOutline, mailOutline, calendarOutline, trashOutline } from 'ionicons/icons'
 import AppLayout from '@/components/AppLayout.vue'
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
@@ -231,6 +268,11 @@ const selectedExportUsers = ref<string[]>([])
 const showToast = ref(false)
 const toastMessage = ref('')
 const toastColor = ref('success')
+
+const showDeleteUserAlert = ref(false)
+const showDeleteSessionAlert = ref(false)
+const pendingDeleteUser = ref<{id: string; name: string} | null>(null)
+const pendingDeleteSession = ref<{userId: string; sessionId: string; sessionLabel: string} | null>(null)
 
 const exportDateFromRef = ref<HTMLInputElement | null>(null)
 const exportDateToRef = ref<HTMLInputElement | null>(null)
@@ -277,6 +319,38 @@ const filteredUsersModal = computed(() => {
 const isAllSelected = computed(() => {
   return allUsers.value.length > 0 && selectedExportUsers.value.length === allUsers.value.length
 });
+
+const deleteUserButtons = computed(() => [
+  {
+    text: 'Cancel·lar',
+    role: 'cancel',
+    cssClass: 'secondary',
+    handler: () => {
+      showDeleteUserAlert.value = false
+      pendingDeleteUser.value = null
+    }
+  },
+  {
+    text: 'Eliminar',
+    handler: deleteUserConfirmed
+  }
+])
+
+const deleteSessionButtons = computed(() => [
+  {
+    text: 'Cancel·lar',
+    role: 'cancel',
+    cssClass: 'secondary',
+    handler: () => {
+      showDeleteSessionAlert.value = false
+      pendingDeleteSession.value = null
+    }
+  },
+  {
+    text: 'Eliminar',
+    handler: deleteSessionConfirmed
+  }
+])
 
 const toggleSelectAll = (event: any) => {
   if (event.detail.checked) {
@@ -360,6 +434,78 @@ function onRoleChange(userId: string, newRole: string) {
   toggleAdmin(userId, newRole)
 }
 
+function confirmDeleteUser(userId: string, userName: string) {
+  if (currentRole.value !== 'admin') {
+    toastMessage.value = 'Només els administradors poden esborrar usuaris.'
+    toastColor.value = 'warning'
+    showToast.value = true
+    return
+  }
+
+  pendingDeleteUser.value = { id: userId, name: userName }
+  showDeleteUserAlert.value = true
+}
+
+async function deleteUserConfirmed() {
+  if (!pendingDeleteUser.value) return
+
+  const { id, name } = pendingDeleteUser.value
+  pendingDeleteUser.value = null
+  showDeleteUserAlert.value = false
+
+  try {
+    isSavingAdminId.value = id
+    await adminService.deleteUser(id)
+    toastMessage.value = `Usuari ${name} eliminat correctament.`
+    toastColor.value = 'success'
+    showToast.value = true
+    await loadAdminData()
+  } catch (error) {
+    console.error('Error esborrant usuari:', error)
+    toastMessage.value = 'Error esborrant usuari. Torna-ho a intentar.'
+    toastColor.value = 'danger'
+    showToast.value = true
+  } finally {
+    isSavingAdminId.value = ''
+  }
+}
+
+function confirmDeleteSession(userId: string, sessionId: string, sessionLabel: string) {
+  if (currentRole.value !== 'admin') {
+    toastMessage.value = 'Només els administradors poden esborrar sessions.'
+    toastColor.value = 'warning'
+    showToast.value = true
+    return
+  }
+
+  pendingDeleteSession.value = { userId, sessionId, sessionLabel }
+  showDeleteSessionAlert.value = true
+}
+
+async function deleteSessionConfirmed() {
+  if (!pendingDeleteSession.value) return
+
+  const { userId, sessionId, sessionLabel } = pendingDeleteSession.value
+  pendingDeleteSession.value = null
+  showDeleteSessionAlert.value = false
+
+  try {
+    isSavingAdminId.value = userId
+    await adminService.deleteSession(userId, sessionId)
+    toastMessage.value = `Sessió ${sessionLabel} eliminada correctament.`
+    toastColor.value = 'success'
+    showToast.value = true
+    await loadAdminData()
+  } catch (error) {
+    console.error('Error esborrant sessió:', error)
+    toastMessage.value = 'Error esborrant sessió. Torna-ho a intentar.'
+    toastColor.value = 'danger'
+    showToast.value = true
+  } finally {
+    isSavingAdminId.value = ''
+  }
+}
+
 function formatDate(date: any) {
   if (!date) return '-'
   const d = date.toDate ? date.toDate() : new Date(date)
@@ -384,6 +530,8 @@ async function loadAdminData() {
     data.forEach(u => u.cronometres.forEach((c: any) => list.push({
       ...c,
       id: `${u.uid}-${c.id}`,
+      sessionId: c.id,
+      userId: u.uid,
       userName: u.name,
       userEmail: u.email,
       cangurNom: c.cangurNom || 'Desconegut',
@@ -482,9 +630,32 @@ onIonViewDidEnter(async () => {
   color: #26a69a;
 }
 
-.admin-toggle-item {
-  --background: transparent;
-  font-weight: 600;
+.admin-toggle-item{
+  width: 70%;
+}
+
+.stats-col {
+  text-align: left;
+}
+
+.admin-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 100px;
+  flex-wrap: wrap;
+}
+
+.admin-actions .ion-item {
+  width: auto;
+  max-width: 180px;
+}
+
+.admin-actions .ion-button,
+.admin-actions ion-select {
+  min-width: 120px;
 }
 
 .export-panel-compact {

@@ -1,5 +1,5 @@
 import { auth, db } from './firebase'
-import { collection, getDocs, doc, getDoc, updateDoc } from 'firebase/firestore'
+import { collection, getDocs, doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore'
 
 /**
  * Obtenir totes les dades de la base de dades (només per superusuaris)
@@ -54,6 +54,45 @@ async function getAllUsersData() {
     return allUsersData
   } catch (error) {
     console.error('Error obtenint les dades de tots els usuaris:', error)
+    throw error
+  }
+}
+
+/**
+ * Esborrar un usuari
+ */
+async function deleteUser(userId: string) {
+  try {
+    const userRef = doc(db, 'users', userId)
+
+    // Esborrem subcol·leccions si es vol (cronometres, nadons, cangurs)
+    const subCollections = ['cronometres', 'nadons', 'cangurs']
+    for (const col of subCollections) {
+      const colRef = collection(db, 'users', userId, col)
+      const colSnap = await getDocs(colRef)
+      for (const docItem of colSnap.docs) {
+        await deleteDoc(doc(db, 'users', userId, col, docItem.id))
+      }
+    }
+
+    await deleteDoc(userRef)
+    return { success: true }
+  } catch (error) {
+    console.error('Error esborrant usuari:', error)
+    throw error
+  }
+}
+
+/**
+ * Esborrar una sessió d'un usuari
+ */
+async function deleteSession(userId: string, sessionId: string) {
+  try {
+    const sessionRef = doc(db, 'users', userId, 'cronometres', sessionId)
+    await deleteDoc(sessionRef)
+    return { success: true }
+  } catch (error) {
+    console.error('Error esborrant sessió:', error)
     throw error
   }
 }
@@ -123,6 +162,8 @@ async function getCurrentUserAdminStatus() {
 export default {
   getAllUsersData,
   updateUserRol,
+  deleteUser,
+  deleteSession,
   getUserData,
   isCurrentUserAdmin,
   getCurrentUserAdminStatus
