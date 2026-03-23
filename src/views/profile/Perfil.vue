@@ -155,24 +155,22 @@
             @didDismiss="showLogoutAlert = false"
           />
 
-          <IonAlert
-            :is-open="showDeleteSessionAlert"
-            header="Esborrar sessió"
-            message="Segur que vols esborrar aquesta sessió?"
-            :buttons="[
-              {
-                text: 'Cancelar',
-                role: 'cancel',
-                handler: cancelDeleteSession
-              },
-              {
-                text: 'Esborrar',
-                role: 'destructive',
-                handler: deleteSessionConfirmed
-              }
-            ]"
-            @didDismiss="cancelDeleteSession"
-          />
+          <IonModal :is-open="showDeleteSessionAlert" @didDismiss="cancelDeleteSession" class="delete-user-modal">
+            <IonContent>
+              <div class="modal-content-compact">
+                <p class="modal-title">Confirmacio</p>
+                <p class="modal-message">Segur que vols eliminar aquesta <strong>sessio</strong>?</p>
+                <div class="modal-buttons-compact">
+                  <IonButton fill="outline" color="medium" @click="cancelDeleteSession">
+                    Cancel·lar
+                  </IonButton>
+                  <IonButton fill="solid" color="primary" @click="deleteSessionConfirmed">
+                    Eliminar
+                  </IonButton>
+                </div>
+              </div>
+            </IonContent>
+          </IonModal>
           
           <IonToast 
             :is-open="showErrorToast" 
@@ -183,11 +181,20 @@
             @didDismiss="showErrorToast = false" 
           />
 
+          <IonToast 
+            :is-open="showSuccessToast" 
+            :message="successMessage" 
+            :duration="3000" 
+            position="bottom" 
+            color="primary"
+            @didDismiss="showSuccessToast = false" 
+          />
+
   </AppLayout>
 </template>
 
 <script setup lang="ts">
-import { IonButton, IonLoading, IonGrid, IonCol, IonRow, IonIcon, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonAlert, IonToast, onIonViewDidEnter, IonList, IonItem, IonLabel, IonRefresher, IonRefresherContent } from '@ionic/vue'
+import { IonButton, IonLoading, IonGrid, IonCol, IonRow, IonIcon, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonAlert, IonToast, IonModal, IonContent, onIonViewDidEnter, IonList, IonItem, IonLabel, IonRefresher, IonRefresherContent } from '@ionic/vue'
 import { chevronBack, folderOpen, barChartOutline, listOutline, arrowForwardOutline, logOutOutline, chevronForward, peopleOutline, shieldOutline, trashOutline } from 'ionicons/icons'
 import AppLayout from '@/components/AppLayout.vue'
 import barChart from '@/views/charts/GrafBarres.vue'
@@ -208,6 +215,9 @@ const showDeleteSessionAlert = ref(false)
 const pendingDeleteSessionId = ref<string | null>(null)
 const showErrorToast = ref(false)
 const errorMessage = ref('')
+const showSuccessToast = ref(false)
+const successMessage = ref('')
+const toastColor = ref('success')
 
 async function confirmLogout() {
   try {
@@ -244,6 +254,8 @@ async function deleteSessionConfirmed() {
     await adminService.deleteSession(user.uid, pendingDeleteSessionId.value)
     allSessions.value = allSessions.value.filter(session => session.id !== pendingDeleteSessionId.value)
     filterDataByWeek()
+    showSuccessToast.value = true
+    successMessage.value = 'Sessió eliminada correctament.'
   } catch (err) {
     console.error('Error esborrant sessió:', err)
     showErrorToast.value = true
@@ -683,6 +695,44 @@ onIonViewDidEnter(() => {
   gap: 8px;
   font-size: 0.95rem;
   color: #333;
+}
+
+.delete-user-modal::part(content) {
+  --height: 25%;
+  max-width: 350px;
+  margin: auto;
+}
+
+.modal-content-compact {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-title {
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0;
+  color: var(--ion-color-primary);
+}
+
+.modal-message {
+  font-size: 0.95rem;
+  color: #555;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.modal-buttons-compact {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.modal-buttons-compact IonButton {
+  flex: 1;
 }
 
 .pull-to-refresh-hint {

@@ -63,8 +63,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onUnmounted, onMounted } from 'vue'
-import { IonIcon, IonLabel, IonToolbar, IonButton, IonFooter, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonToast } from '@ionic/vue'
+import { ref, onUnmounted } from 'vue'
+import { IonIcon, IonLabel, IonToolbar, IonButton, IonFooter, IonGrid, IonRow, IonCol, IonCard, IonCardContent, IonToast, onIonViewWillEnter } from '@ionic/vue'
 import { documentTextOutline } from 'ionicons/icons'
 import AppLayout from '@/components/AppLayout.vue'
 import { useRouter } from 'vue-router'
@@ -91,15 +91,43 @@ const messageIndex = ref(0)
 const currentMessage = ref('')
 const messageKey = ref(`msg-${messageIndex.value}`)
 
-onMounted(async () => {
+const loadCangursFromCache = (): { id: string; name: string }[] => {
+  const raw = localStorage.getItem('localCangurs')
+  if (!raw) return []
+  try {
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+    return parsed
+      .filter((c: any) => !c.eliminado)
+      .map((c: any) => ({ id: c.id, name: c.name || c.nom || '' }))
+      .filter(c => c.name)
+  } catch {
+    return []
+  }
+}
+
+const loadViewData = async () => {
   const user = auth.currentUser
-  if (!user) return
+  if (!user) {
+    cangurs.value = loadCangursFromCache()
+    return
+  }
 
   try {
     const snapshot = await getDocs(collection(db, 'users', user.uid, 'cangurs'))
-    cangurs.value = snapshot.docs.map(d => ({ id: d.id, name: d.data().name }))
+    const fetchedCangurs = snapshot.docs
+      .filter(d => !d.data().eliminado)
+      .map(d => ({ id: d.id, name: d.data().name }))
+      .filter(c => c.name)
 
-    //Recollida de marquesines de firebase colection
+    cangurs.value = fetchedCangurs
+    localStorage.setItem('localCangurs', JSON.stringify(fetchedCangurs))
+  } catch (e) {
+    console.warn('Error loading cangurs, fallback cache:', e)
+    cangurs.value = loadCangursFromCache()
+  }
+
+  try {
     const marquesinesSnapshot = await getDocs(collection(db, 'marquesines'))
     messages.value = marquesinesSnapshot.docs.map(d => d.data().missatge)
 
@@ -108,12 +136,19 @@ onMounted(async () => {
       messageKey.value = `msg-0`
     }
   } catch (e) {
-    console.warn('Error loading data:', e)
+    console.warn('Error loading marquesines:', e)
+  }
+}
+
+onIonViewWillEnter(async () => {
+  await loadViewData()
+  if (cangurs.value.length === 0 && !estaActiu.value) {
+    errorMessage.value = 'Has de definir almenys un cangur a la configuració'
+    showErrorToast.value = true
   }
 })
 
 const openUserGuide = () => {
-  //window.open('/Guia per l\'usuari.pdf', '_blank')
   router.push('/pdf-viewer')
 }
 

@@ -13,9 +13,9 @@
           </IonCol>
         </IonRow>
       </IonGrid>
-      
+
       <!-- Seccio Nadó -->
-      <IonCard class="mini-card">        
+      <IonCard class="mini-card">
         <IonGrid>
           <IonRow class="ion-text-start">
             <IonCol size="12" size-md="6" size-lg="5">
@@ -23,7 +23,7 @@
                 <h2>Nadó</h2>
               </IonText>
             </IonCol>
-          </IonRow>          
+          </IonRow>
           <IonRow>
             <IonCol size="12" class="ion-margin-bottom">
               <IonText color="medium">
@@ -34,17 +34,20 @@
           <IonRow class="ion-justify-content-center">
             <IonCol size="12">
               <IonLabel position="stacked" class="input-label">Nom del nadó</IonLabel>
-              <IonInput v-model="nadoName" placeholder="Nom" fill="outline" class="input-box ion-margin-top ion-margin-bottom" />
+              <IonInput v-model="nadoName" placeholder="Nom" fill="outline"
+                class="input-box ion-margin-top ion-margin-bottom" />
             </IonCol>
           </IonRow>
           <IonRow class="ion-justify-content-center">
             <IonCol size="6">
               <IonLabel position="stacked" class="input-label">Setmanes</IonLabel>
-              <IonInput v-model="setmanesName" placeholder="Setmanes" fill="outline" class="input-box ion-margin-top ion-margin-bottom" />
+              <IonInput v-model="setmanesName" placeholder="Setmanes" fill="outline"
+                class="input-box ion-margin-top ion-margin-bottom" />
             </IonCol>
             <IonCol size="6">
               <IonLabel position="stacked" class="input-label">Dies</IonLabel>
-              <IonInput v-model="diesName" placeholder="Dies" fill="outline" class="input-box ion-margin-top ion-margin-bottom" />
+              <IonInput v-model="diesName" placeholder="Dies" fill="outline"
+                class="input-box ion-margin-top ion-margin-bottom" />
             </IonCol>
           </IonRow>
         </IonGrid>
@@ -105,8 +108,10 @@
                 <IonItem v-for="(c, i) in cangurs" :key="c.id">
                   <IonIcon :icon="personOutline" slot="start" />
                   <IonLabel>{{ c.nom }} <small>({{ c.parentesc }})</small></IonLabel>
-                  <IonButton fill="clear" color="dark" slot="end" @click="confirmDeleteCangur(i)">
-                    <IonIcon :icon="trashOutline" />
+                  <IonButton fill="clear" color="dark" slot="end" :disabled="deletingCangur"
+                    @click="confirmDeleteCangur(i)">
+                    <IonSpinner v-if="deletingCangur" name="dots" />
+                    <IonIcon v-else :icon="trashOutline" />
                   </IonButton>
                 </IonItem>
               </IonList>
@@ -126,9 +131,10 @@
                       <IonSelectOption value="tieta">Tieta</IonSelectOption>
                       <IonSelectOption value="altres">Altres</IonSelectOption>
                     </IonSelect>
-                </IonCol>
+                  </IonCol>
                   <IonCol size="2">
-                    <IonButton class="add-button" expand="block" :disabled="!nouCangur.trim() || !nouParentesc.trim()" @click="afegirCangur">
+                    <IonButton class="add-button" expand="block" :disabled="!nouCangur.trim() || !nouParentesc.trim()"
+                      @click="afegirCangur">
                       <IonIcon :icon="addOutline" />
                     </IonButton>
                   </IonCol>
@@ -136,7 +142,7 @@
               </IonGrid>
             </IonCol>
           </IonRow>
-        </IonGrid>      
+        </IonGrid>
       </IonCard>
 
       <div class="button-container">
@@ -145,23 +151,33 @@
         </IonButton>
       </div>
     </div>
-  <IonAlert
-    :is-open="showDeleteCangurAlert"
-    header="Confirmació"
-    sub-header="Esborrar cangur"
-    :message="deleteCangurMessage"
-    :buttons="deleteCangurButtons"
-    @didDismiss="() => { showDeleteCangurAlert = false; pendingDeleteCangur = null }"
-  />
+    <IonModal :is-open="showDeleteCangurAlert" @didDismiss="() => { showDeleteCangurAlert = false; pendingDeleteCangur = null }" class="delete-user-modal">
+      <IonContent>
+        <div class="modal-content-compact">
+          <p class="modal-title">Confirmacio</p>
+          <p class="modal-message">Segur que vols eliminar el cangur <strong>{{ pendingDeleteCangur?.nom }}</strong>?</p>
+          <div class="modal-buttons-compact">
+            <IonButton fill="outline" color="medium" @click="() => { showDeleteCangurAlert = false; pendingDeleteCangur = null }">
+              Cancel·lar
+            </IonButton>
+            <IonButton fill="solid" color="primary" @click="deleteCangurConfirmed">
+              Eliminar
+            </IonButton>
+          </div>
+        </div>
+      </IonContent>
+    </IonModal>
 
-  <IonToast :is-open="estaOk" :icon="checkbox" :message="toastMessage" :duration="3000" position="bottom" @didDismiss="estaOk = false" color="primary"/>
+    <IonToast :is-open="estaOk" :icon="checkbox" :message="toastMessage" :duration="3000" position="bottom"
+      @didDismiss="estaOk = false" color="primary" />
+    <IonLoading :is-open="deletingCangur" message="Eliminant cangur..." spinner="crescent" />
   </AppLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { IonButton, IonText, IonIcon, IonList, IonItem, IonLabel, IonInput, IonGrid, IonRow, IonCol, IonToast, IonAlert, IonCard, IonSelect, IonSelectOption } from '@ionic/vue'
+import { IonButton, IonText, IonIcon, IonList, IonItem, IonLabel, IonInput, IonGrid, IonRow, IonCol, IonToast, IonModal, IonContent, IonCard, IonSelect, IonSelectOption, IonLoading, IonSpinner } from '@ionic/vue'
 import { addOutline, personOutline, trashOutline, checkbox } from 'ionicons/icons'
 import AppLayout from '@/components/AppLayout.vue'
 
@@ -176,27 +192,8 @@ const estaOk = ref(false)
 const showDeleteCangurAlert = ref(false)
 const pendingDeleteCangur = ref<{ index: number; nom: string } | null>(null)
 const cangurs = ref<{ id: string; nom: string; parentesc: string; eliminado?: boolean }[]>([])
-
-const deleteCangurMessage = computed(() => {
-  if (!pendingDeleteCangur.value) return ''
-  return `Segur que vols eliminar el cangur ${pendingDeleteCangur.value.nom}?`
-})
-
-const deleteCangurButtons = computed(() => [
-  {
-    text: 'Cancel·lar',
-    role: 'cancel',
-    cssClass: 'secondary',
-    handler: () => {
-      showDeleteCangurAlert.value = false
-      pendingDeleteCangur.value = null
-    }
-  },
-  {
-    text: 'Eliminar',
-    handler: () => deleteCangurConfirmed()
-  }
-])
+const loadingCangur = ref(false)
+const deletingCangur = ref(false)
 
 const nouCangur = ref('')
 const nadoName = ref('')
@@ -241,7 +238,7 @@ onMounted(async () => {
         localStorage.setItem('selectedSetmanes', nadoDoc.data().setmanes?.toString() || '')
         localStorage.setItem('selectedDies', nadoDoc.data().dies?.toString() || '')
       }
-      
+
       // Load estada_unitat (only one)
       const estadaSnapshot = await getDocs(collection(db, 'users', user.uid, 'estada_unitat'))
       if (!estadaSnapshot.empty) {
@@ -253,7 +250,7 @@ onMounted(async () => {
         localStorage.setItem('selectedEstada', estadaDoc.id)
         localStorage.setItem('selectedEstadaEntrada', estadaDoc.data().horaEntrada || '')
         localStorage.setItem('selectedEstadaSortida', estadaDoc.data().horaSortida || '')
-      }      
+      }
     } else {
       // Load from localStorage when offline
       const rawCangurs = localStorage.getItem('localCangurs')
@@ -271,7 +268,7 @@ onMounted(async () => {
       setmanesName.value = localStorage.getItem('selectedSetmanesName') || ''
       diesId.value = localStorage.getItem('selectedDies')
       diesName.value = localStorage.getItem('selectedDiesName') || ''
-      
+
       // Load estada_unitat from localStorage when offline
       estadaId.value = localStorage.getItem('selectedEstada')
       estadaEntrada.value = localStorage.getItem('selectedEstadaEntrada') || ''
@@ -284,31 +281,38 @@ onMounted(async () => {
 
 const afegirCangur = async () => {
   if (!nouCangur.value.trim() || !nouParentesc.value.trim()) return
-  
+
   const user = auth.currentUser
   const fallbackUid = localStorage.getItem('uid')
   const userIdToUse = user?.uid ?? fallbackUid ?? ''
   const name = nouCangur.value.trim()
   const parentesc = nouParentesc.value
+  loadingCangur.value = true
+  try {
 
-  if (navigator.onLine && userIdToUse) {
-    const docRef = await addDoc(collection(db, 'users', userIdToUse, 'cangurs'), { 
-      name, 
-      parentesc, 
-      createdAt: new Date(),
-      eliminado: false
-    })
-    cangurs.value.push({ id: docRef.id, nom: name, parentesc: parentesc, eliminado: false })
-  } else {
-    const tempId = `local-${Date.now()}-${Math.random().toString(36).slice(2,6)}`
-    cangurs.value.push({ id: tempId, nom: name, parentesc: parentesc, eliminado: false })
-    localStorage.setItem('localCangurs', JSON.stringify(cangurs.value))
+    if (navigator.onLine && userIdToUse) {
+      const docRef = await addDoc(collection(db, 'users', userIdToUse, 'cangurs'), {
+        name,
+        parentesc,
+        createdAt: new Date(),
+        eliminado: false
+      })
+      const newCangur = { id: docRef.id, nom: name, parentesc: parentesc, eliminado: false }
+      cangurs.value.push(newCangur)
+      localStorage.setItem('localCangurs', JSON.stringify(cangurs.value))
+    } else {
+      const tempId = `local-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
+      cangurs.value.push({ id: tempId, nom: name, parentesc: parentesc, eliminado: false })
+      localStorage.setItem('localCangurs', JSON.stringify(cangurs.value))
 
-    offlineService.addPending('cangurs', { name, parentesc, createdAt: new Date(), eliminado: false }, userIdToUse)
+      offlineService.addPending('cangurs', { name, parentesc, createdAt: new Date(), eliminado: false }, userIdToUse)
+    }
+
+    nouCangur.value = ''
+    nouParentesc.value = ''
+  } finally {
+    loadingCangur.value = false
   }
-
-  nouCangur.value = ''
-  nouParentesc.value = ''
 }
 
 const confirmDeleteCangur = (index: number) => {
@@ -333,25 +337,28 @@ const deleteCangurConfirmed = async () => {
   const user = auth.currentUser
   if (!user) return
 
-  if (c.id && !c.id.startsWith('local-')) {
-    try {
-      await updateDoc(doc(db, 'users', user.uid, 'cangurs', c.id), { eliminado: true })
-    } catch (e) {
-      console.error('Error marcant cangur com eliminat:', e)
-      toastMessage.value = 'No s\'ha pogut eliminar el cangur. Torna-ho a intentar.'
-      estaOk.value = true
-      pendingDeleteCangur.value = null
-      showDeleteCangurAlert.value = false
-      return
-    }
-  }
+  deletingCangur.value = true
+  try {
 
-  cangurs.value.splice(index, 1)
-  localStorage.setItem('localCangurs', JSON.stringify(cangurs.value))
-  toastMessage.value = `Cangur ${nom} eliminat correctament.`
-  estaOk.value = true
-  pendingDeleteCangur.value = null
-  showDeleteCangurAlert.value = false
+    if (c.id && !c.id.startsWith('local-')) {
+      await updateDoc(doc(db, 'users', user.uid, 'cangurs', c.id), { eliminado: true })
+    }
+
+    cangurs.value.splice(index, 1)
+    localStorage.setItem('localCangurs', JSON.stringify(cangurs.value))
+    toastMessage.value = `Cangur ${nom} eliminat correctament.`
+    estaOk.value = true
+    pendingDeleteCangur.value = null
+    showDeleteCangurAlert.value = false
+  } catch (e) {
+    console.error('Error marcant cangur com eliminat:', e)
+    toastMessage.value = 'No s\'ha pogut eliminar el cangur. Torna-ho a intentar.'
+    estaOk.value = true
+    pendingDeleteCangur.value = null
+    showDeleteCangurAlert.value = false
+  } finally {
+    deletingCangur.value = false
+  }
 }
 
 const desar = async () => {
@@ -371,7 +378,7 @@ const desar = async () => {
           cangurs.value[i].id = docRef.id
         } else {
           offlineService.addPending('cangurs', payload, userIdToUse)
-          if (!c.id || !c.id.startsWith('local-')) cangurs.value[i].id = `local-${Date.now()}-${Math.random().toString(36).slice(2,6)}`
+          if (!c.id || !c.id.startsWith('local-')) cangurs.value[i].id = `local-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
         }
       } catch (e) { console.warn('No s\'ha pogut desar cangur', e) }
     }
@@ -461,15 +468,14 @@ const desar = async () => {
     } catch (e) { console.warn('No s\'ha pogut desar estada_unitat', e) }
   }
 
-  try { localStorage.setItem('localCangurs', JSON.stringify(cangurs.value)) } catch(e) { console.warn(e) }
+  try { localStorage.setItem('localCangurs', JSON.stringify(cangurs.value)) } catch (e) { console.warn(e) }
   router.back()
 }
 </script>
 
 <style scoped>
-
-.add-button { 
-    --background: var(--ion-color-primary); 
+.add-button {
+  --background: var(--ion-color-primary);
 }
 
 .user-email {
@@ -478,4 +484,41 @@ const desar = async () => {
   margin-bottom: 16px;
 }
 
+.delete-user-modal::part(content) {
+  --height: 25%;
+  max-width: 350px;
+  margin: auto;
+}
+
+.modal-content-compact {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-title {
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0;
+  color: var(--ion-color-primary);
+}
+
+.modal-message {
+  font-size: 0.95rem;
+  color: #555;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.modal-buttons-compact {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.modal-buttons-compact IonButton {
+  flex: 1;
+}
 </style>

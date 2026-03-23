@@ -181,27 +181,43 @@
         <IonText color="medium">No hi ha sessions disponibles.</IonText>
       </div>
     </div>
-
-    <IonToast :is-open="showToast" :message="toastMessage" :color="toastColor" duration="3000"
+    
+    <IonToast :is-open="showToast" :message="toastMessage" color="primary" duration="3000"
       @didDismiss="showToast = false" />
 
-    <IonAlert
-      :is-open="showDeleteUserAlert"
-      header="Confirmació"
-      sub-header="Esborrar usuari"
-      :message="`Segur que vols eliminar l'usuari ${pendingDeleteUser?.name || ''}?`"
-      :buttons="deleteUserButtons"
-      @didDismiss="() => { showDeleteUserAlert = false; pendingDeleteUser = null }"
-    />
+    <IonModal :is-open="showDeleteUserAlert" @didDismiss="() => { showDeleteUserAlert = false; pendingDeleteUser = null }" class="delete-user-modal">
+      <IonContent>
+        <div class="modal-content-compact">
+          <p class="modal-title">Confirmació</p>
+          <p class="modal-message">Segur que vols eliminar l'usuari <strong>{{ pendingDeleteUser?.name }}</strong>?</p>
+          <div class="modal-buttons-compact">
+            <IonButton fill="outline" color="medium" @click="() => { showDeleteUserAlert = false; pendingDeleteUser = null }">
+              Cancel·lar
+            </IonButton>
+            <IonButton fill="solid" color="primary" @click="deleteUserConfirmed">
+              Eliminar
+            </IonButton>
+          </div>
+        </div>
+      </IonContent>
+    </IonModal>
 
-    <IonAlert
-      :is-open="showDeleteSessionAlert"
-      header="Confirmació"
-      sub-header="Esborrar sessió"
-      :message="`Segur que vols eliminar aquesta sessió de ${pendingDeleteSession?.sessionLabel || ''}?`"
-      :buttons="deleteSessionButtons"
-      @didDismiss="() => { showDeleteSessionAlert = false; pendingDeleteSession = null }"
-    />
+    <IonModal :is-open="showDeleteSessionAlert" @didDismiss="() => { showDeleteSessionAlert = false; pendingDeleteSession = null }" class="delete-user-modal">
+      <IonContent>
+        <div class="modal-content-compact">
+          <p class="modal-title">Confirmacio</p>
+          <p class="modal-message">Segur que vols eliminar aquesta sessio de <strong>{{ pendingDeleteSession?.sessionLabel }}</strong>?</p>
+          <div class="modal-buttons-compact">
+            <IonButton fill="outline" color="medium" @click="() => { showDeleteSessionAlert = false; pendingDeleteSession = null }">
+              Cancel·lar
+            </IonButton>
+            <IonButton fill="solid" color="primary" @click="deleteSessionConfirmed">
+              Eliminar
+            </IonButton>
+          </div>
+        </div>
+      </IonContent>
+    </IonModal>
 
     <IonModal :is-open="isModalOpen" @didDismiss="isModalOpen = false">
       <IonHeader>
@@ -244,7 +260,7 @@ import {
   IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardContent,
   IonLabel, IonSegment, IonSegmentButton, IonLoading, IonText, IonAvatar,
   onIonViewDidEnter, IonSpinner, IonItem, IonInput, IonSelect, IonSelectOption,
-  IonBadge, IonAlert, IonModal, IonHeader, IonToolbar, IonTitle,
+  IonBadge, IonModal, IonHeader, IonToolbar, IonTitle,
   IonButtons, IonContent, IonList, IonCheckbox, IonSearchbar, IonToast
 } from '@ionic/vue'
 import { downloadOutline, chevronForwardOutline, mailOutline, calendarOutline, trashOutline } from 'ionicons/icons'
@@ -322,38 +338,6 @@ const filteredUsersModal = computed(() => {
 const isAllSelected = computed(() => {
   return allUsers.value.length > 0 && selectedExportUsers.value.length === allUsers.value.length
 });
-
-const deleteUserButtons = computed(() => [
-  {
-    text: 'Cancel·lar',
-    role: 'cancel',
-    cssClass: 'secondary',
-    handler: () => {
-      showDeleteUserAlert.value = false
-      pendingDeleteUser.value = null
-    }
-  },
-  {
-    text: 'Eliminar',
-    handler: deleteUserConfirmed
-  }
-])
-
-const deleteSessionButtons = computed(() => [
-  {
-    text: 'Cancel·lar',
-    role: 'cancel',
-    cssClass: 'secondary',
-    handler: () => {
-      showDeleteSessionAlert.value = false
-      pendingDeleteSession.value = null
-    }
-  },
-  {
-    text: 'Eliminar',
-    handler: deleteSessionConfirmed
-  }
-])
 
 const toggleSelectAll = (event: any) => {
   if (event.detail.checked) {
@@ -820,8 +804,10 @@ onIonViewDidEnter(async () => {
 .session-row {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 12px 0;
   border-bottom: 1px solid #eee;
+  gap: 12px;
 }
 
 .session-row:last-child {
@@ -842,7 +828,17 @@ onIonViewDidEnter(async () => {
 }
 
 .session-time-data {
-  text-align: right;
+  width: 120px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.session-info {
+  flex: 1;
+  min-width: 0;
 }
 
 .s-date {
@@ -865,8 +861,7 @@ onIonViewDidEnter(async () => {
 .titol {
   text-align: center;
   margin-bottom: 24px;
-  font-size: 12px;
-  font-weight: 600;
+  font-weight: 800;
 }
 
 .labelDate {
@@ -874,6 +869,44 @@ onIonViewDidEnter(async () => {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: 600;
+}
+
+.delete-user-modal::part(content) {
+  --height: 25%;
+  max-width: 350px;
+  margin: auto;
+}
+
+.modal-content-compact {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-title {
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0;
+  color: var(--ion-color-primary);
+}
+
+.modal-message {
+  font-size: 0.95rem;
+  color: #555;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.modal-buttons-compact {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.modal-buttons-compact IonButton {
+  flex: 1;
 }
 
 @media (max-width: 768px) {

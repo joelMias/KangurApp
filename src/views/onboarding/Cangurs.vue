@@ -142,7 +142,9 @@ const afegirCangur = async () => {
       createdAt: new Date(),
       eliminado: false
     })
-    cangurs.value.push({ id: docRef.id, nom: name, parentesc: nouParentesc.value, eliminado: false })
+    const newCangur = { id: docRef.id, nom: name, parentesc: nouParentesc.value, eliminado: false }
+    cangurs.value.push(newCangur)
+    localStorage.setItem('localCangurs', JSON.stringify(cangurs.value))
   } else {
     const tempId = `local-${Date.now()}-${Math.random().toString(36).slice(2,6)}`
     cangurs.value.push({ id: tempId, nom: name, parentesc: nouParentesc.value, eliminado: false })

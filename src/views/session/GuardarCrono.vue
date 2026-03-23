@@ -1,7 +1,8 @@
 <template>
   <AppLayout :show-back="true" back-route="/cronometre" :scroll-y="true"> <div class="centered-wrapper">
-      
-      <h1 class="negreta ion-text-center">Registrar pell amb pell</h1>
+      <IonText color="dark">
+        <h2 class="negreta ion-text-center titol">Registrar pell amb pell</h2>
+      </IonText>
 
       <IonCard class="mini-card">
         <ion-grid>
@@ -57,7 +58,8 @@
         <IonButton expand="block" fill="outline" color="medium" @click="cancelar">
           Cancel·lar
         </IonButton>
-        <IonButton expand="block" fill="solid" color="primary" :disabled="!cangurSeleccionat || !motiuFinal.trim()" @click="guardarSessio">
+        <IonButton expand="block" fill="solid" color="primary" :disabled="!cangurSeleccionat || !motiuFinal.trim() || loadingSessio" @click="guardarSessio">
+          <IonSpinner v-if="loadingSessio" name="dots" slot="start" />
           Registrar
         </IonButton>
       </div>
@@ -70,12 +72,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
-import {IonLoading, IonGrid, IonRow, IonCol, IonIcon, IonCard, IonLabel, IonButton, IonToast, onIonViewWillEnter, IonItem, IonTextarea } from '@ionic/vue'
+import { ref, watch } from 'vue'
+import {IonLoading, IonGrid, IonRow, IonCol, IonIcon, IonCard, IonLabel, IonButton, IonToast, onIonViewWillEnter, IonItem, IonTextarea,IonSpinner, IonText } from '@ionic/vue'
 import AppLayout from '@/components/AppLayout.vue'
 import { timerOutline, checkbox } from 'ionicons/icons'
 import { useRouter, useRoute } from 'vue-router'
-import { onAuthStateChanged } from 'firebase/auth'
 
 // Firebase
 import { db, auth } from '@/services/firebase'
@@ -110,6 +111,7 @@ const estaOk = ref(false)
 const toastMessage = ref('')
 const showErrorToast = ref(false)
 const errorMessage = ref('')
+const loadingSessio = ref(false)
 
 const formatTime = (t: number) => {
   const m = Math.floor((t % 3600) / 60)
@@ -117,8 +119,80 @@ const formatTime = (t: number) => {
   return `${m} minuts ${s} segons`
 }
 
+const loadViewData = async () => {
+  loadingCangurs.value = true
+
+  const user = auth.currentUser
+  if (!user) {
+    console.warn('No hi ha usuari autenticat')
+    cangurs.value = loadCangursFromCache()
+    loadingCangurs.value = false
+    return
+  }
+
+  try {
+    let fetchedCangurs: { id: string; name: string }[] = []
+
+    if (navigator.onLine) {
+      const snapshot = await getDocs(collection(db, 'users', user.uid, 'cangurs'))
+      fetchedCangurs = snapshot.docs
+        .filter(d => !d.data().eliminado)
+        .map(d => normalizeCangur(d.data(), d.id))
+        .filter(c => c.name)
+
+      if (fetchedCangurs.length) {
+        saveCangursToCache(fetchedCangurs)
+      } else {
+        localStorage.setItem('localCangurs', JSON.stringify([]))
+      }
+    }
+
+    const cachedCangurs = loadCangursFromCache()
+
+    if (!navigator.onLine) {
+      cangurs.value = cachedCangurs
+    } else {
+      cangurs.value = mergeCangurs(fetchedCangurs, cachedCangurs)
+    }
+
+    try {
+      const regName = localStorage.getItem('name') || ''
+      if (regName) {
+        const idx = cangurs.value.findIndex(c => (c.name || '').toLowerCase() === regName.toLowerCase())
+        if (idx > 0) {
+          const [item] = cangurs.value.splice(idx, 1)
+          cangurs.value.unshift(item)
+        }
+      }
+    } catch (e) { }
+
+    try {
+      const nadonsnap = await getDocs(collection(db, 'users', user.uid, 'nadons'))
+      if (!nadonsnap.empty) {
+        const nadons = nadonsnap.docs.map(d => ({ id: d.id, name: d.data().name }))
+        try { localStorage.setItem('localnadons', JSON.stringify(nadons)) } catch (e) { console.warn('Error saving localnadons', e) }
+        const selId = localStorage.getItem('selectedNado')
+        if (!selId && nadons.length) {
+          try { localStorage.setItem('selectedNado', nadons[0].id); localStorage.setItem('selectedNadoName', nadons[0].name) } catch (e) { }
+        } else if (selId) {
+          const found = nadons.find(n => n.id === selId)
+          if (found) try { localStorage.setItem('selectedNadoName', found.name) } catch (e) { }
+        }
+      }
+    } catch (e) {
+      console.warn("No s'han pogut llegir nadós per cache", e)
+    }
+  } catch (err) {
+    console.error('Error carregant cangurs', err)
+    cangurs.value = loadCangursFromCache()
+  } finally {
+    loadingCangurs.value = false
+  }
+}
+
 onIonViewWillEnter(() => {
   cangurSeleccionat.value = null
+  loadViewData()
 })
 
 const normalizeCangur = (source: any, id: string) => ({
@@ -161,74 +235,7 @@ const mergeCangurs = (server: { id: string; name: string }[], local: { id: strin
   return Array.from(map.values())
 }
 
-onMounted(() => {
-  loadingCangurs.value = true
-  const unsub = onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      try {
-        let fetchedCangurs: { id: string; name: string }[] = []
 
-        if (navigator.onLine) {
-          const snapshot = await getDocs(collection(db, 'users', user.uid, 'cangurs'))
-          fetchedCangurs = snapshot.docs
-            .filter(d => !d.data().eliminado)
-            .map(d => normalizeCangur(d.data(), d.id))
-            .filter(c => c.name)
-
-          if (fetchedCangurs.length) {
-            saveCangursToCache(fetchedCangurs)
-          }
-        }
-
-        const cachedCangurs = loadCangursFromCache()
-
-        if (!navigator.onLine) {
-          cangurs.value = cachedCangurs
-        } else {
-          cangurs.value = mergeCangurs(fetchedCangurs, cachedCangurs)
-        }
-
-        try {
-          const regName = localStorage.getItem('name') || ''
-          if (regName) {
-            const idx = cangurs.value.findIndex(c => (c.name || '').toLowerCase() === regName.toLowerCase())
-            if (idx > 0) {
-              const [item] = cangurs.value.splice(idx, 1)
-              cangurs.value.unshift(item)
-            }
-          }
-        } catch (e) { }
-
-        try {
-          const nadonsnap = await getDocs(collection(db, 'users', user.uid, 'nadons'))
-          if (!nadonsnap.empty) {
-            const nadons = nadonsnap.docs.map(d => ({ id: d.id, name: d.data().name }))
-            try { localStorage.setItem('localnadons', JSON.stringify(nadons)) } catch (e) { console.warn('Error saving localnadons', e) }
-            const selId = localStorage.getItem('selectedNado')
-            if (!selId && nadons.length) {
-              try { localStorage.setItem('selectedNado', nadons[0].id); localStorage.setItem('selectedNadoName', nadons[0].name) } catch (e) { }
-            } else if (selId) {
-              const found = nadons.find(n => n.id === selId)
-              if (found) try { localStorage.setItem('selectedNadoName', found.name) } catch (e) { }
-            }
-          }
-        } catch (e) {
-          console.warn("No s'han pogut llegir nadós per cache", e)
-        }
-      } catch (err) {
-        console.error('Error carregant cangurs', err)
-        cangurs.value = loadCangursFromCache()
-      } finally {
-        loadingCangurs.value = false
-      }
-    } else {
-      console.warn('No hi ha usuari autenticat')
-      cangurs.value = loadCangursFromCache()
-      loadingCangurs.value = false
-    }
-    unsub()
-  })
-})
 
 const cancelar = () => {
   router.push('/HomePage')
@@ -240,6 +247,7 @@ const guardarSessio = async () => {
     showErrorToast.value = true
     return
   }
+  loadingSessio.value = true
   try {
     const user = auth.currentUser
     const fallbackUid = localStorage.getItem('uid')
@@ -335,6 +343,8 @@ const guardarSessio = async () => {
     console.error('Error desant el cronòmetre:', err)
     errorMessage.value = 'Error desant el cronòmetre: ' + err.message
     showErrorToast.value = true
+  } finally {
+    loadingSessio.value = false
   }
 }
 </script>
@@ -353,11 +363,10 @@ const guardarSessio = async () => {
   max-width: 500px;
   margin: 10px 0;
   padding: 10px;
-  box-shadow: none; /* Opcional: según tu diseño */
+  box-shadow: none;
   border: 1px solid #e0e0e0;
 }
 
-/* Centrado del Label y TextArea */
 .input-centered-group {
   display: flex;
   flex-direction: column;
@@ -375,11 +384,10 @@ const guardarSessio = async () => {
   --padding-start: 10px;
   --padding-end: 10px;
   margin-top: 5px;
-  text-align: left; /* El texto dentro suele quedar mejor a la izquierda, pero el contenedor está centrado */
+  text-align: left;
   width: 100%;
 }
 
-/* Contenedor de botones de canguros para que no se desborden */
 .button-grid-container {
   display: flex;
   flex-wrap: wrap;
