@@ -1,5 +1,5 @@
 <template>
-  <AppLayout :show-back="true" back-route="/HomePage" :scroll-y="true">
+  <AppLayout :show-back="true" :scroll-y="true">
     <IonGrid>
       <IonRow class="ion-justify-content-center">
         <IonCol size="12">
@@ -186,7 +186,7 @@
       @didDismiss="showToast = false" />
 
     <IonModal :is-open="showDeleteUserAlert" @didDismiss="() => { showDeleteUserAlert = false; pendingDeleteUser = null }" class="delete-user-modal">
-      <IonContent>
+      <IonContent :scroll-y="true">
         <div class="modal-content-compact">
           <p class="modal-title">Confirmació</p>
           <p class="modal-message">Segur que vols eliminar l'usuari <strong>{{ pendingDeleteUser?.name }}</strong>?</p>

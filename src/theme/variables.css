@@ -100,10 +100,13 @@ http://ionicframework.com/docs/theming/ */
 html,
 body,
 ion-app,
-ion-router-outlet,
-ion-content {
-  overflow: hidden !important;
+ion-router-outlet{
+  overflow: hidden;
   height: 100vh !important;
+}
+
+ion-content {
+  --height: 100%;
 }
 
 .full-height {
