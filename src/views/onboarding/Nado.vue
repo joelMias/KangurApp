@@ -24,12 +24,12 @@
 
           <div class="datetime-wheel-container" @click="openGestationPicker">
             <div class="wheel-labels">
-              <span>Dies</span>
               <span>Setmanes</span>
+              <span>Dies</span>
             </div>
 
             <div class="wheel-display">
-              {{ dies }} + {{ setmanes }}
+              {{ setmanes }} + {{ dies }}
             </div>
           </div>
 
@@ -68,12 +68,12 @@ async function openGestationPicker() {
   const picker = await pickerController.create({
     columns: [
       {
-        name: 'dies',
-        options: Array.from({ length: 8 }, (_, i) => ({ text: `${i}`, value: i }))
-      },
-      {
         name: 'setmanes',
         options: Array.from({ length: 22 }, (_, i) => ({ text: `${i + 22}`, value: i + 22 }))
+      },
+      {
+        name: 'dies',
+        options: Array.from({ length: 8 }, (_, i) => ({ text: `${i}`, value: i }))
       }
     ],
     buttons: [

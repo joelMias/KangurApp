@@ -1,5 +1,5 @@
 <template>
-  <AppLayout :show-back="true">
+  <AppLayout :show-back="true" back-route="/HomePage" :scroll-y="true">
     <IonGrid>
       <IonRow class="ion-justify-content-center">
         <IonCol size="12">
