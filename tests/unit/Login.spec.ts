@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import Login from '@/views/Login.vue'
+import Login from '@/views/auth/UserLogin.vue'
 import authService from '@/services/auth.service'
 
 vi.mock('@/services/auth.service', () => ({

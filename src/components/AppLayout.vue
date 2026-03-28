@@ -1,6 +1,6 @@
 <template>
   <IonPage>
-    <IonHeader>
+    <IonHeader class="header">
       <IonToolbar class="capçalera">
         <IonButtons v-if="showBack" slot="start">
           <IonButton @click="handleBack">
@@ -77,5 +77,17 @@ hr {
   margin: 16px auto;
   width: 90%;
   max-width: 300px;
+}
+
+@media (max-width: 768px) {
+  .header-logo {
+    width: 30px;
+    height: 30px;
+  }
+
+  .capçalera {
+    --min-height: 70px;
+    height: auto;
+  }
 }
 </style>
