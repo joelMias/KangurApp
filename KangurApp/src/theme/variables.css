@@ -1,0 +1,254 @@
+/* For information on how to create your own theme, please see:
+http://ionicframework.com/docs/theming/ */
+
+@import "@fontsource/nunito/400.css";
+@import "@fontsource/nunito/600.css";
+@import "@fontsource/nunito/800.css";
+
+
+:root {
+  --ion-font-family: "Nunito", sans-serif;
+  /* App primary color (green-teal used across the app) */
+  --ion-color-primary: #26a69a;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-shade: #1f8f80;
+  --ion-color-primary-tint: #39b79f;
+}
+
+.capçalera{
+  color: var(--ion-color-primary);
+}
+
+.header-logo{
+  vertical-align: middle;
+}
+
+.lletra{
+  font-family: "Nunito", sans-serif;
+}
+
+/* FORMS */
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.titol {
+  text-align: center;
+  margin-bottom: 0px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.logo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.input-label {
+  color: var(--ion-color-medium);
+  font-weight: 800;
+  font-size: 16px;
+  margin-bottom: 4px;  
+}
+
+.input-box {
+  /* --highlight-color: var(--ion-color-primary);
+  --border-color: var(--ion-color-primary);
+  --border-radius: 10px;
+  --background: #fff;
+  margin-bottom: 12px; */
+  /* border: 2px solid var(--ion-color-primary); */
+
+  --background: #ffffff;
+  --border-color: var(--ion-color-primary);
+  --border-width: 1px;
+}
+
+.error-message {
+  color: #d32f2f;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  background-color: #ffebee;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.logo-img {
+  width: 100%;
+  max-width: 180px;
+  height: auto;
+}
+
+.app-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #26a69a;
+  margin: 0;
+}
+
+.footer{
+  box-shadow: none;
+}
+
+html,
+body,
+ion-app,
+ion-router-outlet{
+  overflow: hidden;
+  height: 100vh !important;
+}
+
+ion-content {
+  --height: 100%;
+}
+
+.full-height {
+  height: 100%;
+}
+
+.centered-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: 24px;
+  gap: 40px;
+}
+
+.centered-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  max-width: 600px;
+  align-items: center;
+  gap: 24px;
+}
+
+.config-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  width: 100%;
+}
+
+.titol {
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--ion-color-primary);
+}
+
+.button-container {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  margin-top: 2em;
+  padding: 24px 16px;
+  width: 100%;
+}
+
+.button-container > ion-button {
+  flex: 1;
+}
+
+.big-button {  
+  text-transform: none;
+  font-size: 20px;
+  padding: 10px 0 10px 0;
+  width: 100%;
+  min-width: 100%;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 20px;
+  --padding-bottom: 20px;
+}
+
+.button-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.button-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-icon img {
+  height: 40px;
+  width: auto;
+}
+
+.default-button {
+  --border-width: 1px;
+  --border-radius: 10px;
+  text-transform: none;
+  font-size: 20px;
+}
+
+.green-button {
+  --background: #e6f3f2;
+  --color: #4b9b90;
+  --border-color: var(--ion-color-primary);
+}
+
+.green-outline-button {
+  --background: #ffffff;
+  --color: #4b9b90;
+  --border-color: #377c73;
+}
+
+.danger-button {
+  --background: #e6f3f2;
+  --color: #c74444;
+  --border-color: #c91919;
+}
+
+.danger-outline-button {
+  --background: #ffffff;
+  --color: #c74444;
+  --border-color: #c91919;
+}
+
+.footer-button {
+  --border-color: #000;
+  --border-width: 1px;
+  --color: #000;
+  --border-radius: 10px;
+  text-transform: none;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.negreta {
+  font-weight: 800;
+}
+
+.mini-card {
+  width: 100%;
+  border: 1px solid var(--ion-color-primary);
+  border-radius: 10px;
+  margin-bottom: 24px;
+}
+
+.card-title {
+  position:relative;
+  font-weight: bold;
+  font-size: 16px;
+  color: var(--ion-color-primary);
+}
