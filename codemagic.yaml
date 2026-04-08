@@ -17,13 +17,11 @@ workflows:
       - name: Capacitor Sync
         script: |
           rm -rf ios/App/App.xcworkspace
-          rm -rf ios/App/Pods
           npx cap add ios || true
           npx cap sync ios
-     - name: Build iOS (Debug)
+      - name: Build iOS (Debug)
         script: |
           cd ios/App
-          xcodebuild -project App.xcodeproj -resolvePackageDependencies -clonedSourcePackagesPath ./packages
           xcodebuild -project App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator
     artifacts:
       - ios/App/*.xcresult
