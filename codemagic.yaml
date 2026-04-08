@@ -21,7 +21,7 @@ workflows:
       - name: Build iOS (Debug)
         script: |
           cd ios/App
-          xcodebuild -workspace App.xcworkspace -scheme App -configuration Debug -sdk iphonesimulator
+          xcodebuild -project App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator
     artifacts:
       - ios/App/*.xcresult
     publishing:
