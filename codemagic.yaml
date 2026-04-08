@@ -16,14 +16,14 @@ workflows:
           npm run build
       - name: Capacitor Sync
         script: |
-          npx cap copy ios
-          npx cap update ios
+          npx cap add ios || true
+          npx cap sync ios
       - name: Build iOS (Debug)
         script: |
-          # Esto prepara el proyecto para el simulador/preview
-          xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Debug -sdk iphonesimulator
+          cd ios/App
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Debug -sdk iphonesimulator
     artifacts:
-      - ios/App/App.xcworkspace
+      - ios/App/*.xcresult
     publishing:
       email:
         recipients:
