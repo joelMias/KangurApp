@@ -24,9 +24,8 @@ workflows:
           cd ios/App
           xcodebuild -project App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator
     artifacts:
-      - ios/App/build/iphonesimulator/*.app
-      - build/ios/iphonesimulator/*.app
-      - "*.xcresult"
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/Products/**/*.app
+      - ios/App/*.xcresult
     publishing:
       email:
         recipients:
