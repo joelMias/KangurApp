@@ -1,6 +1,6 @@
 import UIKit
 import Capacitor
-import FirebaseCore
+import FirebaseCore // Importante para la configuración manual
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -8,16 +8,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        if let filePath = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") {
-            print("Fichero encontrado en: \(filePath)")
-            if let options = FirebaseOptions(contentsOfFile: filePath) {
-                FirebaseApp.configure(options: options)
-                print("Firebase configurado correctamente con opciones manuales.")
-            }
-        } else {
-            print("ERROR CRÍTICO: El archivo GoogleService-Info.plist no existe en el paquete de la app.")
-        }
-
+        let options = FirebaseOptions(googleAppID: "1:600666214184:ios:39f802a6be99af5c4d0a1d", gcmSenderID: "600666214184")
+        options.apiKey = "AIzaSyDeHpLU-z_6zo3uhrj0dVm8lth78qFKIbU"
+        options.projectID = "kangurapp-b452e"
+        options.bundleID = "com.kangurapp.app"
+        options.storageBucket = "kangurapp-b452e.firebasestorage.app"
+        
+        FirebaseApp.configure(options: options)
+        
+        print("¡Victoria! Firebase configurado manualmente sin depender del archivo.")
+        
         return true
     }
 
