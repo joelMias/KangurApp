@@ -47,27 +47,27 @@ const app = createApp(App)
 router.isReady().then(async () => {
   app.mount('#app');
   
-  // Ensure the webview does not overlay the native status bar on mobile
-  // This makes the app content start below the status bar like a normal app.
-  // Only attempt on native platforms
+  // Assegura que la webview no sobreposi la barra d'estat nativa al mòbil
+  // Això fa que el contingut comenci sota la barra d'estat, com en una app normal
+  // Només ho intentem en plataformes natives
   if (Capacitor.isNativePlatform()) {
     try {
       const { StatusBar } = await import('@capacitor/status-bar');
       StatusBar.setOverlaysWebView({ overlay: false });
     } catch (e) {
-      // plugin not available
-      console.debug('StatusBar.setOverlaysWebView unavailable', e);
+      // El plugin no està disponible
+      console.debug('StatusBar.setOverlaysWebView no està disponible', e);
     }
   }
-  // Try to flush any queued offline writes when we become online
+  // Intenta buidar les escriptures pendents fora de línia quan tornem a estar en línia
   window.addEventListener('online', () => {
     offlineService.processQueue().catch(err => console.error(err))
   })
-  // Also try to flush when auth becomes available
+  // També ho intentem quan l'autenticació ja està disponible
   onAuthStateChanged(auth, (user) => {
     if (user && navigator.onLine) offlineService.processQueue().catch(err => console.error(err))
   })
-  // Also attempt immediately if we're online now
+  // I també ho provem immediatament si ara mateix tenim connexió
   if (navigator.onLine) {
     offlineService.processQueue().catch(err => console.error(err))
   }

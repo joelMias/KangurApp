@@ -75,9 +75,10 @@ const Login = async () => {
   try {
     await authService.login({email: email.value,password: password.value})
     router.push('/HomePage')
-  } catch (err) {
+  } catch (err: any) {
     console.error(err)
-    error.value = 'Credencials incorrectes.'
+    // Show actual error message from service or fallback to generic message
+    error.value = err?.message || 'Credencials incorrectes.'
     toastMessage.value = error.value
     showToast.value = true
   } finally {

@@ -16,7 +16,7 @@ async function getAllUsersData() {
       const userData = userDoc.data()
       const userId = userDoc.id
       
-      // Obtenir cronometres de l'usuari
+      // Obté els cronòmetres de l'usuari
       const cronometresRef = collection(db, 'users', userId, 'cronometres')
       const cronometresSnap = await getDocs(cronometresRef)
       const cronometres = cronometresSnap.docs
@@ -26,7 +26,7 @@ async function getAllUsersData() {
           ...d.data()
         }))
       
-      // Obtenir nadons de l'usuari
+      // Obté els nadons de l'usuari
       const nadonsRef = collection(db, 'users', userId, 'nadons')
       const nadonsSnap = await getDocs(nadonsRef)
       const nadons = nadonsSnap.docs
@@ -36,7 +36,7 @@ async function getAllUsersData() {
           ...d.data()
         }))
 
-      // Obtenir cangurs de l'usuari
+      // Obté els cangurs de l'usuari
       const cangursRef = collection(db, 'users', userId, 'cangurs')
       const cangursSnap = await getDocs(cangursRef)
       const cangurs = cangursSnap.docs
@@ -86,7 +86,7 @@ async function deleteUser(userId: string) {
 
     return { success: true }
   } catch (error) {
-    console.error('Error marcant usuari com a eliminat:', error)
+    console.error('Error marcant l\'usuari com a eliminat:', error)
     throw error
   }
 }
@@ -100,7 +100,7 @@ async function deleteSession(userId: string, sessionId: string) {
     await updateDoc(sessionRef, { eliminado: true })
     return { success: true }
   } catch (error) {
-    console.error('Error marcant sessió com a eliminada:', error)
+    console.error('Error marcant la sessió com a eliminada:', error)
     throw error
   }
 }
@@ -114,7 +114,7 @@ async function updateUserRol(userId: string, rol: string) {
     await updateDoc(userRef, { rol: rol })
     return { success: true }
   } catch (error) {
-    console.error('Error canviant l\'estatus d\'admin:', error)
+    console.error('Error canviant l\'estat d\'admin:', error)
     throw error
   }
 }
@@ -153,8 +153,32 @@ function isCurrentUserAdmin(): boolean {
 async function getCurrentUserAdminStatus() {
   try {
     const user = auth.currentUser
-    if (!user) return false
+    if (!user) {
+      console.error('❌ currentUser és nul')
+      return false
+    }
 
+    console.log('🔍 Comprovant l\'estat d\'admin per a l\'usuari:', user.uid)
+
+    // Primer: comprova el localStorage per als permisos en memòria cau
+    const cachedPermissions = localStorage.getItem('permissions')
+    const cachedRol = localStorage.getItem('rol')
+    console.log('📦 Rol en memòria cau:', cachedRol, '| Permisos en memòria cau:', cachedPermissions ? 'existeixen' : 'cap')
+    
+    if (cachedPermissions) {
+      try {
+        const perms = JSON.parse(cachedPermissions)
+        const isAdmin = perms.sessions_all_read || perms.sessions_all_edit || perms.sessions_all_delete
+        console.log('✓ Comprovació de permisos en memòria cau:', isAdmin ? 'ÉS ADMIN' : 'NO ÉS ADMIN')
+        if (isAdmin) {
+          return true
+        }
+      } catch (e) {
+        console.warn('⚠️ Memòria cau corrupta:', e)
+      }
+    }
+
+    // Segon: intenta obtenir-ho de Firestore
     const userDoc = await getDoc(doc(db, 'users', user.uid))
     const role = userDoc.exists()
       ? (typeof userDoc.data().rol === 'string'
@@ -162,17 +186,36 @@ async function getCurrentUserAdminStatus() {
           : (userDoc.data().admin === true ? 'admin' : 'usuari'))
       : (localStorage.getItem('rol') || 'usuari')
 
-    const permissions = await authService.fetchRolePermissions(role)
-    // Store updated permissions locally for faster checks
-    localStorage.setItem('permissions', JSON.stringify(permissions))
+    console.log('👤 Rol de l\'usuari des de Firestore:', role, '| El document existeix:', userDoc.exists())
 
-    return (
-      permissions.sessions_all_read ||
-      permissions.sessions_all_edit ||
-      permissions.sessions_all_delete
-    )
+    // Si el rol és admin/gestor directament, permet l'accés sense verificar permisos
+    if (role === 'admin' || role === 'gestor') {
+      console.log('✅ Comprovació directa del rol: el rol és', role, '→ ES PERMET L\'ACCÉS')
+      localStorage.setItem('rol', role)
+      return true
+    }
+
+    try {
+      const permissions = await authService.fetchRolePermissions(role)
+      console.log('🔑 Permisos obtinguts per al rol', role, ':', permissions)
+      
+      localStorage.setItem('permissions', JSON.stringify(permissions))
+
+      const hasAccess = permissions.sessions_all_read || permissions.sessions_all_edit || permissions.sessions_all_delete
+      console.log(hasAccess ? '✅ TÉ ACCÉS D\'ADMIN' : '❌ NO TÉ ACCÉS D\'ADMIN')
+      return hasAccess
+    } catch (permError) {
+      console.error('⚠️ Error obtenint els permisos:', permError)
+      // Si falla en obtenir permisos però el rol és admin/gestor, permet l'accés
+      if (role === 'admin' || role === 'gestor') {
+        console.log('✅ Ha fallat l\'obtenció de permisos però el rol és', role, '→ ES PERMET L\'ACCÉS')
+        return true
+      }
+      console.log('❌ Ha fallat l\'obtenció de permisos i el rol és', role, '→ ES DENGA L\'ACCÉS')
+      return false
+    }
   } catch (error) {
-    console.error('Error obtenint l\'estatus d\'admin:', error)
+    console.error('❌ Error obtenint l\'estat d\'admin:', error)
     return false
   }
 }

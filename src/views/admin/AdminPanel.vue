@@ -88,7 +88,7 @@
         </IonRow>
         <IonRow v-else>
           <IonCol class="ion-text-center ion-padding">
-            <IonText color="medium">No s'han trobat usuaris</IonText>
+            <IonText color="medium">{{ loadDataError || "No s'han trobat usuaris" }}</IonText>
           </IonCol>
         </IonRow>
       </IonGrid>
@@ -132,9 +132,16 @@
                 <div class="flex-item-actions">
                   <IonButton color="success" class="btn-export-inline" @click="exportSessionsCSV"
                     title="Descarregar CSV">
-                    <IonIcon slot="icon-only" :icon="downloadOutline"></IonIcon>
+                    <IonIcon slot="start" :icon="downloadOutline"></IonIcon>
+                    <span class="csv-btn-label">CSV</span>
                   </IonButton>
                 </div>
+              </div>
+              <div class="export-mail-row">
+                <IonButton expand="block" fill="outline" color="primary" class="btn-export-mail" @click="sendSessionsCSVByMail">
+                  <IonIcon slot="start" :icon="mailOutline"></IonIcon>
+                  Enviar CSV al meu correu
+                </IonButton>
               </div>
             </IonCardContent>
           </IonCard>
@@ -178,7 +185,7 @@
         </div>
       </div>
       <div v-else class="ion-padding ion-text-center">
-        <IonText color="medium">No hi ha sessions disponibles.</IonText>
+        <IonText color="medium">{{ loadDataError || 'No hi ha sessions disponibles.' }}</IonText>
       </div>
     </div>
     
@@ -267,9 +274,12 @@ import { downloadOutline, chevronForwardOutline, mailOutline, calendarOutline, t
 import AppLayout from '@/components/AppLayout.vue'
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { auth } from '@/services/firebase'
+import { db, auth } from '@/services/firebase'
+import { collection, addDoc } from 'firebase/firestore'
 import adminService from '@/services/admin.service'
 import { formatSecondsToMMSS } from '@/utils/time'
+import { Capacitor } from '@capacitor/core'
+import { Directory, Encoding, Filesystem } from '@capacitor/filesystem'
 
 const router = useRouter()
 const loading = ref(true)
@@ -287,6 +297,7 @@ const selectedExportUsers = ref<string[]>([])
 const showToast = ref(false)
 const toastMessage = ref('')
 const toastColor = ref('success')
+const loadDataError = ref('')
 
 const showDeleteUserAlert = ref(false)
 const showDeleteSessionAlert = ref(false)
@@ -343,18 +354,18 @@ const toggleSelectAll = (event: any) => {
   if (event.detail.checked) {
     selectedExportUsers.value = allUsers.value.map(u => u.email)
   } else {
-    if (selectedExportUsers.value.length === allUsers.value.length) {
-      selectedExportUsers.value = []
-    }
+    selectedExportUsers.value = []
   }
 }
 
 const toggleUserSelection = (email: string) => {
   const index = selectedExportUsers.value.indexOf(email)
   if (index > -1) {
-    selectedExportUsers.value.splice(index, 1)
+    // Crear un nuevo array sin el elemento para que Vue detecte el cambio
+    selectedExportUsers.value = selectedExportUsers.value.filter((_, i) => i !== index)
   } else {
-    selectedExportUsers.value.push(email)
+    // Crear un nuevo array con el nuevo elemento
+    selectedExportUsers.value = [...selectedExportUsers.value, email]
   }
 }
 
@@ -400,13 +411,109 @@ function getCSVData() {
 async function exportSessionsCSV() {
   const result = getCSVData()
   if (result.error) {
-    toastMessage.value = result.error; toastColor.value = 'danger'; showToast.value = true
+    toastMessage.value = result.error
+    toastColor.value = 'danger'
+    showToast.value = true
     return
   }
-  const blob = new Blob([result.content!], { type: 'text/csv;charset=utf-8;' })
+
+  const content = result.content!
+  const filename = result.filename!
+
+  // En mòbil natiu (APK), guardem el fitxer directament al dispositiu.
+  if (Capacitor.isNativePlatform()) {
+    try {
+      const isAndroid = Capacitor.getPlatform() === 'android'
+      const nativeDirectory = isAndroid ? Directory.ExternalStorage : Directory.Documents
+      const nativePath = isAndroid
+        ? `Download/KangurApp/${filename}`
+        : `KangurApp/${filename}`
+
+      await Filesystem.writeFile({
+        path: nativePath,
+        data: content,
+        directory: nativeDirectory,
+        encoding: Encoding.UTF8,
+        recursive: true
+      })
+
+      toastMessage.value = isAndroid
+        ? `CSV desat a Descàrregues: ${filename}`
+        : `CSV desat: ${filename}`
+      toastColor.value = 'success'
+      showToast.value = true
+      return
+    } catch (error) {
+      console.error('Error desant CSV al mòbil:', error)
+      toastMessage.value = 'No s\'ha pogut desar el fitxer al dispositiu.'
+      toastColor.value = 'danger'
+      showToast.value = true
+      return
+    }
+  }
+
+  // En web mantenim la descàrrega estàndard.
+  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
-  link.setAttribute('href', url); link.setAttribute('download', result.filename!); link.click()
+  link.href = url
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+
+  toastMessage.value = 'S\'ha iniciat la descàrrega del CSV.'
+  toastColor.value = 'success'
+  showToast.value = true
+}
+
+async function sendSessionsCSVByMail() {
+  const result = getCSVData()
+  if (result.error) {
+    toastMessage.value = result.error
+    toastColor.value = 'danger'
+    showToast.value = true
+    return
+  }
+
+  const receiverEmail = (auth.currentUser?.email || localStorage.getItem('email') || '').trim()
+  
+  if (!receiverEmail) {
+    toastMessage.value = 'No hem trobat el teu correu. Torna a iniciar sessió.'
+    toastColor.value = 'warning'
+    showToast.value = true
+    return
+  }
+
+  const csvContent = result.content || ''
+  const filename = result.filename || `export_kangur_${Date.now()}.csv`
+
+  try {
+    await addDoc(collection(db, 'mail'), {
+      to: receiverEmail,
+      message: {
+        subject: `[NO-REPLY] - Exportació de sessions KangurApp`,
+        text: `Hola,\n\nT'adjuntem el fitxer CSV amb les teves sessions exportades.\n\nAquest és un correu automàtic, per favor no el responguis.\n\nSalutacions,\nL'equip de KangurApp.`,
+        attachments: [
+          {
+            filename: filename,
+            content: csvContent, 
+            contentType: 'text/csv; charset=utf-8'
+          }
+        ]
+      }
+    })
+
+    toastMessage.value = `CSV enviat correctament a ${receiverEmail}!`
+    toastColor.value = 'success'
+    showToast.value = true
+  } catch (error) {
+    console.error('Error enviant email:', error)
+    toastMessage.value = 'Error enviant el correu. Revisa la teva connexió.'
+    toastColor.value = 'danger'
+    showToast.value = true
+  }
 }
 
 function onRoleChange(userId: string, newRole: string) {
@@ -509,6 +616,7 @@ function getCangursList(cangurs: any[]) {
 
 async function loadAdminData() {
   loading.value = true
+  loadDataError.value = ''
   try {
     const data = await adminService.getAllUsersData()
     allUsers.value = data.filter((u: any) => !u.eliminado)
@@ -535,6 +643,12 @@ async function loadAdminData() {
     cronometresByUser.value = Array.from(groups.entries()).map(([email, cronos]) => ({
       userEmail: email, userName: cronos[0].userName, cronometres: cronos
     }))
+  } catch (error: any) {
+    console.error('Error carregant dades del panell admin:', error)
+    allUsers.value = []
+    allCronometres.value = []
+    cronometresByUser.value = []
+    loadDataError.value = 'No hem pogut carregar les dades ara mateix. Torna-ho a provar en uns moments.'
   } finally {
     loading.value = false
   }
@@ -555,7 +669,16 @@ onIonViewDidEnter(async () => {
   const user = auth.currentUser
   if (!user) return router.push('/login')
   const hasAccess = await adminService.getCurrentUserAdminStatus()
-  if (!hasAccess) return router.back()
+  if (!hasAccess) {
+    console.error('Access denied to admin panel for user:', user.uid)
+    toastMessage.value = 'No tens permisos per accedir al panell d\'administració. Contacta amb l\'administrador.'
+    toastColor.value = 'danger'
+    showToast.value = true
+    setTimeout(() => {
+      router.back()
+    }, 2000)
+    return
+  }
 
   try {
     const me = await adminService.getUserData(user.uid)
@@ -774,9 +897,25 @@ onIonViewDidEnter(async () => {
 
 .btn-export-inline {
   --border-radius: 8px;
+  --padding-start: 10px;
+  --padding-end: 10px;
   height: 100%;
+  min-height: 44px;
   margin: 0;
   width: 100%;
+}
+
+.csv-btn-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.export-mail-row {
+  margin-top: 12px;
+}
+
+.btn-export-mail {
+  --border-radius: 8px;
 }
 
 .session-group {
@@ -920,7 +1059,15 @@ onIonViewDidEnter(async () => {
     flex: 1 1 42%;
   }
   .flex-item-actions {
-    flex: 1 1 10%;
+    flex: 1 1 100%;
+  }
+
+  .btn-export-inline {
+    min-height: 46px;
+  }
+
+  .csv-btn-label {
+    font-size: 0.9rem;
   }
 }
 </style>
